@@ -1,0 +1,19 @@
+Package: LandsatLinkr
+Title: Landsat image spectral chronology tools
+Version: 0.1
+Author: Justin Braaten <justin.braaten@oregonstate.edu>
+Maintainer: Justin Braaten <justin.braaten@oregonstate.edu>
+Description: What the package does (one paragraph)
+Depends:
+    R (>= 3.1.1),
+    raster,
+    SDMTools,
+    doParallel,
+    foreach,
+    ggplot2,
+    MASS,
+    gridExtra,
+    zoo,
+    segmented
+License: MIT
+LazyData: true
