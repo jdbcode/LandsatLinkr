@@ -15,7 +15,7 @@
 #' @import segmented
 #' @export
 
-ls_profile = function(msswrs1dir, msswrs2dir, tmwrs2dir, index="tca", coords=NULL, n_random=10, output="viewer", mode="apply"){
+ls_profile = function(msswrs1dir, msswrs2dir, tmwrs2dir, index="tca", coords=NULL, n_random=10, output=NULL, mode="evaluate_offset"){
   if(index == "tca"){search="tca.tif"}
   if(index == "tcb"){search="tc.tif"}
   if(index == "tcg"){search="tc.tif"}
@@ -62,10 +62,9 @@ ls_profile = function(msswrs1dir, msswrs2dir, tmwrs2dir, index="tca", coords=NUL
   
   fulldf$year = as.numeric(substr(fulldf$yd,1,4))
   
-  if(output=="pdf"){pdf(outfile, width=11, height=5.5)}
+  if(!is.null(output)){pdf(output, width=11, height=5.5)}
   
   for(i in 1:length(unique(fulldf$point))){
-    
     dfsub = subset(fulldf, point == i)
     
     #find the offset
@@ -90,30 +89,38 @@ ls_profile = function(msswrs1dir, msswrs2dir, tmwrs2dir, index="tca", coords=NUL
     dfsubmss$sensor = "MSS adj"
     dfsubadj = rbind(dfsub, dfsubmss)
     
-    med = aggregate(value ~ year, data = dfsub, median, na.rm=T)
+    #fit the raw data 
+    med = aggregate(value ~ year, data = dfsub, mean, na.rm=T)
     mylm = lm(value ~ year, data = med)
-    myseg = 6
-    while (class(myseg) == "numeric"){
+    myseg = 12
+    while (class(myseg[1]) == "numeric"){
       myseg = ls_segit(mylm, seg.Z = ~ year, psi = NA, seg.control(stop.if.error = F, K = myseg, n.boot=0,it.max=20))
     }
     myfitted <- round(fitted(myseg))
     med$fitted = myfitted
+    #predfor = data.frame(year=seq(from=1972,to=2014,by=1))
+    #fittedpred = round(predict.segmented(myseg,predfor))
+    #predfor$fitted = fittedpred
     
-    medadj = aggregate(value ~ year, data = dfsubadj, median, na.rm=T)
+    #fit for adjusted MSS
+    medadj = aggregate(value ~ year, data = dfsubadj, mean, na.rm=T)
     mylm = lm(value ~ year, data = medadj)
-    myseg = 6
-    while (class(myseg) == "numeric"){
+    myseg = 12
+    while (class(myseg[1]) == "numeric"){
       myseg = ls_segit(mylm, seg.Z = ~ year, psi = NA, seg.control(stop.if.error = F, K = myseg, n.boot=0,it.max=20))
     }
     myfitted <- round(fitted(myseg))
     medadj$fitted = myfitted
+    #predforadj = data.frame(year=seq(from=1972,to=2014,by=1))
+    #fittedpredadj = round(predict.segmented(myseg,predforadj))
+    #predforadj$fitted = fittedpredadj
     
     if(index == "tcb"){limits = c(-500, 10000)}
     if(index == "tcg"){limits = c(-500, 5000)}
     if(index == "tcw"){limits = c(-6000, 1000)}
     if(index == "tca"){limits = c(-500, 5000)}
     
-    if(mode == "evaluate"){
+    if(mode == "evaluate_offset"){
       g= ggplot() +
         #geom_point(data=dfsubadj, aes(x=year, y=value, color=sensor), size = 4) + #, position = "jitter"
         ggtitle(paste("x =",dfsubadj$x[1],"y =",dfsubadj$y[1], "MSS mean offset =", offset))+
@@ -124,7 +131,8 @@ ls_profile = function(msswrs1dir, msswrs2dir, tmwrs2dir, index="tca", coords=NUL
         geom_point(data=med, aes(x=year, y=value, color="MSS"), size=4, alpha=.7) +
         geom_line(data=med, aes(x=year, y=fitted, color="MSS")) +
         ylim(limits) +
-        xlim(1972,2014)
+        xlim(1972,2014) +
+        scale_x_continuous(breaks = seq(1972,2014))+ #, expand=c(0.05, 0.05)
       ylab(index)
     }
     if(mode == "apply"){
@@ -134,15 +142,27 @@ ls_profile = function(msswrs1dir, msswrs2dir, tmwrs2dir, index="tca", coords=NUL
         theme_bw()+
         theme(axis.text.x = element_text(angle = 90)) +
         geom_point(data=med, aes(x=year, y=value), size=4) +
-        geom_line(data=med, aes(x=year, y=fitted)) +
+        geom_line(data=predfor, aes(x=year, y=fitted)) +
         ylim(limits) +
-        xlim(1972,2014)
-      ylab(index)
+        scale_x_continuous(breaks = seq(1972,2014))+ #, expand=c(0.05, 0.05)
+        ylab(index)
+    }
+    if(mode == "evaluate_spread"){
+      g= ggplot() +
+        geom_point(data=dfsub, aes(x=year, y=value, color=sensor), size = 4) + #, position = "jitter"
+        ggtitle(paste("x =",round(dfsub$x[1]),"y =",round(dfsub$y[1])))+
+        theme_bw()+
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+        geom_point(data=med, aes(x=year, y=value), size=4) +
+        geom_line(data=predfor, aes(x=year, y=fitted)) +
+        ylim(limits) +
+        scale_x_continuous(breaks = seq(1972,2014))+ #, expand=c(0.05, 0.05)
+        ylab(index)
     }
     print(g)
   }
   
-  if(output=="pdf"){dev.off()}
+  if(!is.null(output)){dev.off()}
 }
 
 

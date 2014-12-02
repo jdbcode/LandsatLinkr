@@ -4,7 +4,7 @@
 \title{plot temporal spectral profile for points}
 \usage{
 ls_profile(msswrs1dir, msswrs2dir, tmwrs2dir, index = "tca", coords = NULL,
-  n_random = 10, output = "viewer", mode = "apply")
+  n_random = 10, output = NULL, mode = "evaluate_offset")
 }
 \arguments{
 \item{msswrs1dir}{character. mss wrs1 directory path}

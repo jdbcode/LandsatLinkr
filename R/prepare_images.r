@@ -1,6 +1,6 @@
-#' Run prepareMSS in parallel 
+#' Prepare image MSS and TM images for calibration/compositing  
 #'
-#' Run prepareMSS in parallel using 
+#' Prepare image MSS and TM images for calibration/compositing  
 #' @param scenedir character. scene file path
 #' @param demfile character. full path to scene-corresponding DEM file
 #' @param process numeric. integer or vector specifying which processes to run 1=mssunpackr, 2=msswarp, 3=mssdn2rad, 4=mssatcor, 5=msscvm, 6=tmunpackr
@@ -10,9 +10,7 @@
 #' @export
 
 
-doinparallel = function(scenedir, demfile, process=seq(1:5),cores=2){
-  
-  #library(doParallel)
+prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, process=seq(1:5), cores=2){
   
   targzdir = file.path(scenedir,"targz")
   imgdir = file.path(scenedir,"images")
@@ -21,12 +19,14 @@ doinparallel = function(scenedir, demfile, process=seq(1:5),cores=2){
   if(all(is.na(match(process,1))) == F){
     print("Running mssunpackr")
     files = list.files(targzdir,"tar.gz",full.names=T)
-    cl = makeCluster(cores)
-    registerDoParallel(cl)
     t=proc.time()
-    o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% mssunpackr(files[i], proj="albers") #
+    if(cores == 2){
+      cl = makeCluster(cores)
+      registerDoParallel(cl)
+      o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% mssunpackr(files[i], proj=proj, reso=reso)
+      stopCluster(cl)
+    } else {for(i in 1:length(files)){mssunpackr(files[i], proj=proj, reso=reso)}}
     print(proc.time()-t)
-    stopCluster(cl)
   }
   
   #geowarp
@@ -37,36 +37,42 @@ doinparallel = function(scenedir, demfile, process=seq(1:5),cores=2){
     diagfiles = list.files(imgdir, pattern="cloud_rmse.csv", full.names=T, recursive=T)
     tbl = do.call(rbind, lapply(diagfiles, read.table, header = F,sep = ','))
     reffile = as.character(tbl[order(round(tbl[,3],digits=1), tbl[,2]),][1,1])
-    cl=makeCluster(cores)
-    registerDoParallel(cl)
     t = proc.time()
-    o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% msswarp(reffile=reffile, fixfile=files[i], sample=1000)
+    if(cores == 2){
+      cl=makeCluster(cores)
+      registerDoParallel(cl)
+      o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% msswarp(reffile=reffile, fixfile=files[i], sample=1000)
+      stopCluster(cl)
+    } else {for(i in 1:length(files)){msswarp(reffile=reffile, fixfile=files[i], sample=1000)}}
     print(proc.time()-t)
-    stopCluster(cl)
   }
   
   #convert to radiance
   if(all(is.na(match(process,3))) == F){
     print("Running mssdn2rad")
     files = list.files(imgdir, pattern="archv.tif", full.names=T, recursive=T)
-    cl=makeCluster(cores)
-    registerDoParallel(cl)
     t = proc.time()
-    o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% mssdn2rad(files[i])
+    if(cores == 2){
+      cl=makeCluster(cores)
+      registerDoParallel(cl)
+      o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% mssdn2rad(files[i])
+      stopCluster(cl)
+    } else {for(i in 1:length(files)){mssdn2rad(files[i])}}
     print(proc.time()-t)
-    stopCluster(cl)
   }
   
   #surface reflectance
   if(all(is.na(match(process,4))) == F){
     print("Running mssatcor")
     files = list.files(imgdir, pattern="archv.tif", full.names=T, recursive=T)
-    cl=makeCluster(cores) #high memory with 2
-    registerDoParallel(cl)
     t = proc.time()
-    o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% mssatcor(files[i], outtype=3)
+    if(cores == 2){
+      cl=makeCluster(cores) #high memory with 2
+      registerDoParallel(cl)
+      o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% mssatcor(files[i], outtype=3)
+      stopCluster(cl)
+    } else {for(i in 1:length(files)){mssatcor(files[i], outtype=3)}}
     print(proc.time()-t)
-    stopCluster(cl)
   }
   
   #cloudmask
@@ -74,25 +80,30 @@ doinparallel = function(scenedir, demfile, process=seq(1:5),cores=2){
     print("Running msscvm")
     files = list.files(imgdir, pattern="radiance.tif", full.names=T, recursive=T)
     #demfile = "K:/gis_data/dems/wrs_dem/wrs1_036032_60m_dem.tif"
-    cl=makeCluster(cores) #high memory with 2
-    registerDoParallel(cl)
     t = proc.time()
-    o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% msscvm(files[i], demfile)
+    if(cores == 2){
+      cl=makeCluster(cores) #high memory with 2
+      registerDoParallel(cl)
+      o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% msscvm(files[i], demfile)
+      stopCluster(cl)
+    } else {for(i in 1:length(files)){msscvm(files[i], demfile)}}
     print(proc.time()-t)
-    stopCluster(cl)
   }
   
   #unpack tm
   if(all(is.na(match(process,6))) == F){
     print("Running msscvm")
     files = list.files(targzdir, pattern="tar.gz", full.names=T, recursive=T)
-    cl=makeCluster(cores) #high memory with 2
-    registerDoParallel(cl)
-    cfun <- function(a, b) NULL
     t = proc.time()
-    o = foreach(i=1:length(files), .combine="cfun",.packages="MSScvm") %dopar% tmunpackr(files[i], proj="albers", reso=60)
+    if(cores == 2){
+      cl=makeCluster(cores) #high memory with 2
+      registerDoParallel(cl)
+      cfun <- function(a, b) NULL
+      t = proc.time()
+      o = foreach(i=1:length(files), .combine="cfun",.packages="MSScvm") %dopar% tmunpackr(files[i], proj=proj, reso=reso)
+      stopCluster(cl)
+    } else {for(i in 1:length(files)){tmunpackr(files[i], proj=proj, reso=reso)}}
     print(proc.time()-t)
-    stopCluster(cl)
   }
 }
 

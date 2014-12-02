@@ -157,13 +157,14 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafil
     #name the new file
     newbase = paste(uni[i],"_",runname,"_",index,"_composite.bsq", sep="")  #.tif #tsa,"_",
     outimgfile = file.path(outdir,newbase)  
-    outtxtfile = sub("composite.tif", "composite_img_list.csv", outimgfile)
+    outtxtfile = sub("composite.bsq", "composite_img_list.csv", outimgfile)
     imgorder = data.frame(imgorder)
     colnames(imgorder) = "File"
     write.csv(imgorder, file=outtxtfile)
     
     #crop it and set na values to 0
     newimg = round(crop(newimg, refimg))
+    newimg = extend(newimg, refimg, value=0)
     newimg[(values(refimg) == 0)] = 0
     newimg[is.na(newimg)] = 0
 
