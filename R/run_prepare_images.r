@@ -10,6 +10,12 @@ run_prepare_images = function(){
   selection = select.list(choices, title = "Select a function to run")
   if(selection == "prepare mss"){process = seq(1:5)}
   if(selection == "prepare tm"){process = 6}
+  if(selection == "mssunpackr"){process = 1}
+  if(selection == "msswarp"){process = 2}
+  if(selection == "mssdn2rad"){process = 3}
+  if(selection == "mssatcor"){process = 4}
+  if(selection == "msscvm"){process = 5}
+  if(selection == "tmunpackr"){process = 6}
   
   scenedir = choose.dir(caption = "Select a scene directory. ex. 'C:/mss/036032'")
   
@@ -20,7 +26,7 @@ run_prepare_images = function(){
   
   reso = 60 #set default
   proj = "albers" #set default
-  if(all(is.na(match(process,1))) == F){
+  if(all(is.na(match(process,c(1,6))) == F)){
     choices = c("30 meter", "60 meter")
     selection = select.list(choices, title = "Select a pixel resolution to use")
     if(selection == "30 meter"){reso = 30}

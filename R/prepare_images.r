@@ -23,7 +23,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
     if(cores == 2){
       cl = makeCluster(cores)
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% mssunpackr(files[i], proj=proj, reso=reso)
+      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% mssunpackr(files[i], proj=proj, reso=reso)
       stopCluster(cl)
     } else {for(i in 1:length(files)){mssunpackr(files[i], proj=proj, reso=reso)}}
     print(proc.time()-t)
@@ -41,7 +41,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
     if(cores == 2){
       cl=makeCluster(cores)
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% msswarp(reffile=reffile, fixfile=files[i], sample=1000)
+      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% msswarp(reffile=reffile, fixfile=files[i], sample=1000)
       stopCluster(cl)
     } else {for(i in 1:length(files)){msswarp(reffile=reffile, fixfile=files[i], sample=1000)}}
     print(proc.time()-t)
@@ -55,7 +55,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
     if(cores == 2){
       cl=makeCluster(cores)
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% mssdn2rad(files[i])
+      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% mssdn2rad(files[i])
       stopCluster(cl)
     } else {for(i in 1:length(files)){mssdn2rad(files[i])}}
     print(proc.time()-t)
@@ -69,7 +69,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
     if(cores == 2){
       cl=makeCluster(cores) #high memory with 2
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% mssatcor(files[i], outtype=3)
+      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% mssatcor(files[i], outtype=3)
       stopCluster(cl)
     } else {for(i in 1:length(files)){mssatcor(files[i], outtype=3)}}
     print(proc.time()-t)
@@ -84,7 +84,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
     if(cores == 2){
       cl=makeCluster(cores) #high memory with 2
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="c",.packages="MSScvm") %dopar% msscvm(files[i], demfile)
+      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% msscvm(files[i], demfile)
       stopCluster(cl)
     } else {for(i in 1:length(files)){msscvm(files[i], demfile)}}
     print(proc.time()-t)
@@ -100,7 +100,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
       registerDoParallel(cl)
       cfun <- function(a, b) NULL
       t = proc.time()
-      o = foreach(i=1:length(files), .combine="cfun",.packages="MSScvm") %dopar% tmunpackr(files[i], proj=proj, reso=reso)
+      o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% tmunpackr(files[i], proj=proj, reso=reso)
       stopCluster(cl)
     } else {for(i in 1:length(files)){tmunpackr(files[i], proj=proj, reso=reso)}}
     print(proc.time()-t)
