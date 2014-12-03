@@ -26,7 +26,7 @@ run_prepare_images = function(){
   
   reso = 60 #set default
   proj = "albers" #set default
-  if(all(is.na(match(process,c(1,6))) == F)){
+  if(sum(process %in% c(1,6)) > 0){
     choices = c("30 meter", "60 meter")
     selection = select.list(choices, title = "Select a pixel resolution to use")
     if(selection == "30 meter"){reso = 30}

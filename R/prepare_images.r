@@ -92,7 +92,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
   
   #unpack tm
   if(all(is.na(match(process,6))) == F){
-    print("Running msscvm")
+    print("Running tmunpackr")
     files = list.files(targzdir, pattern="tar.gz", full.names=T, recursive=T)
     t = proc.time()
     if(cores == 2){

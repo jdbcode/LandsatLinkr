@@ -60,11 +60,11 @@ msscal = function(msswrs1dir, msswrs2dir, tmwrs2dir, cores=2){
   } else {for(i in 1:length(mssf)){msssr2tc(mssf[i],bcoef,gcoef,wcoef,"calibrate")}}
   
   
-  msswrs1dir = file.path(msswrs1dir,"images")
-  msswrs2dir = file.path(msswrs2dir,"images")
+  msswrs1imgdir = file.path(msswrs1dir,"images")
+  msswrs2imgdir = file.path(msswrs2dir,"images")
   
-  msswrs1files = list.files(msswrs1dir, "dos_sr.tif", recursive=T, full.names=T)
-  msswrs2files = list.files(msswrs2dir, "dos_sr.tif", recursive=T, full.names=T)
+  msswrs1files = list.files(msswrs1imgdir, "dos_sr.tif", recursive=T, full.names=T)
+  msswrs2files = list.files(msswrs2imgdir, "dos_sr.tif", recursive=T, full.names=T)
   
   files = c(msswrs1files,msswrs2files)
   dir = file.path(msswrs2dir,"calibration","composite_model")
