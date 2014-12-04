@@ -1,6 +1,6 @@
 Package: LandsatLinkr
-Title: Landsat image spectral chronology tools
-Version: 0.1
+Title: Tools to spectrally link Landsat data
+Version: 0.1.0
 Author: Justin Braaten <justin.braaten@oregonstate.edu>
 Maintainer: Justin Braaten <justin.braaten@oregonstate.edu>
 Description: What the package does (one paragraph)

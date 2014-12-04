@@ -68,9 +68,13 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafil
   if(index == "tcg"){search="tc.tif"}
   if(index == "tcw"){search="tc.tif"}
   
-  msswrs1files = list.files(msswrs1dir, search, recursive=T, full.names=T)
-  msswrs2files = list.files(msswrs2dir, search, recursive=T, full.names=T)
-  tmwrs2files = list.files(tmwrs2dir, search, recursive=T, full.names=T)
+  msswrs1imgdir = file.path(msswrs1dir,"images")
+  msswrs2imgdir = file.path(msswrs2dir,"images")
+  tmwrs2imgdir = file.path(tmwrs2dir,"images")
+  
+  msswrs1files = list.files(msswrs1imgdir, search, recursive=T, full.names=T)
+  msswrs2files = list.files(msswrs2imgdir, search, recursive=T, full.names=T)
+  tmwrs2files = list.files(tmwrs2imgdir, search, recursive=T, full.names=T)
   files = c(msswrs1files,msswrs2files,tmwrs2files)
   files = mixel_find(files, useareafile)
   
