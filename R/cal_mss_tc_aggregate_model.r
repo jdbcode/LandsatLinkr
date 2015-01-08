@@ -1,11 +1,11 @@
-#' Create composite MSS TC model
+#' Create an aggregate MSS TC model
 #'
-#' Create composite MSS TC model with diagnostic figures
+#' Create an aggregate MSS TC model with diagnostic figures
 #' @param dirname character. the directory to the calibration folder
 #' @import ggplot2
 #' @export
 
-cal_mss_tc_composite_model = function(dir){
+cal_mss_tc_aggregate_model = function(dir){
   plot_multi_cal = function(df,index, model, outfile){
     if(index == "tcb"){limits = c(-500, 10000)}
     if(index == "tcg"){limits = c(-500, 5000)}
@@ -23,7 +23,7 @@ cal_mss_tc_composite_model = function(dir){
         coord_fixed(ratio = 1)+
         theme_bw()
     }
-    if(model == "composite"){
+    if(model == "aggregate"){
       g=ggplot()+
         geom_density2d(bins=3,data=df, aes(x=comppred, y=refsamp, colour=mss_img))+
         geom_smooth(method="rlm", data=df, aes(x=comppred, y=refsamp, colour=mss_img), se = FALSE)+
@@ -32,7 +32,7 @@ cal_mss_tc_composite_model = function(dir){
         ylim(limits)+
         xlab(paste("mss predicted",index))+
         ylab(paste("tm",index))+
-        ggtitle(paste("composite model 2d data density contours and robust linear regression lines for",index))+
+        ggtitle(paste("aggregate model 2d data density contours and robust linear regression lines for",index))+
         coord_fixed(ratio = 1)+
         theme_bw()
     }
@@ -54,10 +54,10 @@ cal_mss_tc_composite_model = function(dir){
       newdf$diffm = meanrefsamp + newdf$singlepreddif
       title = paste("single model mean prediction differences from actual values for",index)
     }
-    if(model == "composite"){
+    if(model == "aggregate"){
       newdf = aggregate(comppreddif ~ mss_img , data = df, mean)
       newdf$diffm = meanrefsamp + newdf$comppreddif
-      title = paste("composite model mean prediction differences from actual values for",index)
+      title = paste("aggregate model mean prediction differences from actual values for",index)
     }
     
     g = ggplot(df, aes(x=refsamp))+
@@ -75,7 +75,7 @@ cal_mss_tc_composite_model = function(dir){
     #return(g)
   }
   
-  composite_cal_diag = function(sample_files, coef_files, index, outdir){
+  aggregate_cal_diag = function(sample_files, coef_files, index, outdir){
     if(class(sample_files) != "data.frame"){
       tbl = do.call("rbind", lapply(sample_files, read.csv, header = TRUE))
     } else {tbl = sample_files}
@@ -94,25 +94,25 @@ cal_mss_tc_composite_model = function(dir){
     outfile = file.path(outdir,paste(index,"_cal_combined_coef.csv",sep=""))
     write.csv(coeftbl, outfile, row.names=F)
     
-    outfile = file.path(outdir,paste(index,"_cal_composite_sample.csv",sep=""))
+    outfile = file.path(outdir,paste(index,"_cal_aggregate_sample.csv",sep=""))
     write.csv(tbl, outfile, row.names=F)
-    outfile = file.path(outdir,paste(index,"_cal_composite_coef.csv",sep=""))
+    outfile = file.path(outdir,paste(index,"_cal_aggregate_coef.csv",sep=""))
     write.csv(coef, outfile, row.names=F)
 
-    outfile = file.path(outdir,paste(index,"_composite_mean_dif.png",sep=""))
-    plot_multi_cal_dif(tbl,index,"composite",outfile)
+    outfile = file.path(outdir,paste(index,"_aggregate_mean_dif.png",sep=""))
+    plot_multi_cal_dif(tbl,index,"aggregate",outfile)
     outfile = file.path(outdir,paste(index,"_single_mean_dif.png",sep=""))
     plot_multi_cal_dif(tbl,index,"single",outfile)
     
-    outfile = file.path(outdir,paste(index,"_composite_regression.png",sep=""))
-    plot_multi_cal(tbl,index,"composite",outfile)
+    outfile = file.path(outdir,paste(index,"_aggregate_regression.png",sep=""))
+    plot_multi_cal(tbl,index,"aggregate",outfile)
     outfile = file.path(outdir,paste(index,"_single_regression.png",sep=""))
     plot_multi_cal(tbl,index,"single",outfile)
     
     return(tbl)
   }
   
-  outdir = file.path(dir,"composite_model")
+  outdir = file.path(dir,"aggregate_model")
   dir.create(outdir, recursive=T, showWarnings=F)
   
   tcbsamps = list.files(dir,"tcb_cal_samp.csv",recursive=T,full.names=T)
@@ -125,20 +125,20 @@ cal_mss_tc_composite_model = function(dir){
   tcwcoef = list.files(dir,"tcw_cal_coef.csv",recursive=T,full.names=T)
   tcacoef = list.files(dir,"tca_cal_coef.csv",recursive=T,full.names=T)
   
-  btbl = composite_cal_diag(tcbsamps, tcbcoef, "tcb", outdir)
-  gtbl = composite_cal_diag(tcgsamps, tcgcoef, "tcg", outdir)
-  wtbl = composite_cal_diag(tcwsamps, tcwcoef, "tcw", outdir)
+  btbl = aggregate_cal_diag(tcbsamps, tcbcoef, "tcb", outdir)
+  gtbl = aggregate_cal_diag(tcgsamps, tcgcoef, "tcg", outdir)
+  wtbl = aggregate_cal_diag(tcwsamps, tcwcoef, "tcw", outdir)
   
   tcasamps = do.call("rbind", lapply(tcasamps, read.csv, header = TRUE))
   comppred = atan(gtbl$comppred/btbl$comppred) * (180/pi) * 100
   tcasamps = data.frame(tcasamps,comppred)
-  atbl = composite_cal_diag(tcasamps, tcacoef, "tca", outdir)
+  atbl = aggregate_cal_diag(tcasamps, tcacoef, "tca", outdir)
   
   #create plane plots
-  tcb_samp_file = file.path(outdir,"tcb_cal_composite_sample.csv")
-  tcg_samp_file = file.path(outdir,"tcg_cal_composite_sample.csv")
-  tcw_samp_file = file.path(outdir,"tcw_cal_composite_sample.csv")
-  outfile = file.path(outdir,"composite_cal_tc_planes_comparison.png") 
+  tcb_samp_file = file.path(outdir,"tcb_cal_aggregate_sample.csv")
+  tcg_samp_file = file.path(outdir,"tcg_cal_aggregate_sample.csv")
+  tcw_samp_file = file.path(outdir,"tcw_cal_aggregate_sample.csv")
+  outfile = file.path(outdir,"aggregate_cal_tc_planes_comparison.png") 
   make_tc_planes_comparison(tcb_samp_file, tcg_samp_file, tcw_samp_file, outfile)
 }
 

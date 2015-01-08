@@ -28,7 +28,7 @@ calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,
     print(proc.time()-t)
   }
   
-  #mssunpackr
+  #mixel
   if(all(is.na(match(process,2))) == F){
     print("Running mixel")
     t=proc.time()

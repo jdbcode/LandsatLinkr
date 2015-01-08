@@ -7,11 +7,11 @@ mixel(msswrs1dir, msswrs2dir, tmwrs2dir, index, outdir, runname, useareafile,
   doyears = "all", order = "sensor_and_doy", overlap = "mean")
 }
 \arguments{
-\item{msswrs1dir}{character. mss wrs1 directory path}
+\item{msswrs1dir}{character. list of mss wrs1 directory paths}
 
-\item{msswrs2dir}{character. mss wrs2 directory path}
+\item{msswrs2dir}{character. list of mss wrs2 directory paths}
 
-\item{tmwrs2dir}{character. tm wrs2 directory path}
+\item{tmwrs2dir}{character. list of tm wrs2 directory path}
 
 \item{index}{character. spectral index to make composites for. options: "tca", "tcb", "tcg", "tcw"}
 

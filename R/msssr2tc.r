@@ -23,7 +23,7 @@ msssr2tc = function(mss_file,bcoef,gcoef,wcoef,mode){
     dir = substr(dirname(mss_file),1,nchar(dirname(mss_file))-12)
     tcname = sub("dos_sr.tif","tc.tif", basename(mss_file))
     tcaname = sub("dos_sr.tif","tca.tif", basename(mss_file))
-    tcfiledir = file.path(dir,"calibration","composite_model_tc_imgs")
+    tcfiledir = file.path(dir,"calibration","aggregate_model_tc_imgs")
     dir.create(tcfiledir, recursive=T, showWarnings=F)
     tcfile = file.path(tcfiledir,sub("dos_sr.tif","tc.tif", basename(mss_file)))
     tcafile = file.path(tcfiledir,sub("dos_sr.tif","tca.tif", basename(mss_file)))

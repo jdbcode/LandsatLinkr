@@ -1,9 +1,9 @@
 #' Composite images 
 #'
 #' Composite images
-#' @param msswrs1dir character. mss wrs1 directory path
-#' @param msswrs2dir character. mss wrs2 directory path
-#' @param tmwrs2dir character. tm wrs2 directory path
+#' @param msswrs1dir character. list of mss wrs1 directory paths
+#' @param msswrs2dir character. list of mss wrs2 directory paths
+#' @param tmwrs2dir character. list of tm wrs2 directory path
 #' @param index character. spectral index to make composites for. options: "tca", "tcb", "tcg", "tcw"
 #' @param outdir character. path to output directory
 #' @param runname character. unique name for the composite set
@@ -68,13 +68,26 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafil
   if(index == "tcg"){search="tc.tif"}
   if(index == "tcw"){search="tc.tif"}
   
-  msswrs1imgdir = file.path(msswrs1dir,"images")
+  msswrs1imgdir = file.path(msswrs1dir[i],"images")
   msswrs2imgdir = file.path(msswrs2dir,"images")
   tmwrs2imgdir = file.path(tmwrs2dir,"images")
   
-  msswrs1files = list.files(msswrs1imgdir, search, recursive=T, full.names=T)
-  msswrs2files = list.files(msswrs2imgdir, search, recursive=T, full.names=T)
-  tmwrs2files = list.files(tmwrs2imgdir, search, recursive=T, full.names=T)
+  for(i in 1:length(msswrs1dir)){
+    if(i == 1){msswrs1files = list.files(msswrs1imgdir[i], search, recursive=T, full.names=T)} else {
+      msswrs1files = c(msswrs1files,list.files(msswrs1imgdir[i], search, recursive=T, full.names=T))
+    }
+  }
+  for(i in 1:length(msswrs2dir)){
+    if(i == 1){msswrs2files = list.files(msswrs2imgdir[i], search, recursive=T, full.names=T)} else {
+      msswrs2files = c(msswrs2files,list.files(msswrs2imgdir[i], search, recursive=T, full.names=T))
+    }
+  }  
+  for(i in 1:length(msswrs2dir)){
+    if(i == 1){tmwrs2files = list.files(tmwrs2imgdir[i], search, recursive=T, full.names=T)} else {
+      tmwrs2files = c(tmwrs2files, list.files(tmwrs2imgdir[i], search, recursive=T, full.names=T))
+    }
+  }
+  
   files = c(msswrs1files,msswrs2files,tmwrs2files)
   files = mixel_find(files, useareafile)
   

@@ -42,12 +42,12 @@ msscal = function(msswrs1dir, msswrs2dir, tmwrs2dir, cores=2){
   
   dir = file.path(msswrs2dir,"calibration")
   print("aggregate image pair modeling")
-  cal_mss_tc_composite_model(dir)
+  cal_mss_tc_aggregate_model(dir)
   
-  dir = file.path(dir,"composite_model")
-  bcoef = as.numeric(read.csv(file.path(dir,"tcb_cal_composite_coef.csv"))[1,2:6])
-  gcoef = as.numeric(read.csv(file.path(dir,"tcg_cal_composite_coef.csv"))[1,2:6])
-  wcoef = as.numeric(read.csv(file.path(dir,"tcw_cal_composite_coef.csv"))[1,2:6])
+  dir = file.path(dir,"aggregate_model")
+  bcoef = as.numeric(read.csv(file.path(dir,"tcb_cal_aggregate_coef.csv"))[1,2:6])
+  gcoef = as.numeric(read.csv(file.path(dir,"tcg_cal_aggregate_coef.csv"))[1,2:6])
+  wcoef = as.numeric(read.csv(file.path(dir,"tcw_cal_aggregate_coef.csv"))[1,2:6])
   
   print("MSS image pair ")
   if(cores==2){
@@ -67,10 +67,10 @@ msscal = function(msswrs1dir, msswrs2dir, tmwrs2dir, cores=2){
   msswrs2files = list.files(msswrs2imgdir, "dos_sr.tif", recursive=T, full.names=T)
   
   files = c(msswrs1files,msswrs2files)
-  dir = file.path(msswrs2dir,"calibration","composite_model")
-  bcoef = as.numeric(read.csv(file.path(dir,"tcb_cal_composite_coef.csv"))[1,2:6])
-  gcoef = as.numeric(read.csv(file.path(dir,"tcg_cal_composite_coef.csv"))[1,2:6])
-  wcoef = as.numeric(read.csv(file.path(dir,"tcw_cal_composite_coef.csv"))[1,2:6])
+  dir = file.path(msswrs2dir,"calibration","aggregate_model")
+  bcoef = as.numeric(read.csv(file.path(dir,"tcb_cal_aggregate_coef.csv"))[1,2:6])
+  gcoef = as.numeric(read.csv(file.path(dir,"tcg_cal_aggregate_coef.csv"))[1,2:6])
+  wcoef = as.numeric(read.csv(file.path(dir,"tcw_cal_aggregate_coef.csv"))[1,2:6])
   
   if(cores==2){
     cl = makeCluster(cores)
