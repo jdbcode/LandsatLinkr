@@ -48,53 +48,59 @@ run_landsatlinkr = function(){
   
   ################################
   #msscal and mixel
-  
   if(sum(process %in% c(7,8)) > 0){
-    choices = c("Yes", "No")
-    msswrs1dir = choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'")
-    answer = "Yes"
-    while(answer == "Yes"){
-      answer = select.list(choices, title = "Is there another MSS WRS-1 scene directory to add?")
-      if(answer == "Yes"){msswrs1dir = c(msswrs1dir, choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'"))}
+    if(sum(process %in% 7) > 0){
+      msswrs1dir = choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'")
+      msswrs2dir = choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'")
+      tmwrs2dir = choose.dir(caption = "Select a TM WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
+      outdir=NULL
+      index=NULL
+      runname=NULL  
     }
     
-    msswrs2dir = choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'")
-    answer = "Yes"
-    while(answer == "Yes"){
-      answer = select.list(choices, title = "Is there another MSS WRS-2 scene directory to add?")
-      if(answer == "Yes"){msswrs2dir = c(msswrs2dir, choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'"))}
-    }
-      
-    tmwrs2dir = choose.dir(caption = "Select a TM WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
-    answer = "Yes"
-    while(answer == "Yes"){
-      answer = select.list(choices, title = "Is there another TM WRS-2 scene directory to add?")
-      if(answer == "Yes"){tmwrs2dir = c(tmwrs2dir, choose.dir(caption = "Select a TM WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'"))}
-    }
-  
-    outdir=NULL
-    index=NULL
-    runname=NULL
+    
     if(sum(process %in% 8) > 0){
-      outdir = choose.dir(caption = "Select a directory to write the outputs to. ex. 'C:/composites/wrs2_034032'")
+      choices = c("Yes", "No")
+      msswrs1dir = choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'")
+      answer = "Yes"
+      while(answer == "Yes"){
+        answer = select.list(choices, title = "Is there another MSS WRS-1 scene directory to add?")
+        if(answer == "Yes"){msswrs1dir = c(msswrs1dir, choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'"))}
+      }
       
-      choices = c("Tasseled cap angle",
-                  "Tasseled cap brightness",
-                  "Tasseled cap greenness",
-                  "Tasseled cap wetness")
-      selection = select.list(choices, title = "Select an index to create composites for")
-      if(selection == "Tasseled cap angle"){index = "tca"}
-      if(selection == "Tasseled cap brightness"){index = "tcb"}
-      if(selection == "Tasseled cap greenness"){index = "tcg"}
-      if(selection == "Tasseled cap wetness"){index = "tcw"}
+      msswrs2dir = choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'")
+      answer = "Yes"
+      while(answer == "Yes"){
+        answer = select.list(choices, title = "Is there another MSS WRS-2 scene directory to add?")
+        if(answer == "Yes"){msswrs2dir = c(msswrs2dir, choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'"))}
+      }
       
-      runname = readline("Provide a unique name for the composite series. ex. project1: ")
-      
-      choices = c("From file")
-      selection = select.list(choices, title = "What area do you want to create composites for?")
-      if(selection == "From file"){useareafile = choose.files(caption = "Select a 'usearea' file", multi=F)}
+      tmwrs2dir = choose.dir(caption = "Select a TM WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
+      answer = "Yes"
+      while(answer == "Yes"){
+        answer = select.list(choices, title = "Is there another TM WRS-2 scene directory to add?")
+        if(answer == "Yes"){tmwrs2dir = c(tmwrs2dir, choose.dir(caption = "Select a TM WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'"))}
+        
+        
+        outdir = choose.dir(caption = "Select a directory to write the outputs to. ex. 'C:/composites/wrs2_034032'")
+        
+        choices = c("Tasseled cap angle",
+                    "Tasseled cap brightness",
+                    "Tasseled cap greenness",
+                    "Tasseled cap wetness")
+        selection = select.list(choices, title = "Select an index to create composites for")
+        if(selection == "Tasseled cap angle"){index = "tca"}
+        if(selection == "Tasseled cap brightness"){index = "tcb"}
+        if(selection == "Tasseled cap greenness"){index = "tcg"}
+        if(selection == "Tasseled cap wetness"){index = "tcw"}
+        
+        runname = readline("Provide a unique name for the composite series. ex. project1: ")
+        
+        choices = c("From file")
+        selection = select.list(choices, title = "What area do you want to create composites for?")
+        if(selection == "From file"){useareafile = choose.files(caption = "Select a 'usearea' file", multi=F)}
+      }
     }
-    
     if(sum((process %in% 7) > 0)){process[1] = 1}
     if(sum((process %in% 8) > 0)){process[process==8] = 2}
     #return(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,cores,process)
