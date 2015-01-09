@@ -84,7 +84,6 @@ msscal_single = function(mss_file, tm_file){
   ref_mask_img = as.matrix(ref_mask_img)
   mask = mss_mask_img*ref_mask_img
   goods = which(mask == 1)
-  
   refpix = as.matrix(ref_tca_img)[goods]
   
   #samp = sample_it(refpix, bins=20, n=1000)
