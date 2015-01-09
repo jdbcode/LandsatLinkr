@@ -27,10 +27,10 @@ tmunpackr = function(file, proj="default", reso=60){
   untar(file, exdir=tempdir) #decompress the file
   files = list.files(tempdir, full.names=T)
   bands = grep("band", files, value=T)
-  shadow = grep("cloud_shadow_qa", files, value=T) #0 okay, 255 bad
+  shadow = grep("cloud_shadow_qa.tif", files, value=T) #0 okay, 255 bad
   cloud = grep("sr_cloud_qa.tif", files, value=T) #0 okay, 255 bad
-  snow = grep("sr_cloud_qa.tif", files, value=T) #0 okay, 255 bad
-  fmask = grep("cfmask", files, value=T) # <= 1 okay background 255
+  snow = grep("sr_snow_qa.tif", files, value=T) #0 okay, 255 bad
+  fmask = grep("cfmask.tif", files, value=T) # <= 1 okay background 255
   outbase = substr(basename(file),1,16) 
   tempstack = file.path(tempdir,paste(outbase,"_tempstack.tif",sep=""))
   tempvrt = sub("tempstack.tif", "tempmask.vrt", tempstack)
@@ -56,10 +56,18 @@ tmunpackr = function(file, proj="default", reso=60){
    #writeGDAL(s, tempstack, drivername = "ENVI", type = "Int16", mvFlag = -9999)
   
   #make a composite cloudmask
-  s = !is.na(as.matrix(raster(shadow)))
-  c = !is.na(as.matrix(raster(cloud)))
-  sn = !is.na(as.matrix(raster(snow)))
-  f = as.matrix(raster(fmask)) <= 1
+  s = as.matrix(raster(shadow))
+  c = as.matrix(raster(cloud))
+  sn = as.matrix(raster(snow))
+  f = as.matrix(raster(fmask))
+  
+  check = s[1,1] # if is.na(check) == T new else old
+  if(is.na(check) == T){s = is.na(s)} else {s = !is.na(s)}
+  check = c[1,1] # if is.na(check) == T new else old
+  if(is.na(check) == T){c = is.na(c)} else {c = !is.na(c)}
+  check = sn[1,1] # if is.na(check) == T new else old
+  if(is.na(check) == T){sn = is.na(sn)} else {sn = !is.na(sn)}
+  f = f <= 1
   mask = s*c*f*sn
   mask = setValues(ref,mask)
   mask = as(mask, "SpatialGridDataFrame")        #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
