@@ -87,18 +87,35 @@ run_landsatlinkr = function(){
         choices = c("Tasseled cap angle",
                     "Tasseled cap brightness",
                     "Tasseled cap greenness",
-                    "Tasseled cap wetness")
+                    "Tasseled cap wetness",
+                    "All")
         selection = select.list(choices, title = "Select an index to create composites for")
         if(selection == "Tasseled cap angle"){index = "tca"}
         if(selection == "Tasseled cap brightness"){index = "tcb"}
         if(selection == "Tasseled cap greenness"){index = "tcg"}
         if(selection == "Tasseled cap wetness"){index = "tcw"}
+        if(selection == "All"){index = "all"}
         
         runname = readline("Provide a unique name for the composite series. ex. project1: ")
         
-        choices = c("From file")
+        choices = c("From file",
+                    "Provide coordinates")
         selection = select.list(choices, title = "What area do you want to create composites for?")
         if(selection == "From file"){useareafile = choose.files(caption = "Select a 'usearea' file", multi=F)}
+        if(Selection == "Provide coordinates"){
+          check = 0
+          while(check != 2){
+            print("Please provide min and max xy coordinates (in image set projection units) defining a study area that intersects the image set")
+            xmx = readline("max x coordinate: ")
+            xmn = readline("min x coordinate: ")
+            ymx = readline("max y coordinate: ")
+            ymn = readline("min y coordinate: ")
+            check = (xmx > xmn) + (ymx > ymn)
+            if(check != 2){print("error - coordinates do not create a square - try again")}
+          }
+          useareafile = file.path(outdir, paste(runname,"_usearea.tif",sep=""))
+          make_usearea_file(msswrs1dir[i], useareafile, xmx, xmn, ymx, ymn)
+        }
       }
     }
     if(sum((process %in% 7) > 0)){process[1] = 1}
