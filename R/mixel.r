@@ -68,7 +68,7 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafil
   if(index == "tcg"){search="tc.tif"}
   if(index == "tcw"){search="tc.tif"}
   
-  msswrs1imgdir = file.path(msswrs1dir[i],"images")
+  msswrs1imgdir = file.path(msswrs1dir,"images")
   msswrs2imgdir = file.path(msswrs2dir,"images")
   tmwrs2imgdir = file.path(tmwrs2dir,"images")
   
@@ -94,7 +94,7 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafil
   #create an output directory
   dir.create(outdir, recursive=T, showWarnings=F)
   
-  #extract from info from the filenames
+  #extract some info from the filenames
   filebase = basename(files)
   years = substr(filebase, 10, 13)
   days = substr(filebase, 14,16)
@@ -102,7 +102,7 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafil
   yearsort = sort(unique(years))
   medday = median(as.numeric(days))
   
-  #load in the reference image (tsa usearea file)
+  #load in the reference image (usearea file)
   refimg = raster(useareafile)
   refimg[values(refimg) == 1] = NA
   
