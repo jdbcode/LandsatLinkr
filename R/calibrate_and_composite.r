@@ -32,7 +32,14 @@ calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,
   if(all(is.na(match(process,2))) == F){
     print("Running mixel")
     t=proc.time()
-    mixel(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,doyears="all",order="sensor_and_doy",overlap="mean")
+    if(index == "all"){
+      index = c("tca", "tcb", "tcg", "tcw")
+      outdir = c(file.path(outdir,"tca"),file.path(outdir,"tcb"),file.path(outdir,"tcg"),file.path(outdir,"tcw"))
+      for(i in 1:length(index)){mixel2(msswrs1dir,msswrs2dir,tmwrs2dir,index[i],outdir[i],runname,useareafile,doyears="all",order="sensor_and_doy",overlap="mean")}
+    } else {
+      outdir = file.path(outdir,index)
+      mixel2(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,doyears="all",order="sensor_and_doy",overlap="mean")
+    }
     print(proc.time()-t)
   }
 }
