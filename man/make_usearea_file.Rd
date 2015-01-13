@@ -3,10 +3,12 @@
 \alias{make_usearea_file}
 \title{Make a usearea file}
 \usage{
-make_usearea_file(dir, outdir, xmx, xmn, ymx, ymn)
+make_usearea_file(dir, outfile, xmx, xmn, ymx, ymn)
 }
 \arguments{
 \item{dir}{character. full path name to scene directory example: "E:/mss/wrs2/038029"}
+
+\item{outfile}{charcter. full path of output file}
 
 \item{xmx}{numeric.max x coordinate}
 
@@ -15,8 +17,6 @@ make_usearea_file(dir, outdir, xmx, xmn, ymx, ymn)
 \item{ymx}{numeric.max y coordinate}
 
 \item{ymn}{numeric.min y coordinate}
-
-\item{outfile}{charcter. full path name for output usearea file}
 }
 \description{
 Make a usearea file for image compositing
