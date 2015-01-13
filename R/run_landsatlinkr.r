@@ -8,7 +8,7 @@ run_landsatlinkr = function(){
   choices = c("Prepare MSS",
               "Prepare TM/ETM+",
               "Calibrate MSS to TM/ETM+",
-              "Composite")
+              "Composite imagery")
   
   selection = select.list(choices, title = "Select a process to run")
   if(selection == "Prepare MSS"){process = seq(1:5)}
