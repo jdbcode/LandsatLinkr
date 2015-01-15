@@ -41,11 +41,15 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     return(goods)
   }
   
-  mixel_mask = function(imgfile, search, refimg){
+  mixel_mask = function(imgfile, search, refimg, index){
+    if(index == "tca" | index == "tcb"){band=1}
+    if(index == "tcg"){band=2}
+    if(index == "tcw"){band=3}
+    
     maskfile = sub(search, "cloudmask.tif",imgfile)
-    print(maskfile)
+    print(basename(maskfile))
     print(file.exists(maskfile))
-    img = raster(imgfile)
+    img = raster(imgfile, band=band)
     mask = raster(maskfile)
     
     imgex = alignExtent(img, refimg, snap="near")
@@ -62,7 +66,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     return(img)
   }
   
-  mixel_composite = function(outdir, files, runname,index, doyears, order, useareafile, overlap, offset, adj=NULL){
+  mixel_composite = function(outdir, files, runname, index, doyears, order, useareafile, overlap, offset, adj=NULL, offsetrun){
     #create an output directory
     
     #extract some info from the filenames
@@ -130,7 +134,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
         print(basename(imgorder[m]))
         if(m == 1){mergeit = "r1"} else {mergeit = paste(mergeit,",r",m, sep="")}
         #run the image prep function on-the-fly
-        dothis = paste("r",m,"=mixel_mask(imgorder[",m,"], search, refimg)", sep="")
+        dothis = paste("r",m,"=mixel_mask(imgorder[",m,"], search, refimg, index)", sep="")
         eval(parse(text=dothis))
         if(m == len){
           if(overlap == "order"){mergeit = paste("newimg = merge(",mergeit,")", sep="")} #,refimg
@@ -153,10 +157,11 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
       #crop it and set na values to 0
       newimg = round(crop(newimg, refimg))
       newimg = extend(newimg, refimg, value=NA)
-      if(is.null(adj) == F){newimg = newimg+raster(adj)}
-      newimg[(values(refimg) == 0)] = 0
-      newimg[is.na(newimg)] = 0
-      
+      if(is.null(adj) == F){newimg = sum(newimg, raster(adj), na.rm=T)}
+      if(offsetrun == T){newimg[(values(refimg) == 0)] = NA} else{
+        newimg[(values(refimg) == 0)] = 0
+        newimg[is.na(newimg)] = 0
+      }
       #write out the new image
       projection(newimg) = set_projection(files[1])
       newimg = as(newimg, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
@@ -211,14 +216,14 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
   offsetdir = file.path(outdir,"offset")
   dir.create(offsetdir, recursive=T, showWarnings=F)
   #composite mss calibration images
-  mixel_composite(offsetdir, overlapmssfiles, runname="mss",index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap)
+  mixel_composite(offsetdir, overlapmssfiles, runname="lm",index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=T)
   #composite tm calibration images
-  mixel_composite(offsetdir, overlaptmfiles, runname="tm",index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap)
+  mixel_composite(offsetdir, overlaptmfiles, runname="lt",index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=T)
   
   #find the composite images, check and sort them
   offsetfiles = list.files(offsetdir, ".bsq$", full.names=T)
-  mssoffsetfiles = offsetfiles[which(substr(basename(offsetfiles), 6,6) == "m")]
-  tmoffsetfiles = offsetfiles[which(substr(basename(offsetfiles), 6,6) == "t")]
+  mssoffsetfiles = offsetfiles[which(substr(basename(offsetfiles), 6,7) == "lm")]
+  tmoffsetfiles = offsetfiles[which(substr(basename(offsetfiles), 6,7) == "lt")]
   if(length(mssoffsetfiles) == length(tmoffsetfiles)){
     mssyear = substr(basename(mssoffsetfiles),1,4)
     tmyear = substr(basename(tmoffsetfiles),1,4)
@@ -230,7 +235,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
   for(i in 1:length(mssofff)){
     print(i)
     if(i == 1){dif = raster(tmofff[i]) - raster(mssofff[i])} else{
-      dif = dif+(raster(tmofff[i]) - raster(mssofff[i]))
+      dif = sum(dif,(raster(tmofff[i]) - raster(mssofff[i])), na.rm=T)
     }
   }
   
@@ -335,12 +340,12 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
   #make final mss composites
   mssdir = file.path(outdir,"mss")
   dir.create(mssdir, recursive=T, showWarnings=F)
-  mixel_composite(mssdir, mssfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=meandiffile)
+  mixel_composite(mssdir, mssfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=meandiffile, offsetrun=F)
   
   #make final tm composites
   tmdir = file.path(outdir,"tm")
   dir.create(tmdir, recursive=T, showWarnings=F)
-  mixel_composite(tmdir, tmfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=NULL)
+  mixel_composite(tmdir, tmfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=NULL, offsetrun=F)
   
   #deal with the overlapping mss/tm composites
   msscompfiles = list.files(mssdir, ".bsq$", recursive=T, full.names=T)
@@ -376,7 +381,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
   #clean up
   unlink(c(mssdir,tmdir), recursive=T)
   
-  bname = paste(runname,"_",index,"_composite.bsq", sep="")
+  bname = paste(runname,"_",index,"_composite_stack.bsq", sep="")
   bands = sort(list.files(outdir, "composite.bsq$", full.names=T))
   fullnametif = file.path(outdir,bname)
   fullnamevrt = sub(".bsq", ".vrt", fullnametif)

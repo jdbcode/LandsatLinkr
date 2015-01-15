@@ -60,7 +60,7 @@ run_landsatlinkr = function(){
     
     
     if(sum(process %in% 8) > 0){
-      choices = c("Yes", "No")
+      choices = c("No", "Yes")
       msswrs1dir = choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'")
       answer = "Yes"
       while(answer == "Yes"){
@@ -102,14 +102,14 @@ run_landsatlinkr = function(){
                     "Provide coordinates")
         selection = select.list(choices, title = "What area do you want to create composites for?")
         if(selection == "From file"){useareafile = choose.files(caption = "Select a 'usearea' file", multi=F)}
-        if(Selection == "Provide coordinates"){
+        if(selection == "Provide coordinates"){
           check = 0
           while(check != 2){
             print("Please provide min and max xy coordinates (in image set projection units) defining a study area that intersects the image set")
-            xmx = readline("max x coordinate: ")
-            xmn = readline("min x coordinate: ")
-            ymx = readline("max y coordinate: ")
-            ymn = readline("min y coordinate: ")
+            xmx = as.numeric(readline("max x coordinate: "))
+            xmn = as.numeric(readline("min x coordinate: "))
+            ymx = as.numeric(readline("max y coordinate: "))
+            ymn = as.numeric(readline("min y coordinate: "))
             check = (xmx > xmn) + (ymx > ymn)
             if(check != 2){print("error - coordinates do not create a square - try again")}
           }
