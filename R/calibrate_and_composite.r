@@ -41,5 +41,5 @@ calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,
       mixel2(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,doyears="all",order="sensor_and_doy",overlap="mean")
     }
     print(proc.time()-t)
-  }
+  }  
 }

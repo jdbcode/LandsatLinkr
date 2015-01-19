@@ -155,10 +155,19 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
       write.csv(imgorder, file=outtxtfile)
       
       #crop it and set na values to 0
+#       newimg = round(crop(newimg, refimg))
+#       newimg = extend(newimg, refimg, value=NA)
+#       if(is.null(adj) == F){newimg = sum(newimg, raster(adj), na.rm=T)}
+#       if(offsetrun == T){newimg[(values(refimg) == 0)] = NA} else{
+#         newimg[(values(refimg) == 0)] = 0
+#         newimg[is.na(newimg)] = 0
+#       }
+      
       newimg = round(crop(newimg, refimg))
       newimg = extend(newimg, refimg, value=NA)
-      if(is.null(adj) == F){newimg = sum(newimg, raster(adj), na.rm=T)}
-      if(offsetrun == T){newimg[(values(refimg) == 0)] = NA} else{
+      newimg[(values(refimg) == 0)] = NA      
+      if(is.null(adj) == F){newimg = newimg + raster(adj)}
+      if(offsetrun == F){
         newimg[(values(refimg) == 0)] = 0
         newimg[is.na(newimg)] = 0
       }
