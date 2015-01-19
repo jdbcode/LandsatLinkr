@@ -8,19 +8,22 @@ run_landsatlinkr = function(){
   choices = c("Prepare MSS",
               "Prepare TM/ETM+",
               "Calibrate MSS to TM/ETM+",
-              "Composite imagery")
+              "Composite imagery",
+              "Fit neat lines")
   
   selection = select.list(choices, title = "Select a process to run")
   if(selection == "Prepare MSS"){process = seq(1:5)}
   if(selection == "Prepare TM/ETM+"){process = 6}
   if(selection == "Calibrate MSS to TM/ETM+"){process = 7}
   if(selection == "Composite imagery"){process = 8}
+  if(selection == "Fit neat lines"){process = 9}
   
-  
-  choices = c("No", "Yes")
-  selection = select.list(choices, title = "Process in parallel using 2 cores when possible?")
-  if(selection == "No"){cores = 1}
-  if(selection == "Yes"){cores = 2}
+  if(sum(process %in% seq(1,8)) > 0){  
+    choices = c("No", "Yes")
+    selection = select.list(choices, title = "Process in parallel using 2 cores when possible?")
+    if(selection == "No"){cores = 1}
+    if(selection == "Yes"){cores = 2}
+  }
   
   if(sum(process %in% seq(1,6)) > 0){
     scenedir = choose.dir(caption = "Select an MSS or TM/ETM+ scene directory. ex. 'C:/mss/036032'")
@@ -84,17 +87,17 @@ run_landsatlinkr = function(){
         
         outdir = choose.dir(caption = "Select a directory to write the outputs to. ex. 'C:/composites/wrs2_034032'")
         
-        choices = c("Tasseled cap angle",
-                    "Tasseled cap brightness",
-                    "Tasseled cap greenness",
-                    "Tasseled cap wetness",
-                    "All")
-        selection = select.list(choices, title = "Select an index to create composites for")
-        if(selection == "Tasseled cap angle"){index = "tca"}
-        if(selection == "Tasseled cap brightness"){index = "tcb"}
-        if(selection == "Tasseled cap greenness"){index = "tcg"}
-        if(selection == "Tasseled cap wetness"){index = "tcw"}
-        if(selection == "All"){index = "all"}
+        #         choices = c("Tasseled cap angle",
+        #                     "Tasseled cap brightness",
+        #                     "Tasseled cap greenness",
+        #                     "Tasseled cap wetness",
+        #                     "All")
+        #         selection = select.list(choices, title = "Select an index to create composites for")
+        #         if(selection == "Tasseled cap angle"){index = "tca"}
+        #         if(selection == "Tasseled cap brightness"){index = "tcb"}
+        #         if(selection == "Tasseled cap greenness"){index = "tcg"}
+        #         if(selection == "Tasseled cap wetness"){index = "tcw"}
+        #         if(selection == "All"){index = "all"}
         
         runname = readline("Provide a unique name for the composite series. ex. project1: ")
         
@@ -121,6 +124,12 @@ run_landsatlinkr = function(){
     if(sum((process %in% 7) > 0)){process[1] = 1}
     if(sum((process %in% 8) > 0)){process[process==8] = 2}
     #return(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,cores,process)
-    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,doyears="all",order="sensor_and_doy",overlap="mean", cores=cores, process=process)
-  } 
+    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="sensor_and_doy",overlap="mean", cores=cores, process=process)
+  }
+  
+  if(sum(process %in% 9 > 0)){
+    dir = choose.dir(caption = "Select a composites directory from which to find image composite stacks")
+    cores = readline("How many cores to use to process in parallel?: ")
+    run_neatline(dir, cores)
+  }
 }
