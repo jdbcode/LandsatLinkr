@@ -23,7 +23,9 @@ msscost = function(file, drkobjv){
   if(info$sensor == "LANDSAT_5"){esun = c(1824,1570,1249,853.4)}
   
   #define the earth sun distance 
-  d = 1.01497  #Earth-Sun Distance in Astronomical Units at DOY 213
+  #d = 1.01497  #Earth-Sun Distance in Astronomical Units at DOY 213
+  doy = as.numeric(substr(basename(file),14,16))
+  d = eudist(doy)
   
   #read in the DN image data  
   b = brick(file)
