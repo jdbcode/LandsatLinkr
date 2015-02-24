@@ -11,4 +11,7 @@ eudist(doy)
 \description{
 Earth-Sun distance by day of year
 }
+\references{
+http://landsathandbook.gsfc.nasa.gov/excel_docs/d.xls
+}
 
