@@ -160,9 +160,24 @@ ls_profile = function(msswrs1dir, msswrs2dir, tmwrs2dir, index="tca", coords=NUL
         ylab(index)
     }
     print(g)
+    if(mode == "super_clean"){
+      g= ggplot() +
+      theme_bw()+
+      geom_point(data=med, aes(x=year, y=value), size=6, color="grey40") + #, color="MSS"
+      geom_line(data=med, aes(x=year, y=fitted), size=1, color="grey5") + #, color="MSS"
+      ylim(limits) +
+      scale_x_continuous(breaks = seq(1972,2014))+ #, expand=c(0.05, 0.05)
+      ylab(index) +
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
+            panel.border = element_blank(), 
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(), 
+            axis.line = element_line(colour = "black"))
+    }
+  
   }
   
-  if(!is.null(output)){dev.off()}
+  if(!is.null(output)){dev.off()} else {return(g)}
 }
 
 

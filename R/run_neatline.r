@@ -9,7 +9,7 @@
 
 run_neatline = function(dir, cores){
  
-  dir = "L:/composites/test9"
+  #dir = "L:/composites/test9"
   files = list.files(dir, "composite_stack.bsq$", recursive=T, full.name=T)
   tcafile = files[grep("tca_composite_stack.bsq$", files)]
   tcbfile = files[grep("tcb_composite_stack.bsq$", files)]
@@ -41,7 +41,7 @@ dir.create(outdir)
 cores=3
 cl=makeCluster(cores)
 registerDoParallel(cl)
-o = foreach(i=1:nrow(cdf), .combine="c",.packages=c("raster","ecp", "sp", "rgdal", "zoo")) %dopar% neatline(cdf[i,],tca,tcb,tcg,tcw,outdir,bname)
+o = foreach(i=1:nrow(cdf), .combine="c",.packages="LandsatLinkr") %dopar% neatline(cdf[i,],tca,tcb,tcg,tcw,outdir,bname) #packages=c("raster","ecp", "sp", "rgdal", "zoo")
 stopCluster(cl)
 
 }

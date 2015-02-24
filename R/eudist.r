@@ -3,8 +3,10 @@
 #' Earth-Sun distance by day of year
 #' @param doy numeric. image day-of-year
 #' @export
+#' @references http://landsathandbook.gsfc.nasa.gov/excel_docs/d.xls
 
 eudist = function(doy){
+  
   dau = c(
     0.98331,
     0.98330,
