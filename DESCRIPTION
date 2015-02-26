@@ -1,6 +1,6 @@
 Package: LandsatLinkr
 Title: Tools to spectrally link Landsat data
-Version: 0.1.2
+Version: 0.1.3
 Date: 2015-02-25
 Author: Justin Braaten <justin.braaten@oregonstate.edu>
 Maintainer: Justin Braaten <justin.braaten@oregonstate.edu>
@@ -16,7 +16,8 @@ Depends:
     zoo,
     segmented,
     plyr,
-    ecp
+    ecp,
+    gdalUtils
 License: MIT
 LazyData: true
 URL: http://landsatlinkr.weebly.com/
