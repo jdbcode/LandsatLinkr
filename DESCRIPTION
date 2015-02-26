@@ -1,7 +1,7 @@
 Package: LandsatLinkr
 Title: Tools to spectrally link Landsat data
-Version: 0.1.1
-Date: 2015-01-19
+Version: 0.1.2
+Date: 2015-02-25
 Author: Justin Braaten <justin.braaten@oregonstate.edu>
 Maintainer: Justin Braaten <justin.braaten@oregonstate.edu>
 Description: What the package does (one paragraph)
