@@ -5,7 +5,8 @@
 #' @param index character what tc transformation to be written out
 #' @param coef array calibrartion coefficents for transformation to tc index
 #' @param outfile filename full path of the outfile 
-
+#' @import raster
+#' @import rgdal
 
 write_tc = function(mss_file, index, coef, outfile){
   if(index == "tcw"){#create wetness

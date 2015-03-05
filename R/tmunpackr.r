@@ -5,6 +5,7 @@
 #' @param outtype coded integer designating what units are desired in the output image: 1=DN, 2=radiance, 3=surface reflectance
 #' @import raster
 #' @import gdalUtils
+#' @import rgdal
 #' @export
 
 # http://earthexplorer.usgs.gov/ Landsat CDR TM and ETM+ images
