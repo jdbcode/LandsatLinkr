@@ -1,8 +1,8 @@
 #' Create a cloud and cloud shadow mask for Landsat MSS imagery
 #' 
 #' Takes in any numeric value and squares it.
-#' @param file MSS image filename (full system path to MSS file) 
-#' @param demfile DEM filename (full system path to spatially coincident DEM file)
+#' @param file character. MSS reflectance image filename (full system path to MSS file) 
+#' @param demfile character. DEM filename (full system path to spatially coincident DEM file)
 #' @return A binary raster with the same dimensions as the MSS image where pixels with value 1 represent clear pixel and 0 as obsured by either cloud or cloud shadow
 #' @import raster
 #' @import rgdal
@@ -10,8 +10,8 @@
 #' @export
 
 
-msscvm_refl = function(file, demfile, test=T){
-  
+msscvm2 = function(file, demfile, test=T){
+  #msscvm
   #get the metadata
   info = get_metadata(file)
   
