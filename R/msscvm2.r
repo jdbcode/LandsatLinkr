@@ -175,10 +175,11 @@ msscvm2 = function(file, demfile, test=T){
   shadow = setValues(ref, shadow)
   
   shadow = focal(shadow, w=matrix(1,5,5), fun=max)
-  cloud = cloud*2
+  if(test == T){cloud = cloud*2}
   cloudshadow = mosaic(cloud,shadow,fun=max)
-
+  
   cloudshadow[is.na(ref)] = NA
+  if(test == F){cloudshadow = cloudshadow == 0}
   projection(cloudshadow) = set_projection(file)
   cloudshadow = as(cloudshadow, "SpatialGridDataFrame")
   if(test == F){outfile = sub("reflectance", "cloudmask", file)} else {outfile = sub("reflectance", "cloudmask", file)}
