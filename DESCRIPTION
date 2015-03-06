@@ -18,7 +18,8 @@ Depends:
     plyr,
     ecp,
     gdalUtils,
-    rgdal
+    rgdal,
+    igraph
 License: MIT
 LazyData: true
 URL: http://landsatlinkr.weebly.com/

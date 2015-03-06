@@ -7,6 +7,7 @@
 #' @import raster
 #' @import rgdal
 #' @import SDMTools
+#' @import igraph
 #' @export
 
 
