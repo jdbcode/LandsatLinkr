@@ -3,6 +3,7 @@
 #' Convert DN values to toa reflectance
 #' @param file The full path name of the *archv file
 #' @import raster
+#' @import rgdal
 #' @export
 
 

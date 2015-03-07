@@ -47,17 +47,17 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
     print(proc.time()-t)
   }
   
-  #convert to radiance
+  #convert to toa reflectance
   if(all(is.na(match(process,3))) == F){
-    print("Running mssdn2rad")
+    print("Running mssdn2refl")
     files = list.files(imgdir, pattern="archv.tif", full.names=T, recursive=T)
     t = proc.time()
     if(cores == 2){
       cl=makeCluster(cores)
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% mssdn2rad(files[i])
+      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% mssdn2refl(files[i]) #mssdn2rad
       stopCluster(cl)
-    } else {for(i in 1:length(files)){mssdn2rad(files[i])}}
+    } else {for(i in 1:length(files)){mssdn2refl(files[i])}} #mssdn2rad
     print(proc.time()-t)
   }
   
@@ -78,7 +78,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
   #cloudmask
   if(all(is.na(match(process,5))) == F){
     print("Running msscvm")
-    files = list.files(imgdir, pattern="radiance.tif", full.names=T, recursive=T)
+    files = list.files(imgdir, pattern="reflectance", full.names=T, recursive=T) #"radiance.tif"
     #demfile = "K:/gis_data/dems/wrs_dem/wrs1_036032_60m_dem.tif"
     t = proc.time()
     if(cores == 2){

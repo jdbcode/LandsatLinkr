@@ -14,6 +14,10 @@
 msscvm2 = function(file, demfile, test=T){
   #msscvm
   #get the metadata
+#   file="K:/temp/refl/LM50140321989246_reflectance.tif"
+#   demfile="K:/gis_data/dems/wrs_dem/wrs2_014032_60m_dem.tif"
+#   test=T
+  
   info = get_metadata(file)
   
   b1 = as.matrix(raster(file, 1))
@@ -76,7 +80,7 @@ msscvm2 = function(file, demfile, test=T){
   water[these] = 0
   
   water = setValues(ref,water)
-  water = focal(water, w=matrix(1,5,5), fun=max)  
+  water = focal(water, w=matrix(1,5,5), fun=max, na.rm=T)  
   waterindex = which(as.matrix(water) == 1)
   
   shadow[shadows] = 1 
@@ -92,9 +96,9 @@ msscvm2 = function(file, demfile, test=T){
   m = match(as.matrix(clumps), values) 
   these = which(is.na(m) == F)
   cloud[these] = 0
-   
+  
   cloud = setValues(ref,cloud)
-  cloud = focal(cloud, w=matrix(1,5,5), fun=max)
+  cloud = focal(cloud, w=matrix(1,5,5), fun=max, na.rm=F, pad=T, padValue=0)
   
   reso = xres(ref)
   if(reso == 60){
@@ -118,12 +122,12 @@ msscvm2 = function(file, demfile, test=T){
     kernal = dist <= 31
   }
   
-  shadowproj = focal(cloud, w=as.matrix(kernal), fun=max)
+  shadowproj = focal(cloud, w=as.matrix(kernal), fun=max, na.rm=F, pad=T, padValue=0)
   shiftstart = 1000/tan((pi/180)*info$sunelev)
   shiftend = 7000/tan((pi/180)*info$sunelev)
-    
+  
   shiftlen = seq(shiftstart,shiftend,900)
-    
+  
   shiftit = function(shadowproj,shiftlen,info,reso){
     if(info$sunaz > 90 & info$sunaz < 180){
       angle = info$sunaz-90  
@@ -145,22 +149,28 @@ msscvm2 = function(file, demfile, test=T){
     if(m == 1){mergeit = "r1"} else {mergeit = paste(mergeit,",r",m, sep="")}
     dothis = paste("r",m,"=shiftit(shadowproj,shiftlen[m],info,reso)", sep="")
     eval(parse(text=dothis))
-    if(m == length(shiftlen)){mergeit = paste("shadowproj = mosaic(",mergeit,",fun=max,na.rm=T)", sep="")}
+    if(m == length(shiftlen)){mergeit = paste("shadowproj = mosaic(",mergeit,",fun=max)", sep="")}
   }
   
-  shadowproj1 = shiftit(shadowproj,shiftlen[1],info,reso)
-  shadowproj2 = shiftit(shadowproj,shiftlen[2],info,reso)
-  shadowproj3 = shiftit(shadowproj,shiftlen[3],info,reso)
-  shadowproj4 = shiftit(shadowproj,shiftlen[4],info,reso)
-  shadowproj5 = shiftit(shadowproj,shiftlen[5],info,reso)
-  shadowproj6 = shiftit(shadowproj,shiftlen[6],info,reso)
-
-  shadowproj = mosaic(shadowproj1,shadowproj2,shadowproj3,shadowproj4,shadowproj5,shadowproj6,fun=max) 
+  #run the merge function
+  if(length(shiftlen) == 1){shadowproj = r1} else {eval(parse(text=mergeit))}
+  
+  #ake sure that all values are finite, the mosaicing function with max can cause some problems where there are no pixels
+  shadowproj[!is.finite(values(shadowproj))] = 0
+  
+  #extend the layer so it has a full union with the cloud layer
   shadowproj = extend(shadowproj, cloud, value=0)
+  
+  #crop the cloud projection layer by the cloud layer
   shadowproj = crop(shadowproj, cloud)
   
+  #convert the shadow layer to a matrix
   shadow = setValues(ref,shadow)
+  
+  #get the intersection of shadow and cloud projection
   shadow = shadow*shadowproj
+  
+  #convert the shadow layer to a matrix for spatial sieve
   shadow = as.matrix(shadow)
   
   #filter the aggregated cloud and shadow 
@@ -174,15 +184,17 @@ msscvm2 = function(file, demfile, test=T){
   shadow[these] = 0
   shadow = setValues(ref, shadow)
   
-  shadow = focal(shadow, w=matrix(1,5,5), fun=max)
-  if(test == T){cloud = cloud*2}
-  cloudshadow = mosaic(cloud,shadow,fun=max)
+  shadow = focal(shadow, w=matrix(1,5,5), fun=max, na.rm=F, pad=T, padValue=0)
+  if(test == T){cloud = cloud*2
+                cloudshadow = mosaic(cloud,shadow,fun=max, na.rm=T)
+  } else {cloudshadow = sum(cloud, shadow, na.rm=T)}
   
+  
+  if(test == F){cloudshadow = setValues(ref,as.numeric(values(cloudshadow) == 0))}
   cloudshadow[is.na(ref)] = NA
-  if(test == F){cloudshadow = cloudshadow == 0}
   projection(cloudshadow) = set_projection(file)
   cloudshadow = as(cloudshadow, "SpatialGridDataFrame")
-  if(test == F){outfile = sub("reflectance", "cloudmask", file)} else {outfile = sub("reflectance", "cloudmask", file)}
+  if(test == F){outfile = sub("reflectance", "cloudmask", file)} else {outfile = sub("reflectance", "cloudmask_test", file)}
   writeGDAL(cloudshadow, outfile, drivername = "GTiff", type = "Byte", mvFlag=255, options="INTERLEAVE=BAND")
   
 }

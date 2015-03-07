@@ -6,13 +6,13 @@
 
 run_prepare_images = function(){
   
-  choices = c("prepare mss", "prepare tm", "mssunpackr", "msswarp", "mssdn2rad", "mssatcor", "msscvm", "tmunpackr")
+  choices = c("prepare mss", "prepare tm", "mssunpackr", "msswarp", "mssdn2refl", "mssatcor", "msscvm", "tmunpackr")
   selection = select.list(choices, title = "Select a function to run")
   if(selection == "prepare mss"){process = seq(1:5)}
   if(selection == "prepare tm"){process = 6}
   if(selection == "mssunpackr"){process = 1}
   if(selection == "msswarp"){process = 2}
-  if(selection == "mssdn2rad"){process = 3}
+  if(selection == "mssdn2refl"){process = 3} #"mssdn2rad"
   if(selection == "mssatcor"){process = 4}
   if(selection == "msscvm"){process = 5}
   if(selection == "tmunpackr"){process = 6}
