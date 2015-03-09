@@ -4,7 +4,7 @@
 \alias{msscvm2}
 \title{Create a cloud and cloud shadow mask for Landsat MSS imagery}
 \usage{
-msscvm2(file, demfile, test = T)
+msscvm2(file, demfile, test = F)
 }
 \arguments{
 \item{file}{character. MSS reflectance image filename (full system path to MSS file)}

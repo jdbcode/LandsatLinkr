@@ -117,14 +117,14 @@ run_landsatlinkr = function(){
             if(check != 2){print("error - coordinates do not create a square - try again")}
           }
           useareafile = file.path(outdir, paste(runname,"_usearea.tif",sep=""))
-          make_usearea_file(msswrs1dir[i], useareafile, xmx, xmn, ymx, ymn)
+          make_usearea_file(c(msswrs1dir[1],msswrs2dir[1],tmwrs2dir[1]), useareafile, xmx, xmn, ymx, ymn)
         }
       }
     }
     if(sum((process %in% 7) > 0)){process[1] = 1}
     if(sum((process %in% 8) > 0)){process[process==8] = 2}
     #return(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,cores,process)
-    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="sensor_and_doy",overlap="mean", cores=cores, process=process)
+    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=cores, process=process)
   }
   
   if(sum(process %in% 9 > 0)){

@@ -18,7 +18,7 @@
 #' @export
 
 
-mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,doyears="all",order="sensor_and_doy",overlap="mean"){
+mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean"){
   
   mixel_find = function(files, refimg){
     
@@ -97,6 +97,8 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
       thesesensors = sensor[these]
       meddif = abs(as.numeric(thesedays)-medday)
       
+      if(order == "none"){imgorder = theseimgs}
+      
       #day of year order - no sensor consideration
       if(order == "doy"){
         difsort = sort(meddif, index.return = T)
@@ -155,13 +157,13 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
       write.csv(imgorder, file=outtxtfile)
       
       #crop it and set na values to 0
-#       newimg = round(crop(newimg, refimg))
-#       newimg = extend(newimg, refimg, value=NA)
-#       if(is.null(adj) == F){newimg = sum(newimg, raster(adj), na.rm=T)}
-#       if(offsetrun == T){newimg[(values(refimg) == 0)] = NA} else{
-#         newimg[(values(refimg) == 0)] = 0
-#         newimg[is.na(newimg)] = 0
-#       }
+      #       newimg = round(crop(newimg, refimg))
+      #       newimg = extend(newimg, refimg, value=NA)
+      #       if(is.null(adj) == F){newimg = sum(newimg, raster(adj), na.rm=T)}
+      #       if(offsetrun == T){newimg[(values(refimg) == 0)] = NA} else{
+      #         newimg[(values(refimg) == 0)] = 0
+      #         newimg[is.na(newimg)] = 0
+      #       }
       
       newimg = round(crop(newimg, refimg))
       newimg = extend(newimg, refimg, value=NA)
@@ -220,175 +222,182 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
   overlaptmfiles = tmfiles[thesetm]
   thesemss = which(mssyears %in% tmyears)
   overlapmssfiles = mssfiles[thesemss]
-  
-  #start offset finding procedure
   offsetdir = file.path(outdir,"offset")
-  dir.create(offsetdir, recursive=T, showWarnings=F)
-  #composite mss calibration images
-  mixel_composite(offsetdir, overlapmssfiles, runname="lm",index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=T)
-  #composite tm calibration images
-  mixel_composite(offsetdir, overlaptmfiles, runname="lt",index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=T)
+  dir.create(outdir, recursive=T, showWarnings=F)
   
-  #find the composite images, check and sort them
-  offsetfiles = list.files(offsetdir, ".bsq$", full.names=T)
-  mssoffsetfiles = offsetfiles[which(substr(basename(offsetfiles), 6,7) == "lm")]
-  tmoffsetfiles = offsetfiles[which(substr(basename(offsetfiles), 6,7) == "lt")]
-  if(length(mssoffsetfiles) == length(tmoffsetfiles)){
-    mssyear = substr(basename(mssoffsetfiles),1,4)
-    tmyear = substr(basename(tmoffsetfiles),1,4)
-    mssofff = mssoffsetfiles[order(mssyear)]
-    tmofff = tmoffsetfiles[order(tmyear)]
-  }
-  
-  #find the mean pixel-wise difference between mss and tm images
-  for(i in 1:length(mssofff)){
-    print(i)
-    if(i == 1){dif = raster(tmofff[i]) - raster(mssofff[i])} else{
-      dif = sum(dif,(raster(tmofff[i]) - raster(mssofff[i])), na.rm=T)
+  if(length(overlapmssfiles) | length(overlaptmfiles) == 0){
+    mixel_composite(outdir, files, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
+  } else {
+    
+    #start offset finding procedure
+    offsetdir = file.path(outdir,"offset")
+    dir.create(offsetdir, recursive=T, showWarnings=F)
+    #composite mss calibration images
+    mixel_composite(offsetdir, overlapmssfiles, runname="lm",index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=T)
+    #composite tm calibration images
+    mixel_composite(offsetdir, overlaptmfiles, runname="lt",index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=T)
+    
+    #find the composite images, check and sort them
+    offsetfiles = list.files(offsetdir, ".bsq$", full.names=T)
+    mssoffsetfiles = offsetfiles[which(substr(basename(offsetfiles), 6,7) == "lm")]
+    tmoffsetfiles = offsetfiles[which(substr(basename(offsetfiles), 6,7) == "lt")]
+    if(length(mssoffsetfiles) == length(tmoffsetfiles)){
+      mssyear = substr(basename(mssoffsetfiles),1,4)
+      tmyear = substr(basename(tmoffsetfiles),1,4)
+      mssofff = mssoffsetfiles[order(mssyear)]
+      tmofff = tmoffsetfiles[order(tmyear)]
     }
-  }
-  
-  meandiforig = round(dif/length(mssofff))
-  projection(meandiforig) = set_projection(files[1])
-  meandif = as(meandiforig, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
-  meandiffile = file.path(offsetdir,"mean_dif.bsq")
-  writeGDAL(meandif, meandiffile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
-  
-  meandif=0 #memory
-  
-  #adjust the mss composites to reflect the offset
-  for(i in 1:length(mssofff)){
-    r = raster(mssofff[i]) + meandiforig
-    projection(r) = set_projection(files[1])
-    r = as(r, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
-    outimgfile = sub("composite.bsq","composite_adj.bsq",mssofff[i])
-    writeGDAL(r, outimgfile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
-  }
-  r=0 #memory
-  
-  #sample the composites to calculate RMSE
-  n_random = 5000
-  n_years = length(mssofff)
-  coords = sampleRandom(meandiforig, size=n_random, na.rm=TRUE, xy=T)
-  coords = data.frame(point=seq(1:nrow(coords)),x=coords[,1],y=coords[,2])
-  difvalue = extract(meandiforig, coords[,2:3])/100
-  
-  for(f in 1:length(mssofff)){  #
-    mssvalue = extract(raster(mssofff[f]),coords[,2:3])/100
-    tmvalue = extract(raster(tmofff[f]),coords[,2:3])/100
-    origdif = tmvalue-mssvalue
-    adjdif = tmvalue-(mssvalue+difvalue)
-    year = substr(basename(mssofff[f]),1,4)
-    if(f == 1){fulldf = data.frame(coords,year,tmvalue,mssvalue,difvalue,origdif,adjdif)} else {
-      df = data.frame(coords,year,tmvalue,mssvalue,difvalue,origdif,adjdif)
-      fulldf = rbind(fulldf, df)
+    
+    #find the mean pixel-wise difference between mss and tm images
+    for(i in 1:length(mssofff)){
+      print(i)
+      if(i == 1){dif = raster(tmofff[i]) - raster(mssofff[i])} else{
+        dif = sum(dif,(raster(tmofff[i]) - raster(mssofff[i])), na.rm=T)
+      }
     }
-  }
-  fulldf = fulldf[complete.cases(fulldf),]
-  
-  fulldf$origdifsqr = fulldf$origdif^2
-  fulldf$adjdifsqr = fulldf$adjdif^2
-  fulldf$origabsdif = abs(fulldf$origdif)
-  fulldf$adjabsdif = abs(fulldf$adjdif)
-  outsampfile = file.path(offsetdir,"offset_sample.csv")
-  write.csv(fulldf, outsampfile, row.names=F)
-  
-  rmsesummary = ddply(fulldf,.(point), here(summarize), 
-                      origrmse = sqrt(sum(origdifsqr, na.rm=T)/n_years),
-                      adjrmse = sqrt(sum(adjdifsqr, na.rm=T)/n_years),
-                      origmae = mean(origabsdif, na.rm=T),
-                      adjmae = mean(adjabsdif, na.rm=T))
-  
-  origrmsemean = mean(rmsesummary$origrmse, na.rm=T)
-  adjrmsemean = mean(rmsesummary$adjrmse, na.rm=T)
-  origrmsestdev = sd(rmsesummary$origrmse, na.rm=T)
-  adjrmsestdev = sd(rmsesummary$adjrmse, na.rm=T)
-  
-  #rmse
-  g = ggplot()+
-    geom_density(data = fulldf, aes(x=origdif, fill="no adjustment"), alpha = 0.2)+
-    geom_density(data = fulldf, aes(x=adjdif, fill="mean adjustment"), alpha = 0.2) +
-    theme_bw()+
-    xlab(index)+
-    guides(fill = guide_legend(title = NULL))+
-    ggtitle("Mean offset between coincident MSS and TM annual composites for a sample of pixel time series")
-  
-  pngout = file.path(offsetdir,"offset_histogram.png")
-  png(pngout,width=800, height=700)
-  print(g)
-  dev.off()
-  
-  g = ggplot()+
-    geom_density(data = rmsesummary, aes(x=origrmse, fill="no adjustment"), alpha = 0.2)+
-    geom_density(data = rmsesummary, aes(x=adjrmse, fill="mean adjustment"), alpha = 0.2) +
-    theme_bw()+
-    xlab(paste(index,"rmse"))+
-    guides(fill = guide_legend(title = NULL))+
-    ggtitle("RMSE for coincident MSS and TM annual composites for a sample of pixel time series")
-  
-  pngout = file.path(offsetdir,"offset_rmse.png")
-  png(pngout,width=800, height=700)
-  print(g)
-  dev.off()
-  
-  g = ggplot()+
-    geom_density(data = rmsesummary, aes(x=origmae, fill="no adjustment"), alpha = 0.2)+
-    geom_density(data = rmsesummary, aes(x=adjmae, fill="mean adjustment"), alpha = 0.2) +
-    theme_bw()+
-    xlab(paste(index,"mae"))+
-    guides(fill = guide_legend(title = NULL))+
-    ggtitle("MAE for coincident MSS and TM annual composites for a sample of pixel time series")
-  
-  pngout = file.path(offsetdir,"offset_mae.png")
-  png(pngout,width=800, height=700)
-  print(g)
-  dev.off()
-  
-  g=fulldf=rmsesummary=0 #memory
-  
-  #make final mss composites
-  mssdir = file.path(outdir,"mss")
-  dir.create(mssdir, recursive=T, showWarnings=F)
-  mixel_composite(mssdir, mssfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=meandiffile, offsetrun=F)
-  
-  #make final tm composites
-  tmdir = file.path(outdir,"tm")
-  dir.create(tmdir, recursive=T, showWarnings=F)
-  mixel_composite(tmdir, tmfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=NULL, offsetrun=F)
-  
-  #deal with the overlapping mss/tm composites
-  msscompfiles = list.files(mssdir, ".bsq$", recursive=T, full.names=T)
-  tmcompfiles = list.files(tmdir, ".bsq$", recursive=T, full.names=T)
-  thesetm = which(basename(tmcompfiles) %in% basename(msscompfiles))
-  overlaptmfiles = sort(tmcompfiles[thesetm])
-  thesemss = which(basename(msscompfiles) %in% basename(tmcompfiles))
-  overlapmssfiles = sort(msscompfiles[thesemss])
-  for(i in 1:length(overlapmssfiles)){
-    mssr= raster(overlapmssfiles[i])
-    mssr[which(values(mssr)==0)] = NA
-    tmr= raster(overlaptmfiles[i])
-    tmr[which(values(tmr)==0)] = NA
-    newimg = mosaic(mssr,tmr, fun="mean", na.rm=T)
-    projection(newimg) = set_projection(files[1])
-    newimg = as(newimg, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
-    outimgfile = file.path(outdir,basename(overlapmssfiles[i]))
-    writeGDAL(newimg, outimgfile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
-  }
-  
-  #rename files
-  msstmfiles = c(msscompfiles,tmcompfiles)
-  finalfiles = file.path(outdir,basename(msstmfiles))
-  for(i in 1:length(finalfiles)){
-    check = file.exists(finalfiles[i])
-    if(check == F){
-      year = substr(basename(finalfiles[i]),1,4)
-      files = list.files(dirname(msstmfiles[i]),year,full.names=T)
-      file.rename(files,file.path(outdir,basename(files)))
+    
+    meandiforig = round(dif/length(mssofff))
+    projection(meandiforig) = set_projection(files[1])
+    meandif = as(meandiforig, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+    meandiffile = file.path(offsetdir,"mean_dif.bsq")
+    writeGDAL(meandif, meandiffile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
+    
+    meandif=0 #memory
+    
+    #adjust the mss composites to reflect the offset
+    for(i in 1:length(mssofff)){
+      r = raster(mssofff[i]) + meandiforig
+      projection(r) = set_projection(files[1])
+      r = as(r, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+      outimgfile = sub("composite.bsq","composite_adj.bsq",mssofff[i])
+      writeGDAL(r, outimgfile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
     }
+    r=0 #memory
+    
+    #sample the composites to calculate RMSE
+    n_random = 5000
+    n_years = length(mssofff)
+    coords = sampleRandom(meandiforig, size=n_random, na.rm=TRUE, xy=T)
+    coords = data.frame(point=seq(1:nrow(coords)),x=coords[,1],y=coords[,2])
+    difvalue = extract(meandiforig, coords[,2:3])/100
+    
+    for(f in 1:length(mssofff)){  #
+      mssvalue = extract(raster(mssofff[f]),coords[,2:3])/100
+      tmvalue = extract(raster(tmofff[f]),coords[,2:3])/100
+      origdif = tmvalue-mssvalue
+      adjdif = tmvalue-(mssvalue+difvalue)
+      year = substr(basename(mssofff[f]),1,4)
+      if(f == 1){fulldf = data.frame(coords,year,tmvalue,mssvalue,difvalue,origdif,adjdif)} else {
+        df = data.frame(coords,year,tmvalue,mssvalue,difvalue,origdif,adjdif)
+        fulldf = rbind(fulldf, df)
+      }
+    }
+    fulldf = fulldf[complete.cases(fulldf),]
+    
+    fulldf$origdifsqr = fulldf$origdif^2
+    fulldf$adjdifsqr = fulldf$adjdif^2
+    fulldf$origabsdif = abs(fulldf$origdif)
+    fulldf$adjabsdif = abs(fulldf$adjdif)
+    outsampfile = file.path(offsetdir,"offset_sample.csv")
+    write.csv(fulldf, outsampfile, row.names=F)
+    
+    rmsesummary = ddply(fulldf,.(point), here(summarize), 
+                        origrmse = sqrt(sum(origdifsqr, na.rm=T)/n_years),
+                        adjrmse = sqrt(sum(adjdifsqr, na.rm=T)/n_years),
+                        origmae = mean(origabsdif, na.rm=T),
+                        adjmae = mean(adjabsdif, na.rm=T))
+    
+    origrmsemean = mean(rmsesummary$origrmse, na.rm=T)
+    adjrmsemean = mean(rmsesummary$adjrmse, na.rm=T)
+    origrmsestdev = sd(rmsesummary$origrmse, na.rm=T)
+    adjrmsestdev = sd(rmsesummary$adjrmse, na.rm=T)
+    
+    #rmse
+    g = ggplot()+
+      geom_density(data = fulldf, aes(x=origdif, fill="no adjustment"), alpha = 0.2)+
+      geom_density(data = fulldf, aes(x=adjdif, fill="mean adjustment"), alpha = 0.2) +
+      theme_bw()+
+      xlab(index)+
+      guides(fill = guide_legend(title = NULL))+
+      ggtitle("Mean offset between coincident MSS and TM annual composites for a sample of pixel time series")
+    
+    pngout = file.path(offsetdir,"offset_histogram.png")
+    png(pngout,width=800, height=700)
+    print(g)
+    dev.off()
+    
+    g = ggplot()+
+      geom_density(data = rmsesummary, aes(x=origrmse, fill="no adjustment"), alpha = 0.2)+
+      geom_density(data = rmsesummary, aes(x=adjrmse, fill="mean adjustment"), alpha = 0.2) +
+      theme_bw()+
+      xlab(paste(index,"rmse"))+
+      guides(fill = guide_legend(title = NULL))+
+      ggtitle("RMSE for coincident MSS and TM annual composites for a sample of pixel time series")
+    
+    pngout = file.path(offsetdir,"offset_rmse.png")
+    png(pngout,width=800, height=700)
+    print(g)
+    dev.off()
+    
+    g = ggplot()+
+      geom_density(data = rmsesummary, aes(x=origmae, fill="no adjustment"), alpha = 0.2)+
+      geom_density(data = rmsesummary, aes(x=adjmae, fill="mean adjustment"), alpha = 0.2) +
+      theme_bw()+
+      xlab(paste(index,"mae"))+
+      guides(fill = guide_legend(title = NULL))+
+      ggtitle("MAE for coincident MSS and TM annual composites for a sample of pixel time series")
+    
+    pngout = file.path(offsetdir,"offset_mae.png")
+    png(pngout,width=800, height=700)
+    print(g)
+    dev.off()
+    
+    g=fulldf=rmsesummary=0 #memory
+    
+    #make final mss composites
+    mssdir = file.path(outdir,"mss")
+    dir.create(mssdir, recursive=T, showWarnings=F)
+    mixel_composite(mssdir, mssfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=meandiffile, offsetrun=F)
+    
+    #make final tm composites
+    tmdir = file.path(outdir,"tm")
+    dir.create(tmdir, recursive=T, showWarnings=F)
+    mixel_composite(tmdir, tmfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=NULL, offsetrun=F)
+    
+    #deal with the overlapping mss/tm composites
+    msscompfiles = list.files(mssdir, ".bsq$", recursive=T, full.names=T)
+    tmcompfiles = list.files(tmdir, ".bsq$", recursive=T, full.names=T)
+    thesetm = which(basename(tmcompfiles) %in% basename(msscompfiles))
+    overlaptmfiles = sort(tmcompfiles[thesetm])
+    thesemss = which(basename(msscompfiles) %in% basename(tmcompfiles))
+    overlapmssfiles = sort(msscompfiles[thesemss])
+    for(i in 1:length(overlapmssfiles)){
+      mssr= raster(overlapmssfiles[i])
+      mssr[which(values(mssr)==0)] = NA
+      tmr= raster(overlaptmfiles[i])
+      tmr[which(values(tmr)==0)] = NA
+      newimg = mosaic(mssr,tmr, fun="mean", na.rm=T)
+      projection(newimg) = set_projection(files[1])
+      newimg = as(newimg, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+      outimgfile = file.path(outdir,basename(overlapmssfiles[i]))
+      writeGDAL(newimg, outimgfile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
+    }
+    
+    #rename files
+    msstmfiles = c(msscompfiles,tmcompfiles)
+    finalfiles = file.path(outdir,basename(msstmfiles))
+    for(i in 1:length(finalfiles)){
+      check = file.exists(finalfiles[i])
+      if(check == F){
+        year = substr(basename(finalfiles[i]),1,4)
+        files = list.files(dirname(msstmfiles[i]),year,full.names=T)
+        file.rename(files,file.path(outdir,basename(files)))
+      }
+    }
+    
+    #clean up
+    unlink(c(mssdir,tmdir), recursive=T)
   }
-  
-  #clean up
-  unlink(c(mssdir,tmdir), recursive=T)
   
   bname = paste(runname,"_",index,"_composite_stack.bsq", sep="")
   bands = sort(list.files(outdir, "composite.bsq$", full.names=T))

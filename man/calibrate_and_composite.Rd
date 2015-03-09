@@ -5,8 +5,8 @@
 \title{Calibrate MSS imagery to TM and make cloud-free composites}
 \usage{
 calibrate_and_composite(msswrs1dir, msswrs2dir, tmwrs2dir, index, outdir,
-  runname, useareafile, doyears = "all", order = "sensor_and_doy",
-  overlap = "mean", cores = 2, process = c(1, 2))
+  runname, useareafile, doyears = "all", order = "none", overlap = "mean",
+  cores = 2, process = c(1, 2))
 }
 \arguments{
 \item{msswrs1dir}{character. mss wrs1 directory path}
@@ -25,7 +25,7 @@ calibrate_and_composite(msswrs1dir, msswrs2dir, tmwrs2dir, index, outdir,
 
 \item{doyears}{??? what years to composite}
 
-\item{order}{character. how to order the images options "sensor_and_doy" and "doy"}
+\item{order}{character. how to order the images options "sensor_and_doy", "doy", and "none"}
 
 \item{overlap}{character. how to deal with overlapping images. options: "mean"}
 

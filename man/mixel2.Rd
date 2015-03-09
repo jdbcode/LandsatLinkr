@@ -5,7 +5,7 @@
 \title{Composite images}
 \usage{
 mixel2(msswrs1dir, msswrs2dir, tmwrs2dir, index, outdir, runname, useareafile,
-  doyears = "all", order = "sensor_and_doy", overlap = "mean")
+  doyears = "all", order = "none", overlap = "mean")
 }
 \arguments{
 \item{msswrs1dir}{character. list of mss wrs1 directory paths}

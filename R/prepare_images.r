@@ -81,12 +81,13 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
     files = list.files(imgdir, pattern="reflectance", full.names=T, recursive=T) #"radiance.tif"
     #demfile = "K:/gis_data/dems/wrs_dem/wrs1_036032_60m_dem.tif"
     t = proc.time()
-    if(cores == 2){
-      cl=makeCluster(cores) #high memory with 2
-      registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% msscvm(files[i], demfile)
-      stopCluster(cl)
-    } else {for(i in 1:length(files)){msscvm(files[i], demfile)}}
+#     if(cores == 2){
+#       cl=makeCluster(cores) #high memory with 2
+#       registerDoParallel(cl)
+#       o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% msscvm2(files[i], demfile)
+#       stopCluster(cl)
+#     } else {for(i in 1:length(files)){msscvm2(files[i], demfile)}}
+    for(i in 1:length(files)){msscvm2(files[i], demfile)}
     print(proc.time()-t)
   }
   

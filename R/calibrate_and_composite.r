@@ -9,7 +9,7 @@
 #' @param runname character. unique name for the composite set
 #' @param useareafile character. path to usearea file
 #' @param doyears ??? what years to composite
-#' @param order character. how to order the images options "sensor_and_doy" and "doy"
+#' @param order character. how to order the images options "sensor_and_doy", "doy", and "none"
 #' @param overlap character. how to deal with overlapping images. options: "mean"
 #' @param cores numeric. Number of cores to process with options: 1 or 2
 #' @param process numeric. integer or vector specifying which processes to run: 1=msscal, 2=mixel
@@ -18,7 +18,7 @@
 #' @export
 
 
-calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,doyears="all",order="sensor_and_doy",overlap="mean", cores=2, process=c(1,2)){
+calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=2, process=c(1,2)){
   
   #msscal
   if(all(is.na(match(process,1))) == F){
@@ -35,10 +35,10 @@ calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,
     if(index == "all"){
       index = c("tca", "tcb", "tcg", "tcw")
       outdir = c(file.path(outdir,"tca"),file.path(outdir,"tcb"),file.path(outdir,"tcg"),file.path(outdir,"tcw"))
-      for(i in 1:length(index)){mixel2(msswrs1dir,msswrs2dir,tmwrs2dir,index[i],outdir[i],runname,useareafile,doyears="all",order="sensor_and_doy",overlap="mean")}
+      for(i in 1:length(index)){mixel2(msswrs1dir,msswrs2dir,tmwrs2dir,index[i],outdir[i],runname,useareafile,doyears="all",order="none",overlap="mean")}
     } else {
       outdir = file.path(outdir,index)
-      mixel2(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,doyears="all",order="sensor_and_doy",overlap="mean")
+      mixel2(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean")
     }
     print(proc.time()-t)
   }  

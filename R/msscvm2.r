@@ -11,7 +11,7 @@
 #' @export
 
 
-msscvm2 = function(file, demfile, test=T){
+msscvm2 = function(file, demfile, test=F){
   #msscvm
   #get the metadata
 #   file="K:/temp/refl/LM50140321989246_reflectance.tif"
