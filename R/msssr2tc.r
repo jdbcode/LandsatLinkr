@@ -11,41 +11,75 @@
 
 
 msssr2tc = function(mss_file,bcoef,gcoef,wcoef,mode){
-  ref = raster(mss_file)
-  b = brick(mss_file)
-  img = as.array(b)
-  
-  bright = round((((img[,,1]*bcoef[2])+(img[,,2]*bcoef[3])+(img[,,3]*bcoef[4])+(img[,,4]*bcoef[5])) + bcoef[1]))
-  green  = round((((img[,,1]*gcoef[2])+(img[,,2]*gcoef[3])+(img[,,3]*gcoef[4])+(img[,,4]*gcoef[5])) + gcoef[1]))
-  wet    = round((((img[,,1]*wcoef[2])+(img[,,2]*wcoef[3])+(img[,,3]*wcoef[4])+(img[,,4]*wcoef[5])) + wcoef[1]))
   
   if(mode == "calibrate"){
     dir = substr(dirname(mss_file),1,nchar(dirname(mss_file))-12)
-    tcname = sub("dos_sr.tif","tc.tif", basename(mss_file))
-    tcaname = sub("dos_sr.tif","tca.tif", basename(mss_file))
+    #tcname = sub("dos_sr_30m.tif","tc_30m.tif", basename(mss_file))
+    #tcaname = sub("dos_sr_30m.tif","tca_30m.tif", basename(mss_file))
     tcfiledir = file.path(dir,"calibration","aggregate_model_tc_imgs")
     dir.create(tcfiledir, recursive=T, showWarnings=F)
-    tcfile = file.path(tcfiledir,sub("dos_sr.tif","tc.tif", basename(mss_file)))
-    tcafile = file.path(tcfiledir,sub("dos_sr.tif","tca.tif", basename(mss_file)))
+    tcfile = file.path(tcfiledir,sub("dos_sr_30m.tif","tc_30m.tif", basename(mss_file)))
+    tcafile = file.path(tcfiledir,sub("dos_sr_30m.tif","tca_30m.tif", basename(mss_file)))
   }
   if(mode == "apply"){
-    tcfile = sub("dos_sr.tif","tc.tif", mss_file)
-    tcafile = sub("dos_sr.tif","tca.tif", mss_file)
+    tcfile = sub("dos_sr_30m.tif","tc_30m.tif", mss_file)
+    tcafile = sub("dos_sr_30m.tif","tca_30m.tif", mss_file)
   }
-  #calc tc and convert to a raster
-  brt = setValues(ref,bright)
-  grn = setValues(ref,green)
-  wet = setValues(ref,wet)
-  tc = stack(brt,grn,wet)
-  projection(tc) = set_projection(mss_file)
-  tc = as(tc, "SpatialGridDataFrame")
-  writeGDAL(tc, tcfile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
   
-  tca = atan(green/bright) * (180/pi) * 100 #need to multiply by (180/pi) to get degrees because atan() returns radians, 100 is a scalar to preserve two decimal places
-  tca = setValues(ref,tca)
+  #read in the dos sr image
+  ref = raster(mss_file)
+#   b = brick(mss_file)
+#   img = as.array(b)
+  b1=as.matrix(raster(mss_file,1))
+  b2=as.matrix(raster(mss_file,2))
+  b3=as.matrix(raster(mss_file,3))
+  b4=as.matrix(raster(mss_file,4))
+  
+  #transform to tcb and tcg
+  #bright = round((((img[,,1]*bcoef[2])+(img[,,2]*bcoef[3])+(img[,,3]*bcoef[4])+(img[,,4]*bcoef[5])) + bcoef[1]))
+  #green  = round((((img[,,1]*gcoef[2])+(img[,,2]*gcoef[3])+(img[,,3]*gcoef[4])+(img[,,4]*gcoef[5])) + gcoef[1]))
+  
+  tcb = round((((b1*bcoef[2])+(b2*bcoef[3])+(b3*bcoef[4])+(b4*bcoef[5])) + bcoef[1]))
+  tcg  = round((((b1*gcoef[2])+(b2*gcoef[3])+(b3*gcoef[4])+(b4*gcoef[5])) + gcoef[1]))
+  tcw = round((((b1*wcoef[2])+(b2*wcoef[3])+(b3*wcoef[4])+(b4*wcoef[5])) + wcoef[1]))
+  
+  b1=b2=b3=b4=0 #save memory  
+
+  tca = atan(tcg/tcb) * (180/pi) * 100 #need to multiply by (180/pi) to get degrees because atan() returns radians, 100 is a scalar to preserve two decimal places
+  
+  tca = matrix_to_raster(mss_file, tca)
+  tcb = matrix_to_raster(mss_file, tcb)
+  tcg = matrix_to_raster(mss_file, tcg)
+  tcw = matrix_to_raster(mss_file, tcw)
+  
   projection(tca) = set_projection(mss_file)
   tca = as(tca, "SpatialGridDataFrame")
   writeGDAL(tca, tcafile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
+  
+  tca=0 #recover some memory
+  
+  #transform to tca and write out
+#   tca = atan(green/bright) * (180/pi) * 100 #need to multiply by (180/pi) to get degrees because atan() returns radians, 100 is a scalar to preserve two decimal places
+#   tca = setValues(ref,tca)
+#   projection(tca) = set_projection(mss_file)
+#   tca = as(tca, "SpatialGridDataFrame")
+#   writeGDAL(tca, tcafile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
+  
+#  tca=0 
+  
+  #set tcb and tcg to raster 
+#   bright = setValues(ref,bright)
+#   green = setValues(ref,green)
+#   wet = setValues(ref,wet)
+  #transform to tcw
+  
+
+
+  #stack tc and write out
+  tc = stack(tcb,tcg,tcw)
+  projection(tc) = set_projection(mss_file)
+  tc = as(tc, "SpatialGridDataFrame")
+  writeGDAL(tc, tcfile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
   
   return(1)
 }

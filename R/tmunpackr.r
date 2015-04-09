@@ -9,8 +9,13 @@
 #' @export
 
 # http://earthexplorer.usgs.gov/ Landsat CDR TM and ETM+ images
-tmunpackr = function(file, proj="default", reso=60){
+tmunpackr = function(file, proj="default", reso=30){
   #tcset = "all", "tc", "tca"
+#   tcset="all" #hardwire
+#   
+#   file = "E:/llr_test/mixed/tm/wrs2/034032/targz/LT50340321984181-SC20141117152258.tar.gz"
+#   proj="albers"
+#   reso=30
   
   #set new directories
   randomstring = paste(sample(c(0:9, letters, LETTERS), 6, replace=TRUE),collapse="")
@@ -75,6 +80,7 @@ tmunpackr = function(file, proj="default", reso=60){
   writeGDAL(mask, tempmask, drivername = "GTiff", type = "Byte", mvFlag = 255, options="INTERLEAVE=BAND")
   
   s=c=sn=f=mask=0 #clear the memory
+  #gc()
   
   #reproject the image #need to add in writing proj file for default
   if(proj == "default"){proj = origproj}
@@ -116,33 +122,68 @@ tmunpackr = function(file, proj="default", reso=60){
   gcoef = c(-0.1603, -0.2819, -0.4934, 0.7940, -0.0002, -0.1446)
   wcoef = c(0.0315, 0.2021, 0.3102, 0.1594,-0.6806, -0.6109)
   
-  tcset="all" #hardwire
 
   bright = (b1*bcoef[1])+(b2*bcoef[2])+(b3*bcoef[3])+(b4*bcoef[4])+(b5*bcoef[5])+(b6*bcoef[6])
   green = (b1*gcoef[1])+(b2*gcoef[2])+(b3*gcoef[3])+(b4*gcoef[4])+(b5*gcoef[5])+(b6*gcoef[6])
-  if(tcset == "all" | tcset == "tc"){wet = (b1*wcoef[1])+(b2*wcoef[2])+(b3*wcoef[3])+(b4*wcoef[4])+(b5*wcoef[5])+(b6*wcoef[6])}
+  wet = (b1*wcoef[1])+(b2*wcoef[2])+(b3*wcoef[3])+(b4*wcoef[4])+(b5*wcoef[5])+(b6*wcoef[6])
+  #if(tcset == "all" | tcset == "tc"){wet = (b1*wcoef[1])+(b2*wcoef[2])+(b3*wcoef[3])+(b4*wcoef[4])+(b5*wcoef[5])+(b6*wcoef[6])}
   
   b1=b2=b3=b4=b5=b6=0
-  
+  #gc()
   #calc tc and convert to a raster
-  if(tcset == "all" | tcset == "tc"){
-    tcb = setValues(ref,bright)
-    tcg = setValues(ref,green)
-    tcw = setValues(ref,wet)
-    tc = stack(tcb,tcg,tcw)
-    projection(tc) = set_projection(tcfile)
-    tc = as(tc, "SpatialGridDataFrame")
-    writeGDAL(tc, tcfile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
-  }
-  
-  if(tcset == "all" | tcset == "tca"){
-    #calc tc angle and convert to a raster
+  #if(tcset == "all" | tcset == "tc"){
+    tcb = matrix_to_raster(finalstack,bright)
+    tcg = matrix_to_raster(finalstack,green)
+    tcw = matrix_to_raster(finalstack,wet)
+    wet=0  
     tca = atan(green/bright) * (180/pi) * 100
-    tca = setValues(ref,tca)
-    projection(tca) = set_projection(tcafile)
-    tca = as(tca, "SpatialGridDataFrame")
-    writeGDAL(tca, tcafile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
-  }
+    bright=green=0  
+  tca = matrix_to_raster(finalstack,tca)
+  
+  temptcb = file.path(tempdir,paste(outbase,"_temptcb.tif",sep=""))
+  temptcg = file.path(tempdir,paste(outbase,"_temptcg.tif",sep=""))
+  temptcw = file.path(tempdir,paste(outbase,"_temptcw.tif",sep=""))
+  projection(tcb) = set_projection(tcfile)
+  projection(tcg) = set_projection(tcfile)
+  projection(tcw) = set_projection(tcfile)
+  tc = as(tcb, "SpatialGridDataFrame")
+  tcb=0
+  writeGDAL(tc, temptcb, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
+  tc = as(tcg, "SpatialGridDataFrame")
+  tcg=0
+  writeGDAL(tc, temptcg, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
+  tc = as(tcw, "SpatialGridDataFrame")
+  tcw=0
+  writeGDAL(tc, temptcw, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
+  
+  bands = c(temptcb,temptcg,temptcw)
+  temptcs = file.path(tempdir,paste(outbase,"_temptcstack.vrt",sep=""))
+  gdalbuildvrt(gdalfile=bands, output.vrt = temptcs, separate=T) #, tr=c(reso,reso)
+  gdal_translate(src_dataset=temptcs, dst_dataset=tcfile, of = "GTiff", co="INTERLEAVE=BAND")
+  
+  projection(tca) = set_projection(tcfile)
+  tc = as(tca, "SpatialGridDataFrame")
+  tca=0
+  writeGDAL(tc, tcafile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
+  
+  #tcb = setValues(ref,bright)
+    #tcg = setValues(ref,green)
+    #tcw = setValues(ref,wet)   
+#     tc = stack(tcb,tcg,tcw)
+#     projection(tc) = set_projection(tcfile)
+#     gc()  
+#     tc = as(tc, "SpatialGridDataFrame")
+#     writeGDAL(tc, tcfile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
+  #}
+  
+  #if(tcset == "all" | tcset == "tca"){
+    #calc tc angle and convert to a raster
+#     tca = atan(green/bright) * (180/pi) * 100
+#     tca = setValues(ref,tca)
+#     projection(tca) = set_projection(tcafile)
+#     tca = as(tca, "SpatialGridDataFrame")
+#     writeGDAL(tca, tcafile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
+#   }
   
   #delete temporary files
   unlink(tempdir, recursive=T, force=T)

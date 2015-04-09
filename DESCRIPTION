@@ -1,7 +1,7 @@
 Package: LandsatLinkr
 Title: Tools to spectrally link Landsat data
-Version: 0.1.5
-Date: 2015-03-05
+Version: 0.1.6
+Date: 2015-04-09
 Author: Justin Braaten <justin.braaten@oregonstate.edu>
 Maintainer: Justin Braaten <justin.braaten@oregonstate.edu>
 Description: An automated system for processing large volumes of Landsat imagery and building long spectrally consistent chronologies across MSS and TM/ETM+ sensors
@@ -19,7 +19,8 @@ Depends:
     ecp,
     gdalUtils,
     rgdal,
-    igraph
+    igraph,
+    hexbin
 License: MIT
 LazyData: true
 URL: http://landsatlinkr.weebly.com/

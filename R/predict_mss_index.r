@@ -5,11 +5,14 @@
 #' @param pngout Logical. If TRUE then a 4-panel .png image file will be created that for each MSS band displays a truncated histogram and the estimated Dark Object Value
 #' @import MASS
 #' @import ggplot2
+#' @import hexbin
 #' @export
 
 
 predict_mss_index = function(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file, ref_file, index, outsampfile, samplen){  
   #make a dateframe of the training sample
+
+  
   tbl = data.frame(mss_img = rep(basename(mss_sr_file),samplen),
                    ref_img = rep(basename(ref_file),samplen),
                    index = rep(index,samplen),

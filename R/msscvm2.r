@@ -3,6 +3,8 @@
 #' Takes in any numeric value and squares it.
 #' @param file character. MSS reflectance image filename (full system path to MSS file) 
 #' @param demfile character. DEM filename (full system path to spatially coincident DEM file)
+#' @param topoprep logical. TRUE if slope and aspect are already created in the "topo" folder and FALSE if not
+#' @param test logical. If TRUE clouds, cloud shadows and clear pixels have unique values, if FALSE obscured are 0 and clear are 1
 #' @return A binary raster with the same dimensions as the MSS image where pixels with value 1 represent clear pixel and 0 as obsured by either cloud or cloud shadow
 #' @import raster
 #' @import rgdal
@@ -11,13 +13,15 @@
 #' @export
 
 
-msscvm2 = function(file, demfile, test=F){
+msscvm2 = function(file, demfile, topoprep, test=F){
   #msscvm
   #get the metadata
-#   file="K:/temp/refl/LM50140321989246_reflectance.tif"
-#   demfile="K:/gis_data/dems/wrs_dem/wrs2_014032_60m_dem.tif"
-#   test=T
+#   file="E:/llr_test/mixed/mss/wrs1/036032/images/1973/LM10360321973191_reflectance.tif"
+#   demfile="E:/llr_test/mixed/mss/wrs1/036032/topo/wrs1_036032_60m_dem.tif"
+#   topoprep = T
+#   test=F
   
+  ref = raster(file)
   info = get_metadata(file)
   
   b1 = as.matrix(raster(file, 1))
@@ -29,16 +33,41 @@ msscvm2 = function(file, demfile, test=F){
   sunzen = info$sunzen*(pi/180)
   
   #crop the hillshade layer and convert to illumination
-  dem = raster(demfile)
-  ref = raster(file)
-  dem_ex  = alignExtent(dem, ref, snap="near")
-  extent(dem) = dem_ex
-  dem = crop(dem,ref)
+  if(topoprep == T){
+    dname = dirname(file)
+    scenedir = substr(dname,1,nchar(dname)-12)
+    topodir = file.path(scenedir,"topo")
+    slopefile = list.files(topodir,"slope.tif$",full.name=T)
+    aspectfile = list.files(topodir,"aspect.tif$",full.name=T)
+    slope = raster(slopefile)
+    aspect = raster(aspectfile)
+    
+    slope_ex  = alignExtent(slope, ref, snap="near")
+    extent(slope) = slope_ex
+    slope = crop(slope,ref)
+    
+    aspect_ex  = alignExtent(aspect, ref, snap="near")
+    extent(aspect) = slope_ex
+    aspect = crop(aspect,ref)
+    
+    ill = as.matrix(hillShade(slope, aspect, angle=info$sunelev, direction=info$sunaz, normalize=F))
+#     hill = hillShade(slope, aspect, angle=info$sunelev, direction=info$sunaz, normalize=F)
+#     hillfile = sub("reflectance","hillshade",file)
+#     writeRaster(hill, hillfile)
+#     ill = as.matrix(hill)
+  }
+  if(topoprep == F){
+    dem = raster(demfile)
+    dem_ex  = alignExtent(dem, ref, snap="near")
+    extent(dem) = dem_ex
+    dem = crop(dem,ref)
+    
+    #dem = crop(raster(demfile), raster(file))
+    slope = terrain(dem, opt="slope")
+    aspect = terrain(dem, opt="aspect")
+    ill = as.matrix(hillShade(slope, aspect, angle=info$sunelev, direction=info$sunaz, normalize=F))
+  }
   
-  #dem = crop(raster(demfile), raster(file))
-  slope = terrain(dem, opt="slope")
-  aspect = terrain(dem, opt="aspect")
-  ill = as.matrix(hillShade(slope, aspect, angle=info$sunelev, direction=info$sunaz, normalize=F))
   
   #apply the correction
   c = (cos(sunzen)/ill)^k

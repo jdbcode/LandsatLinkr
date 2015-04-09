@@ -27,17 +27,17 @@ run_landsatlinkr = function(){
   
   if(sum(process %in% seq(1,6)) > 0){
     scenedir = choose.dir(caption = "Select an MSS or TM/ETM+ scene directory. ex. 'C:/mss/036032'")
-    reso = 60 #set default
+    reso = 60 #set default - not used anymore since we are running MSS at 60 and TM at 30
     proj = "albers" #set default
     if(sum(process %in% c(1,6)) > 0){
-      choices = c("30 meter", "60 meter")
-      selection = select.list(choices, title = "Select a pixel resolution to use")
-      if(selection == "30 meter"){reso = 30}
-      if(selection == "60 meter"){reso = 60}
+#       choices = c("30 meter", "60 meter")
+#       selection = select.list(choices, title = "Select a pixel resolution to use")
+#       if(selection == "30 meter"){reso = 30}
+#       if(selection == "60 meter"){reso = 60}
       
       choices = c("Native NAD83 UTM", "USGS North American Albers")
       selection = select.list(choices, title = "Select a map projection to use")
-      if(selection == "Native NAD83 UTM"){proj = "default"}
+      if(selection == "Native NAD83 UTM (not recommended!)"){proj = "default"}
       if(selection == "USGS North American Albers"){proj = "albers"}
     }
     

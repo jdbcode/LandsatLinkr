@@ -4,7 +4,7 @@
 \alias{tmunpackr}
 \title{Decompress, stack, and reproject LPSG MSS images}
 \usage{
-tmunpackr(file, proj = "default", reso = 60)
+tmunpackr(file, proj = "default", reso = 30)
 }
 \arguments{
 \item{file}{character. full path name of the surface reflectance file}

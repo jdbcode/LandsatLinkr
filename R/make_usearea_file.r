@@ -20,7 +20,8 @@ make_usearea_file = function(dir, outfile, xmx, xmn, ymx, ymn){
   if(length(rfiles) == 0){rfiles = list.files(path = file.path(dir[3], "images"), pattern=".tif$", full.names=T, recursive=T)}
   
   crs = readLines(projfiles[1])
-  res = xres(raster(rfiles[1]))
+  #res = xres(raster(rfiles[1]))
+  res = 30
   r = raster(xmn=xmn, xmx=xmx, ymn=ymn, ymx=ymx, crs=crs, res=res)
   r[] = 1
   r = as(r, "SpatialGridDataFrame")       

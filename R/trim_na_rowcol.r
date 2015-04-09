@@ -12,20 +12,20 @@
 trim_na_rowcol = function(imgfile, outimg, maskfile, outmask){
   #trim the stack
   x = raster(imgfile, band=1)
-  cres <- 0.5*res(x)
-  crs <- projection(x) 
-  y <- x
-  x <- matrix(as.array(x),nrow=nrow(x),ncol=ncol(x))
-  r.na <- c.na <- c()
+  cres = 0.5*res(x)
+  #crs <- projection(x) 
+  y = x
+  x = matrix(as.array(x),nrow=nrow(x),ncol=ncol(x))
+  r.na = c.na <- c()
   for(i in 1:nrow(x)) r.na <- c(r.na, all(is.na(x[i,])))
   for(i in 1:ncol(x)) c.na <- c(c.na, all(is.na(x[,i])))
-  r1 <- 1 + which(diff(which(r.na))>1)[1] 
-  r2 <- nrow(x) -  which(diff(which(rev(r.na)))>1)[1]
-  c1 <- 1 + which(diff(which(c.na))>1)[1] 
-  c2 <- ncol(x) - which(diff(which(rev(c.na)))>1)[1]
-  x <- x[r1:r2,c1:c2]
-  xs <- xFromCol(y,col=c(c1,c2)) + c(-1,1)*cres[1]
-  ys <- yFromRow(y,row=c(r2,r1)) + c(-1,1)*cres[2]
+  r1 = 1 + which(diff(which(r.na))>1)[1] 
+  r2 = nrow(x) -  which(diff(which(rev(r.na)))>1)[1]
+  c1 = 1 + which(diff(which(c.na))>1)[1] 
+  c2 = ncol(x) - which(diff(which(rev(c.na)))>1)[1]
+  #x = x[r1:r2,c1:c2]
+  xs = xFromCol(y,col=c(c1,c2)) + c(-1,1)*cres[1]
+  ys = yFromRow(y,row=c(r2,r1)) + c(-1,1)*cres[2]
     
   #write out the trimmed file
   gdal_translate(src_dataset=imgfile, dst_dataset=outimg, of="GTiff", co="INTERLEAVE=BAND", projwin=c(xs[1],ys[2],xs[2],ys[1]))

@@ -11,6 +11,9 @@
 
 msscal_single = function(mss_file, tm_file){
   
+#   mss_file = mssf[1]
+#   tm_file = tmf[1]
+  
   get_intersection = function(files){
     int = intersect(extent(raster(files[1])),extent(raster(files[2])))
     if(length(files) >= 3){for(i in 3:length(files))int = intersect(extent(raster(files[i])), int)}
@@ -52,7 +55,7 @@ msscal_single = function(mss_file, tm_file){
   
   #define the filenames
   mss_sr_file = mss_file
-  mss_mask_file = sub("dos_sr.tif", "cloudmask.tif", mss_sr_file)
+  mss_mask_file = sub("dos_sr_30m.tif", "cloudmask_30m.tif", mss_sr_file)
   ref_tc_file = tm_file
   ref_tca_file = sub("tc", "tca", ref_tc_file)
   ref_mask_file = sub("tc", "cloudmask", ref_tc_file)
@@ -87,7 +90,7 @@ msscal_single = function(mss_file, tm_file){
   refpix = as.matrix(ref_tca_img)[goods]
   
   #samp = sample_it(refpix, bins=20, n=1000)
-  samp = sample(1:length(goods), 15000)
+  samp = sample(1:length(goods), 20000)
   samp = goods[samp]
   
   mss_mask_img = ref_mask_img = mask = refpix =  0

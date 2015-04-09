@@ -22,6 +22,25 @@ calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,
   
   #msscal
   if(all(is.na(match(process,1))) == F){
+    #resample MSS
+#     msswrs1dir = "E:/llr_test/mixed/mss/wrs1/036032"
+#     msswrs2dir = "E:/llr_test/mixed/mss/wrs2/034032"
+    print("Resampling MSS reflectance and cloudmask images")
+    msswrs1srfiles = list.files(msswrs1dir, "dos_sr.tif", recursive=T, full.names=T)
+    msswrs1cloudfiles = list.files(msswrs1dir, "cloudmask.tif", recursive=T, full.names=T)
+    msswrs2srfiles = list.files(msswrs2dir, "dos_sr.tif", recursive=T, full.names=T)
+    msswrs2cloudfiles = list.files(msswrs2dir, "cloudmask.tif", recursive=T, full.names=T)
+    files = c(msswrs1srfiles,msswrs1cloudfiles,msswrs2srfiles,msswrs2cloudfiles)
+    #cores=2
+    if(cores == 2){
+      print("...in parallel")
+      cl = makeCluster(cores)
+      registerDoParallel(cl)
+      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% resample(files[i])
+      stopCluster(cl)
+    } else {for(i in 1:length(files)){resample(files[i])}}
+    
+    
     print("Running msscal")
     t=proc.time()
     msscal(msswrs1dir, msswrs2dir, tmwrs2dir, cores=cores)

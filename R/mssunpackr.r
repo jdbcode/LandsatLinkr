@@ -5,6 +5,7 @@
 #' @param proj CRS projection definition. By default no projection will take place. Optionally specify a CRS projection string or "albers" for the USGS version of Albers Equal Area Conic 
 #' @param reso numeric. the target pixel size for the output image
 #' @import raster
+#' @import gdalUtils
 #' @export
 
 
@@ -87,7 +88,13 @@ mssunpackr = function(file, proj="default", reso=60){
                s_srs=origproj, t_srs=proj, of="GTiff",
                r="near", srcnodata=0, dstnodata=0, multi=T,
                tr=c(reso,reso), co="INTERLEAVE=BAND")
-    } else {write(projection(ref), outprojfile)}
+    } else {
+      write(origproj, outprojfile)
+      gdalwarp(srcfile=tempstack, dstfile=projstack, 
+               s_srs=origproj, t_srs=origproj, of="GTiff",
+               r="near", srcnodata=0, dstnodata=0, multi=T,
+               tr=c(reso,reso), co="INTERLEAVE=BAND")
+    }
     
     #trim the na rows and cols
     if(proj != "default"){infile = projstack} else {infile = tempstack} 

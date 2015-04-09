@@ -41,12 +41,16 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     return(goods)
   }
   
-  mixel_mask = function(imgfile, search, refimg, index){
+  mixel_mask = function(imgfile, refimg, index){ #search,
     if(index == "tca" | index == "tcb"){band=1}
     if(index == "tcg"){band=2}
     if(index == "tcw"){band=3}
     
-    maskfile = sub(search, "cloudmask.tif",imgfile)
+    sensor = substr(basename(imgfile), 1,2)
+    if(sensor == "LM"){maskbit = "_cloudmask_30m.tif"} else {maskbit = "_cloudmask.tif"}
+    
+    maskfile = file.path(dirname(imgfile), paste(substr(basename(imgfile),1,16),maskbit,sep=""))
+    #maskfile = sub(search, searchmask,imgfile) #"cloudmask.tif"
     print(basename(maskfile))
     print(file.exists(maskfile))
     img = raster(imgfile, band=band)
@@ -63,6 +67,8 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     
     bads = which(values(mask) == 0)
     img[bads] = NA
+    #outfile = file.path("E:/llr_test/mosaic_prep",basename(imgfile))
+    #writeRaster(img,outfile,datatype="INT2S")
     return(img)
   }
   
@@ -79,7 +85,8 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     
     #load in the reference image (usearea file)
     refimg = raster(useareafile)
-    refimg[values(refimg) == 1] = NA
+    newimgnas = values(refimg) == 0
+    #nas = values(refimg) == 1
     
     if(doyears == "all"){uni=yearsort} else {
       theseyears = match(doyears,yearsort)
@@ -91,6 +98,10 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
       ptm <- proc.time()
       if(is.na(uni[i] == T)){next}
       print(paste("working on year:", uni[i]))
+      
+      refimg = raster(useareafile)
+      #refimg[nas] = NA
+      
       these = which(years == uni[i])
       theseimgs = files[these]
       thesedays = days[these]
@@ -136,11 +147,11 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
         print(basename(imgorder[m]))
         if(m == 1){mergeit = "r1"} else {mergeit = paste(mergeit,",r",m, sep="")}
         #run the image prep function on-the-fly
-        dothis = paste("r",m,"=mixel_mask(imgorder[",m,"], search, refimg, index)", sep="")
+        dothis = paste("r",m,"=mixel_mask(imgorder[",m,"], refimg, index)", sep="") #search,
         eval(parse(text=dothis))
         if(m == len){
           if(overlap == "order"){mergeit = paste("newimg = merge(",mergeit,")", sep="")} #,refimg
-          if(overlap == "mean"){mergeit = paste("newimg = mosaic(",mergeit,",fun=mean,na.rm=T)", sep="")}  #refimg
+          if(overlap == "mean"){mergeit = paste("newimg = mosaic(",mergeit,",fun=mean,na.rm=T,tolerance=0.5)", sep="")}  #refimg
           if(overlap == "median"){mergeit = paste("newimg = mosaic(",mergeit,",fun=median,na.rm=T)", sep="")}
         }
       }
@@ -167,26 +178,31 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
       
       newimg = round(crop(newimg, refimg))
       newimg = extend(newimg, refimg, value=NA)
-      newimg[(values(refimg) == 0)] = NA      
+      #newimg[(values(refimg) == 0)] = NA      
+      newimg[newimgnas] = NA
       if(is.null(adj) == F){newimg = newimg + raster(adj)}
       if(offsetrun == F){
-        newimg[(values(refimg) == 0)] = 0
+        #newimg[(values(refimg) == 0)] = 0
+        newimg[newimgnas] = 0
         newimg[is.na(newimg)] = 0
       }
       #write out the new image
       projection(newimg) = set_projection(files[1])
       newimg = as(newimg, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
       writeGDAL(newimg, outimgfile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
-      
+            
+      tempdir = dirname(rasterTmpFile())
+      tempfiles = list.files(tempdir,full.names=T)
+      unlink(tempfiles)
       print(proc.time()-ptm) 
     }
   }
   
   
-  if(index == "tca"){search="tca.tif"}
-  if(index == "tcb"){search="tc.tif"}
-  if(index == "tcg"){search="tc.tif"}
-  if(index == "tcw"){search="tc.tif"}
+  if(index == "tca"){msssearch="tca_30m.tif$"; tmsearch="tca.tif$"}
+  if(index == "tcb"){msssearch="tc_30m.tif$"; tmsearch="tc.tif$"}
+  if(index == "tcg"){msssearch="tc_30m.tif$"; tmsearch="tc.tif$"}
+  if(index == "tcw"){msssearch="tc_30m.tif$"; tmsearch="tc.tif$"}
   
   #find files
   msswrs1imgdir = file.path(msswrs1dir,"images")
@@ -194,18 +210,19 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
   tmwrs2imgdir = file.path(tmwrs2dir,"images")
   
   for(i in 1:length(msswrs1dir)){
-    if(i == 1){msswrs1files = list.files(msswrs1imgdir[i], search, recursive=T, full.names=T)} else {
-      msswrs1files = c(msswrs1files,list.files(msswrs1imgdir[i], search, recursive=T, full.names=T))
+    if(i == 1){msswrs1files = list.files(msswrs1imgdir[i], msssearch, recursive=T, full.names=T)} else {
+      msswrs1files = c(msswrs1files,list.files(msswrs1imgdir[i], msssearch, recursive=T, full.names=T))
     }
   }
   for(i in 1:length(msswrs2dir)){
-    if(i == 1){msswrs2files = list.files(msswrs2imgdir[i], search, recursive=T, full.names=T)} else {
-      msswrs2files = c(msswrs2files,list.files(msswrs2imgdir[i], search, recursive=T, full.names=T))
+    if(i == 1){msswrs2files = list.files(msswrs2imgdir[i], msssearch, recursive=T, full.names=T)} else {
+      msswrs2files = c(msswrs2files,list.files(msswrs2imgdir[i], msssearch, recursive=T, full.names=T))
     }
   }  
-  for(i in 1:length(msswrs2dir)){
-    if(i == 1){tmwrs2files = list.files(tmwrs2imgdir[i], search, recursive=T, full.names=T)} else {
-      tmwrs2files = c(tmwrs2files, list.files(tmwrs2imgdir[i], search, recursive=T, full.names=T))
+  
+  for(i in 1:length(tmwrs2dir)){
+    if(i == 1){tmwrs2files = list.files(tmwrs2imgdir[i], tmsearch, recursive=T, full.names=T)} else {
+      tmwrs2files = c(tmwrs2files, list.files(tmwrs2imgdir[i], tmsearch, recursive=T, full.names=T))
     }
   }
   
@@ -225,7 +242,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
   offsetdir = file.path(outdir,"offset")
   dir.create(outdir, recursive=T, showWarnings=F)
   
-  if(length(overlapmssfiles) | length(overlaptmfiles) == 0){
+  if(length(overlapmssfiles) == 0 | length(overlaptmfiles) == 0){
     mixel_composite(outdir, files, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
   } else {
     
@@ -373,10 +390,14 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     overlapmssfiles = sort(msscompfiles[thesemss])
     for(i in 1:length(overlapmssfiles)){
       mssr= raster(overlapmssfiles[i])
-      mssr[which(values(mssr)==0)] = NA
+      mssrnas = which(values(mssr)==0)
+      mssr[mssrnas] = NA
       tmr= raster(overlaptmfiles[i])
-      tmr[which(values(tmr)==0)] = NA
+      tmrnas = which(values(tmr)==0)
+      tmr[tmrnas] = NA
       newimg = mosaic(mssr,tmr, fun="mean", na.rm=T)
+      combnas = c(mssrnas, tmrnas)
+      newimg[combnas] = 0
       projection(newimg) = set_projection(files[1])
       newimg = as(newimg, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
       outimgfile = file.path(outdir,basename(overlapmssfiles[i]))
@@ -386,6 +407,18 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     #rename files
     msstmfiles = c(msscompfiles,tmcompfiles)
     finalfiles = file.path(outdir,basename(msstmfiles))
+    imglists = list.files = list.files(offsetdir, "composite_img_list.csv", recursive=T, full.names=T)
+    imglistyears = substr(basename(imglists),1,4)
+    uniimglistyears = unique(imglistyears)
+    for(i in 1:length(uniimglistyears)){
+      theseimgslists = which(imglistyears == uniimglistyears[i])
+      data1 = read.csv(imglists[theseimgslists[1]])
+      data2 = read.csv(imglists[theseimgslists[2]])
+      mergedlists = as.data.frame(rbind(data1,data2)$File)
+      colnames(mergedlists) = "File"
+      outname = file.path(outdir,paste(uniimglistyears[i],"_",runname,"_",index,"_composite_img_list.csv", sep=""))
+      write.csv(mergedlists,outname)
+    }
     for(i in 1:length(finalfiles)){
       check = file.exists(finalfiles[i])
       if(check == F){
