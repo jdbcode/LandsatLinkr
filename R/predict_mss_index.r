@@ -4,9 +4,11 @@
 #' @param file The full path name of the *archv file
 #' @param pngout Logical. If TRUE then a 4-panel .png image file will be created that for each MSS band displays a truncated histogram and the estimated Dark Object Value
 #' @import MASS
-#' @import ggplot2
-#' @import hexbin
 #' @export
+
+# #' @import ggplot2
+# #' @import hexbin
+
 
 
 predict_mss_index = function(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file, ref_file, index, outsampfile, samplen){  
@@ -37,22 +39,30 @@ predict_mss_index = function(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_fil
   r = cor(final$refsamp, final$singlepred)
   coef = rlm(final$refsamp ~ final$singlepred)
   
-  g = ggplot(final, aes(singlepred, refsamp)) +
-    stat_binhex(bins = 100)+
-    scale_fill_gradientn(name = "Count", colours = rainbow(7))+
-    xlab(paste(basename(mss_sr_file),index)) +
-    ylab(paste(basename(ref_file),index)) +
-    ggtitle(paste(index,"linear regression: slope =",paste(signif(coef$coefficients[2], digits=3),",",sep=""),
-                  "y Intercept =",paste(round(coef$coefficients[1], digits=3),",",sep=""),
-                  "r =",signif(r, digits=3))) +
-    theme(plot.title = element_text(size = 12)) +
-    geom_smooth(method="rlm", colour = "black", se = FALSE) + 
-    coord_fixed(ratio = 1)+
-    theme_bw()
+#   g = ggplot(final, aes(singlepred, refsamp)) +
+#     stat_binhex(bins = 100)+
+#     scale_fill_gradientn(name = "Count", colours = rainbow(7))+
+#     xlab(paste(basename(mss_sr_file),index)) +
+#     ylab(paste(basename(ref_file),index)) +
+#     ggtitle(paste(index,"linear regression: slope =",paste(signif(coef$coefficients[2], digits=3),",",sep=""),
+#                   "y Intercept =",paste(round(coef$coefficients[1], digits=3),",",sep=""),
+#                   "r =",signif(r, digits=3))) +
+#     theme(plot.title = element_text(size = 12)) +
+#     geom_smooth(method="rlm", colour = "black", se = FALSE) + 
+#     coord_fixed(ratio = 1)+
+#     theme_bw()
   
   pngout = sub("samp.csv", "plot.png",outsampfile)
   png(pngout,width=700, height=700)
-  print(g)
+  #print(g)
+  title = paste(index,"linear regression: slope =",paste(signif(coef$coefficients[2], digits=3),",",sep=""),
+                "y Intercept =",paste(round(coef$coefficients[1], digits=3),",",sep=""),
+                "r =",signif(r, digits=3))
+  plot(x=final$singlepred,y=final$refsamp,
+       main=title,
+       xlab=paste(basename(mss_sr_file),index),
+       ylab=paste(basename(ref_file),index))
+  abline(coef = coef$coefficients, col="red")  
   dev.off()
   
   #return the information
