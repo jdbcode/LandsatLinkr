@@ -114,7 +114,7 @@ msscal_single = function(mss_file, tm_file){
   model = predict_mss_index(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file, ref_tc_file, "tcb", sampoutfile, samplen)
   bcoef = model[[1]]
   bsamp = model[[2]]
-  bplot = model[[3]]
+  #bplot = model[[3]]
   br = cor(bsamp$refsamp, bsamp$singlepred)
   
   #TCG
@@ -123,7 +123,7 @@ msscal_single = function(mss_file, tm_file){
   model = predict_mss_index(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file, ref_tc_file, "tcg", sampoutfile, samplen)
   gcoef = model[[1]]
   gsamp = model[[2]]
-  gplot = model[[3]]
+  #gplot = model[[3]]
   gr = cor(gsamp$refsamp, gsamp$singlepred)
   
   #TCW
@@ -132,7 +132,7 @@ msscal_single = function(mss_file, tm_file){
   model = predict_mss_index(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file, ref_tc_file, "tcw", sampoutfile, samplen)
   wcoef = model[[1]]
   wsamp = model[[2]]
-  wplot = model[[3]]
+  #wplot = model[[3]]
   wr = cor(wsamp$refsamp, wsamp$singlepred)
   
   #TCA
@@ -149,21 +149,34 @@ msscal_single = function(mss_file, tm_file){
   
   r = cor(final$refsamp, final$singlepred)
   coef = rlm(final$refsamp ~ final$singlepred)
-  g = ggplot(final, aes(singlepred, refsamp)) +
-    stat_binhex(bins = 100)+
-    scale_fill_gradientn(name = "Count", colours = rainbow(7))+
-    xlab(paste(basename(mss_sr_file),"tca")) +
-    ylab(paste(basename(ref_tc_file),"tca")) +
-    ggtitle(paste("tca linear regression: slope =",paste(signif(coef$coefficients[2], digits=3),",",sep=""),
-                  "y Intercept =",paste(round(coef$coefficients[1], digits=3),",",sep=""),
-                  "r =",signif(r, digits=3))) +
-    theme(plot.title = element_text(size = 12)) +
-    geom_smooth(method="rlm", colour = "black", se = FALSE) + 
-    coord_fixed(ratio = 1)+
-    theme_bw()  
+#   g = ggplot(final, aes(singlepred, refsamp)) +
+#     stat_binhex(bins = 100)+
+#     scale_fill_gradientn(name = "Count", colours = rainbow(7))+
+#     xlab(paste(basename(mss_sr_file),"tca")) +
+#     ylab(paste(basename(ref_tc_file),"tca")) +
+#     ggtitle(paste("tca linear regression: slope =",paste(signif(coef$coefficients[2], digits=3),",",sep=""),
+#                   "y Intercept =",paste(round(coef$coefficients[1], digits=3),",",sep=""),
+#                   "r =",signif(r, digits=3))) +
+#     theme(plot.title = element_text(size = 12)) +
+#     geom_smooth(method="rlm", colour = "black", se = FALSE) + 
+#     coord_fixed(ratio = 1)+
+#     theme_bw()  
+#   pngout = sub("samp.csv", "plot.png",sampoutfile)
+#   png(pngout,width=700, height=700)
+#   print(g)
+#   dev.off()
+  
   pngout = sub("samp.csv", "plot.png",sampoutfile)
   png(pngout,width=700, height=700)
-  print(g)
+  #print(g)
+  title = paste("tca linear regression: slope =",paste(signif(coef$coefficients[2], digits=3),",",sep=""),
+                                   "y Intercept =",paste(round(coef$coefficients[1], digits=3),",",sep=""),
+                                   "r =",signif(r, digits=3))
+  plot(x=final$singlepred,y=final$refsamp,
+       main=title,
+       xlab=paste(basename(mss_sr_file),"tca"),
+       ylab=paste(basename(ref_tc_file),"tca"))
+  abline(coef = coef$coefficients, col="red")  
   dev.off()
   
   info = data.frame(mss_file = basename(mss_sr_file), ref_file = basename(ref_tc_file),
@@ -179,7 +192,7 @@ msscal_single = function(mss_file, tm_file){
   write_coef(mss_sr_file, ref_tc_file, "tcw", wcoef, wr)
 
   
-  outfile = file.path(outdir,paste(mssimgid,"_tc_cal_planes.png",sep=""))
-  make_tc_planes_comparison(bsamp, gsamp, wsamp, outfile)
+  #outfile = file.path(outdir,paste(mssimgid,"_tc_cal_planes.png",sep=""))
+  #make_tc_planes_comparison(bsamp, gsamp, wsamp, outfile)
   
 }

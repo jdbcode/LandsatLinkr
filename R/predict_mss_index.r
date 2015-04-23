@@ -63,6 +63,6 @@ predict_mss_index = function(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_fil
   
   #return the information
   coef = data.frame(yint,b1c,b2c,b3c,b4c)
-  tbls = list(coef,final,g)
+  tbls = list(coef,final) #,g
   return(tbls)
 }
