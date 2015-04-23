@@ -6,10 +6,6 @@
 #' @import MASS
 #' @export
 
-# #' @import ggplot2
-# #' @import hexbin
-
-
 
 predict_mss_index = function(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file, ref_file, index, outsampfile, samplen){  
   #make a dateframe of the training sample
