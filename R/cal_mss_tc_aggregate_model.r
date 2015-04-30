@@ -19,12 +19,12 @@ cal_mss_tc_aggregate_model = function(dir){
       tmp = with(df,by(df, mss_img, function(x) rlm(refsamp ~ singlepred, data = x)))
       tmp = sapply(tmp, coef)
       
-      title = paste("single model 2d data density contours and robust linear regression lines for",index)
+      title = paste("single model scatterplot and robust linear regression lines for",index)
       png(outfile, width = 1100, height=800)
       cols = seq(from=2,to=ncol(tmp)+1)
       plot(x=df$singlepred,y=df$refsamp,
            main=title,
-           xlab=paste("mss predicted",index),
+           xlab=paste("mss-predicted",index),
            ylab=paste("tm",index),
            xlim=limits,
            ylim=limits)
@@ -54,13 +54,13 @@ cal_mss_tc_aggregate_model = function(dir){
       tmp = with(df,by(df, mss_img, function(x) rlm(refsamp ~ comppred, data = x)))
       tmp = sapply(tmp, coef)
       
-      title = paste("aggregate model 2d data density contours and robust linear regression lines for",index)
+      title = paste("aggregated model scatterplot and robust linear regression lines for",index)
       cols = seq(from=2,to=ncol(tmp)+1)
       
       png(outfile, width = 1100, height=800)
       plot(x=df$comppred,y=df$refsamp,
            main=title,
-           xlab=paste("mss predicted",index),
+           xlab=paste("mss-predicted",index),
            ylab=paste("tm",index),
            xlim=limits,
            ylim=limits)
