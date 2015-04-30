@@ -87,20 +87,33 @@ msscal_single = function(mss_file, tm_file){
   ref_mask_img = as.matrix(ref_mask_img)
   mask = mss_mask_img*ref_mask_img
   goods = which(mask == 1)
-  refpix = as.matrix(ref_tca_img)[goods]
+  if(length(goods) < 20000){return()}
   
+  #stratified sample
+  #refpix = as.matrix(ref_tca_img)[goods]
   #samp = sample_it(refpix, bins=20, n=1000)
+  
+  #random sample
   samp = sample(1:length(goods), 20000)
   samp = goods[samp]
   
+  #save memory
   mss_mask_img = ref_mask_img = mask = refpix =  0
   
+  #extract the sample pixels from the bands
   b1samp = as.matrix(subset(mss_sr_img, 1))[samp]
   b2samp = as.matrix(subset(mss_sr_img, 2))[samp]
   b3samp = as.matrix(subset(mss_sr_img, 3))[samp]
   b4samp = as.matrix(subset(mss_sr_img, 4))[samp]
-  samplen = length(samp)
   
+  #make sure the values are good for running regression on (diversity)
+  unib1samp = length(unique(b1samp))
+  unib2samp = length(unique(b2samp))
+  unib3samp = length(unique(b3samp))
+  unib4samp = length(unique(b4samp))
+  if(unib1samp < 15 | unib2samp < 15 | unib3samp < 15 | unib4samp < 15 ){return()}
+  
+  samplen = length(samp)
   
   #predict the indices
   dname = dirname(mss_sr_file)
@@ -110,6 +123,8 @@ msscal_single = function(mss_file, tm_file){
   
   #TCB
   refsamp = as.matrix(subset(ref_tc_img, 1))[samp]
+  unirefsamp = length(unique(refsamp))
+  if(unirefsamp < 15){return()}
   sampoutfile = file.path(outdir,paste(mssimgid,"_tcb_cal_samp.csv",sep=""))
   model = predict_mss_index(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file, ref_tc_file, "tcb", sampoutfile, samplen)
   bcoef = model[[1]]
@@ -119,6 +134,8 @@ msscal_single = function(mss_file, tm_file){
   
   #TCG
   refsamp = as.matrix(subset(ref_tc_img, 2))[samp]
+  unirefsamp = length(unique(refsamp))
+  if(unirefsamp < 15){return()}
   sampoutfile = file.path(outdir,paste(mssimgid,"_tcg_cal_samp.csv",sep=""))
   model = predict_mss_index(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file, ref_tc_file, "tcg", sampoutfile, samplen)
   gcoef = model[[1]]
@@ -128,6 +145,8 @@ msscal_single = function(mss_file, tm_file){
   
   #TCW
   refsamp = as.matrix(subset(ref_tc_img, 3))[samp]
+  unirefsamp = length(unique(refsamp))
+  if(unirefsamp < 15){return()}
   sampoutfile = file.path(outdir,paste(mssimgid,"_tcw_cal_samp.csv",sep=""))
   model = predict_mss_index(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file, ref_tc_file, "tcw", sampoutfile, samplen)
   wcoef = model[[1]]
