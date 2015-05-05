@@ -58,7 +58,8 @@ run_landsatlinkr = function(){
       tmwrs2dir = choose.dir(caption = "Select a TM WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
       outdir=NULL
       index=NULL
-      runname=NULL  
+      runname=NULL
+      process = 1
     }
     
     
@@ -119,17 +120,18 @@ run_landsatlinkr = function(){
         useareafile = file.path(outdir, paste(runname,"_usearea.tif",sep=""))
         make_usearea_file(c(msswrs1dir[1],msswrs2dir[1],tmwrs2dir[1]), useareafile, xmx, xmn, ymx, ymn)
       }
+      process = 2
     }
+    #}
+    #if(sum((process %in% 7) > 0)){process[1] = 1}
+    #if(sum((process %in% 8) > 0)){process[process==8] = 2}
+    #return(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,cores,process)
+    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=cores, process=process)
   }
-  if(sum((process %in% 7) > 0)){process[1] = 1}
-  if(sum((process %in% 8) > 0)){process[process==8] = 2}
-  #return(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,cores,process)
-  calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=cores, process=process)
-}
-
-if(sum(process %in% 9 > 0)){
-  dir = choose.dir(caption = "Select a composites directory from which to find image composite stacks")
-  cores = readline("How many cores to use to process in parallel?: ")
-  run_neatline(dir, cores)
-}
+  
+  if(sum(process %in% 9 > 0)){
+    dir = choose.dir(caption = "Select a composites directory from which to find image composite stacks")
+    cores = readline("How many cores to use to process in parallel?: ")
+    run_neatline(dir, cores)
+  }
 }
