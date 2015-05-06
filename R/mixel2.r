@@ -299,8 +299,13 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     difvalue = extract(meandiforig, coords[,2:3])/100
     
     for(f in 1:length(mssofff)){  #
-      mssvalue = extract(raster(mssofff[f]),coords[,2:3])/100
-      tmvalue = extract(raster(tmofff[f]),coords[,2:3])/100
+      if(index == "tca"){
+        mssvalue = extract(raster(mssofff[f]),coords[,2:3])/100
+        tmvalue = extract(raster(tmofff[f]),coords[,2:3])/100
+      } else{
+        mssvalue = extract(raster(mssofff[f]),coords[,2:3])
+        tmvalue = extract(raster(tmofff[f]),coords[,2:3])
+      }
       origdif = tmvalue-mssvalue
       adjdif = tmvalue-(mssvalue+difvalue)
       year = substr(basename(mssofff[f]),1,4)
@@ -334,7 +339,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     d_adjdif = density(fulldf$adjdif)
     d_max = max(d_origdif$y,d_adjdif$y)+0.01
     pngout = file.path(offsetdir,"offset_histogram.png")
-    png(outfile, width = 800, height=700)
+    png(pngout, width = 800, height=700)
     plot(d_origdif,
          main="Mean offset between coincident MSS and TM annual composites for a sample of pixel time series",
          xlab=index, col="blue",
@@ -353,7 +358,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     d_adjrmse = density(rmsesummary$adjrmse)
     d_max = max(d_origrmse$y,d_adjrmse$y)+0.05
     pngout = file.path(offsetdir,"offset_rmse.png")
-    png(outfile, width = 800, height=700)
+    png(pngout, width = 800, height=700)
     plot(d_origrmse,
          main="RMSE for coincident MSS and TM annual composites for a sample of pixel time series",
          xlab=index, col="blue",
@@ -373,7 +378,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     d_adjmae = density(rmsesummary$adjmae)
     d_max = max(d_origmae$y,d_adjmae$y)+0.05
     pngout = file.path(offsetdir,"offset_mae.png")
-    png(outfile, width = 800, height=700)
+    png(pngout, width = 800, height=700)
     plot(d_origmae,
          main="MAE for coincident MSS and TM annual composites for a sample of pixel time series",
          xlab=index, col="blue",
