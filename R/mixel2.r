@@ -326,51 +326,117 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     
     origrmsemean = mean(rmsesummary$origrmse, na.rm=T)
     adjrmsemean = mean(rmsesummary$adjrmse, na.rm=T)
-    origrmsestdev = sd(rmsesummary$origrmse, na.rm=T)
-    adjrmsestdev = sd(rmsesummary$adjrmse, na.rm=T)
+    origmaemean = mean(rmsesummary$origmae, na.rm=T)
+    adjmaemean = mean(rmsesummary$adjmae, na.rm=T)
     
     #rmse
-    g = ggplot()+
-      geom_density(data = fulldf, aes(x=origdif, fill="no adjustment"), alpha = 0.2)+
-      geom_density(data = fulldf, aes(x=adjdif, fill="mean adjustment"), alpha = 0.2) +
-      theme_bw()+
-      xlab(index)+
-      guides(fill = guide_legend(title = NULL))+
-      ggtitle("Mean offset between coincident MSS and TM annual composites for a sample of pixel time series")
-    
+    d_origdif = density(fulldf$origdif)
+    d_adjdif = density(fulldf$adjdif)
+    d_max = max(d_origdif$y,d_adjdif$y)+0.01
     pngout = file.path(offsetdir,"offset_histogram.png")
-    png(pngout,width=800, height=700)
-    print(g)
+    png(outfile, width = 800, height=700)
+    plot(d_origdif,
+         main="Mean offset between coincident MSS and TM annual composites for a sample of pixel time series",
+         xlab=index, col="blue",
+         ylim=c(0,d_max))
+    lines(d_adjdif, col="red")
+    abline(v=mean(fulldf$origdif,na.rm=T),lty=2, col="blue")
+    abline(v=mean(fulldf$adjdif,na.rm=T), lty=2, col="red")
+    legend(x=min(d_origdif$x),y=max(d_max),
+           c("no adjustment", "mean adjustment"),
+           lty=c(1,1),
+           col=c("blue", "red"))
     dev.off()
     
-    g = ggplot()+
-      geom_density(data = rmsesummary, aes(x=origrmse, fill="no adjustment"), alpha = 0.2)+
-      geom_density(data = rmsesummary, aes(x=adjrmse, fill="mean adjustment"), alpha = 0.2) +
-      theme_bw()+
-      xlab(paste(index,"rmse"))+
-      guides(fill = guide_legend(title = NULL))+
-      ggtitle("RMSE for coincident MSS and TM annual composites for a sample of pixel time series")
     
+    d_origrmse = density(rmsesummary$origrmse)
+    d_adjrmse = density(rmsesummary$adjrmse)
+    d_max = max(d_origrmse$y,d_adjrmse$y)+0.05
     pngout = file.path(offsetdir,"offset_rmse.png")
-    png(pngout,width=800, height=700)
-    print(g)
+    png(outfile, width = 800, height=700)
+    plot(d_origrmse,
+         main="RMSE for coincident MSS and TM annual composites for a sample of pixel time series",
+         xlab=index, col="blue",
+         ylim=c(0,d_max))
+    lines(d_adjrmse, col="red")
+    abline(v=origrmsemean,lty=2, col="blue")
+    abline(v=adjrmsemean, lty=2, col="red")
+    lxoff = ((max(d_origrmse$x) - adjrmsemean)*0.25) + adjrmsemean
+    legend(x=lxoff,y=max(d_max),
+           c("no adjustment", "mean adjustment"),
+           lty=c(1,1),
+           col=c("blue", "red"))
     dev.off()
     
-    g = ggplot()+
-      geom_density(data = rmsesummary, aes(x=origmae, fill="no adjustment"), alpha = 0.2)+
-      geom_density(data = rmsesummary, aes(x=adjmae, fill="mean adjustment"), alpha = 0.2) +
-      theme_bw()+
-      xlab(paste(index,"mae"))+
-      guides(fill = guide_legend(title = NULL))+
-      ggtitle("MAE for coincident MSS and TM annual composites for a sample of pixel time series")
     
+    d_origmae = density(rmsesummary$origmae)
+    d_adjmae = density(rmsesummary$adjmae)
+    d_max = max(d_origmae$y,d_adjmae$y)+0.05
     pngout = file.path(offsetdir,"offset_mae.png")
-    png(pngout,width=800, height=700)
-    print(g)
+    png(outfile, width = 800, height=700)
+    plot(d_origmae,
+         main="MAE for coincident MSS and TM annual composites for a sample of pixel time series",
+         xlab=index, col="blue",
+         ylim=c(0,d_max))
+    lines(d_adjmae, col="red")
+    abline(v=origmaemean,lty=2, col="blue")
+    abline(v=adjmaemean, lty=2, col="red")
+    lxoff = ((max(d_origmae$x) - adjmaemean)*0.25) + adjmaemean
+    legend(x=lxoff,y=max(d_max),
+           c("no adjustment", "mean adjustment"),
+           lty=c(1,1),
+           col=c("blue", "red"))
     dev.off()
     
-    g=fulldf=rmsesummary=0 #memory
+#     origrmsemean = mean(rmsesummary$origrmse, na.rm=T)
+#     adjrmsemean = mean(rmsesummary$adjrmse, na.rm=T)
+#     origrmsestdev = sd(rmsesummary$origrmse, na.rm=T)
+#     adjrmsestdev = sd(rmsesummary$adjrmse, na.rm=T)
+#     
+#     #rmse
+#     g = ggplot()+
+#       geom_density(data = fulldf, aes(x=origdif, fill="no adjustment"), alpha = 0.2)+
+#       geom_density(data = fulldf, aes(x=adjdif, fill="mean adjustment"), alpha = 0.2) +
+#       theme_bw()+
+#       xlab(index)+
+#       guides(fill = guide_legend(title = NULL))+
+#       ggtitle("Mean offset between coincident MSS and TM annual composites for a sample of pixel time series")
+#     
+#     pngout = file.path(offsetdir,"offset_histogram.png")
+#     png(pngout,width=800, height=700)
+#     print(g)
+#     dev.off()
+#     
+#     g = ggplot()+
+#       geom_density(data = rmsesummary, aes(x=origrmse, fill="no adjustment"), alpha = 0.2)+
+#       geom_density(data = rmsesummary, aes(x=adjrmse, fill="mean adjustment"), alpha = 0.2) +
+#       theme_bw()+
+#       xlab(paste(index,"rmse"))+
+#       guides(fill = guide_legend(title = NULL))+
+#       ggtitle("RMSE for coincident MSS and TM annual composites for a sample of pixel time series")
+#     
+#     pngout = file.path(offsetdir,"offset_rmse.png")
+#     png(pngout,width=800, height=700)
+#     print(g)
+#     dev.off()
+#     
+#     g = ggplot()+
+#       geom_density(data = rmsesummary, aes(x=origmae, fill="no adjustment"), alpha = 0.2)+
+#       geom_density(data = rmsesummary, aes(x=adjmae, fill="mean adjustment"), alpha = 0.2) +
+#       theme_bw()+
+#       xlab(paste(index,"mae"))+
+#       guides(fill = guide_legend(title = NULL))+
+#       ggtitle("MAE for coincident MSS and TM annual composites for a sample of pixel time series")
+#     
+#     pngout = file.path(offsetdir,"offset_mae.png")
+#     png(pngout,width=800, height=700)
+#     print(g)
+#     dev.off()
+#     
+#     g=fulldf=rmsesummary=0 #memory
     
+    fulldf=rmsesummary=0 #memory
+
     #make final mss composites
     mssdir = file.path(outdir,"mss")
     dir.create(mssdir, recursive=T, showWarnings=F)
