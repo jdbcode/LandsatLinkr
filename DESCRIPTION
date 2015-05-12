@@ -1,7 +1,7 @@
 Package: LandsatLinkr
 Title: Tools to spectrally link Landsat data
-Version: 0.1.10
-Date: 2015-05-06
+Version: 0.1.11
+Date: 2015-05-12
 Author: Justin Braaten <justin.braaten@oregonstate.edu>
 Maintainer: Justin Braaten <justin.braaten@oregonstate.edu>
 Description: An automated system for processing large volumes of Landsat imagery and building long spectrally consistent chronologies across MSS and TM/ETM+ sensors
