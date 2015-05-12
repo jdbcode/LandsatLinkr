@@ -188,12 +188,24 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
       }
       #write out the new image
       projection(newimg) = set_projection(files[1])
-      newimg = as(newimg, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
-      writeGDAL(newimg, outimgfile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
+      
+      writeRaster(newimg, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
+      envifilename = sub("bsq","envi",outimgfile)
+      envixmlfile = paste(envifilename,".aux.xml",sep="")
+      bsqxmlfile = sub("envi","bsq",envixmlfile)
+      file.rename(envifilename,outimgfile)
+      file.rename(envixmlfile,bsqxmlfile)
+      
+#       newimg = as(newimg, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+#       writeGDAL(newimg, outimgfile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
             
       tempdir = dirname(rasterTmpFile())
+      print(paste("this is the tempdir:",tempdir))      
       tempfiles = list.files(tempdir,full.names=T)
+      print(paste("there are:",length(tempfiles),"files found"))
       unlink(tempfiles)
+      tempfiles = list.files(tempdir,full.names=T)
+      print(paste("after attempting to delete them, there are:",length(tempfiles),"files"))
       print(proc.time()-ptm) 
     }
   }
@@ -275,9 +287,20 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     
     meandiforig = round(dif/length(mssofff))
     projection(meandiforig) = set_projection(files[1])
-    meandif = as(meandiforig, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+    
     meandiffile = file.path(offsetdir,"mean_dif.bsq")
-    writeGDAL(meandif, meandiffile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
+    writeRaster(meandiforig, meandiffile, format="ENVI", datatype = "INT2S",overwrite=T)
+    envifilename = sub("bsq","envi",meandiffile)
+    envixmlfile = paste(envifilename,".aux.xml",sep="")
+    bsqxmlfile = sub("envi","bsq",envixmlfile)
+    file.rename(envifilename,meandiffile)
+    file.rename(envixmlfile,bsqxmlfile)
+    
+    
+#     using writeRaster in case the files are huge - it can chunk them up
+#     meandif = as(meandiforig, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+#     meandiffile = file.path(offsetdir,"mean_dif.bsq")
+#     writeGDAL(meandif, meandiffile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
     
     meandif=0 #memory
     
@@ -285,9 +308,19 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     for(i in 1:length(mssofff)){
       r = raster(mssofff[i]) + meandiforig
       projection(r) = set_projection(files[1])
-      r = as(r, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+      
       outimgfile = sub("composite.bsq","composite_adj.bsq",mssofff[i])
-      writeGDAL(r, outimgfile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
+      
+      writeRaster(r, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
+      envifilename = sub("bsq","envi",outimgfile)
+      envixmlfile = paste(envifilename,".aux.xml",sep="")
+      bsqxmlfile = sub("envi","bsq",envixmlfile)
+      file.rename(envifilename,outimgfile)
+      file.rename(envixmlfile,bsqxmlfile)
+#       using writeRaster in case the files are huge - it can chunk them up
+#       r = as(r, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+#       outimgfile = sub("composite.bsq","composite_adj.bsq",mssofff[i])
+#       writeGDAL(r, outimgfile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
     }
     r=0 #memory
     
@@ -323,11 +356,20 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     outsampfile = file.path(offsetdir,"offset_sample.csv")
     write.csv(fulldf, outsampfile, row.names=F)
     
-    rmsesummary = ddply(fulldf,.(point), here(summarize), 
-                        origrmse = sqrt(sum(origdifsqr, na.rm=T)/n_years),
-                        adjrmse = sqrt(sum(adjdifsqr, na.rm=T)/n_years),
-                        origmae = mean(origabsdif, na.rm=T),
-                        adjmae = mean(adjabsdif, na.rm=T))
+    origrmse = aggregate(fulldf$origdifsqr, by=list(fulldf$point), FUN=function(x){sqrt(sum(x, na.rm=T)/n_years)})
+    adjrmse = aggregate(fulldf$adjdifsqr, by=list(fulldf$point), FUN=function(x){sqrt(sum(x, na.rm=T)/n_years)})
+    origmae = aggregate(fulldf$origabsdif, by=list(fulldf$point), FUN=mean, na.rm=T)
+    adjmae = aggregate(fulldf$adjabsdif, by=list(fulldf$point), FUN=mean, na.rm=T)
+    
+    rmsesummary = data.frame(point=origrmse$Group.1,origrmse=origrmse$x,
+                             adjrmse=adjrmse$x,origmae=origmae$x,adjmae=adjmae$x)
+
+#     remove dependency on plyr::ddply    
+#     rmsesummary = ddply(fulldf,.(point), here(summarize), 
+#                         origrmse = sqrt(sum(origdifsqr, na.rm=T)/n_years),
+#                         adjrmse = sqrt(sum(adjdifsqr, na.rm=T)/n_years),
+#                         origmae = mean(origabsdif, na.rm=T),
+#                         adjmae = mean(adjabsdif, na.rm=T))
     
     origrmsemean = mean(rmsesummary$origrmse, na.rm=T)
     adjrmsemean = mean(rmsesummary$adjrmse, na.rm=T)
@@ -470,9 +512,17 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
       combnas = c(mssrnas, tmrnas)
       newimg[combnas] = 0
       projection(newimg) = set_projection(files[1])
-      newimg = as(newimg, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+      
       outimgfile = file.path(outdir,basename(overlapmssfiles[i]))
-      writeGDAL(newimg, outimgfile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
+      writeRaster(newimg, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
+      envifilename = sub("bsq","envi",outimgfile)
+      envixmlfile = paste(envifilename,".aux.xml",sep="")
+      bsqxmlfile = sub("envi","bsq",envixmlfile)
+      file.rename(envifilename,outimgfile)
+      file.rename(envixmlfile,bsqxmlfile)
+#       newimg = as(newimg, "SpatialGridDataFrame") #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+#       outimgfile = file.path(outdir,basename(overlapmssfiles[i]))
+#       writeGDAL(newimg, outimgfile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
     }
     
     #rename files
