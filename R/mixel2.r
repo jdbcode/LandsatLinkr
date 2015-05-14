@@ -306,6 +306,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     
     #adjust the mss composites to reflect the offset
     for(i in 1:length(mssofff)){
+      print("adjusting mss file:",mssofff[i])
       r = raster(mssofff[i]) + meandiforig
       projection(r) = set_projection(files[1])
       
@@ -322,14 +323,17 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
 #       outimgfile = sub("composite.bsq","composite_adj.bsq",mssofff[i])
 #       writeGDAL(r, outimgfile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
     }
-    r=0 #memory
+    #r=0 #memory
     
     #sample the composites to calculate RMSE
+    print("determing offset between unadjusted and adjusted mss data")
     n_random = 5000
     n_years = length(mssofff)
     coords = sampleRandom(meandiforig, size=n_random, na.rm=TRUE, xy=T)
     coords = data.frame(point=seq(1:nrow(coords)),x=coords[,1],y=coords[,2])
-    difvalue = extract(meandiforig, coords[,2:3])/100
+    if(index == "tca"){difvalue = extract(meandiforig, coords[,2:3])/100} else{
+      difvalue = extract(meandiforig, coords[,2:3])
+    }
     
     for(f in 1:length(mssofff)){  #
       if(index == "tca"){
@@ -347,15 +351,17 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
         fulldf = rbind(fulldf, df)
       }
     }
+    print("preparing mss offset table")
     fulldf = fulldf[complete.cases(fulldf),]
-    
     fulldf$origdifsqr = fulldf$origdif^2
     fulldf$adjdifsqr = fulldf$adjdif^2
     fulldf$origabsdif = abs(fulldf$origdif)
     fulldf$adjabsdif = abs(fulldf$adjdif)
     outsampfile = file.path(offsetdir,"offset_sample.csv")
+    print("writing mss offset table")
     write.csv(fulldf, outsampfile, row.names=F)
     
+    print("calculating summaries of mss offset table")
     origrmse = aggregate(fulldf$origdifsqr, by=list(fulldf$point), FUN=function(x){sqrt(sum(x, na.rm=T)/n_years)})
     adjrmse = aggregate(fulldf$adjdifsqr, by=list(fulldf$point), FUN=function(x){sqrt(sum(x, na.rm=T)/n_years)})
     origmae = aggregate(fulldf$origabsdif, by=list(fulldf$point), FUN=mean, na.rm=T)
@@ -377,6 +383,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     adjmaemean = mean(rmsesummary$adjmae, na.rm=T)
     
     #rmse
+    print("plotting mss offset table summaries")
     d_origdif = density(fulldf$origdif)
     d_adjdif = density(fulldf$adjdif)
     d_max = max(d_origdif$y,d_adjdif$y)+0.01
@@ -485,16 +492,19 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     fulldf=rmsesummary=0 #memory
 
     #make final mss composites
+    print("compositing mss data using adjustment")
     mssdir = file.path(outdir,"mss")
     dir.create(mssdir, recursive=T, showWarnings=F)
     mixel_composite(mssdir, mssfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=meandiffile, offsetrun=F)
     
     #make final tm composites
+    print("compositing tm/etm+ data")
     tmdir = file.path(outdir,"tm")
     dir.create(tmdir, recursive=T, showWarnings=F)
     mixel_composite(tmdir, tmfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=NULL, offsetrun=F)
     
     #deal with the overlapping mss/tm composites
+    print("dealing with overalapping mss and tm data")
     msscompfiles = list.files(mssdir, ".bsq$", recursive=T, full.names=T)
     tmcompfiles = list.files(tmdir, ".bsq$", recursive=T, full.names=T)
     thesetm = which(basename(tmcompfiles) %in% basename(msscompfiles))
@@ -526,6 +536,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     }
     
     #rename files
+    print("directory and file organization/cleaning")
     msstmfiles = c(msscompfiles,tmcompfiles)
     finalfiles = file.path(outdir,basename(msstmfiles))
     imglists = list.files = list.files(offsetdir, "composite_img_list.csv", recursive=T, full.names=T)
@@ -553,6 +564,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     unlink(c(mssdir,tmdir), recursive=T)
   }
   
+  print("making final annual composite stack")
   bname = paste(runname,"_",index,"_composite_stack.bsq", sep="")
   bands = sort(list.files(outdir, "composite.bsq$", full.names=T))
   fullnametif = file.path(outdir,bname)
