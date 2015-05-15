@@ -275,7 +275,7 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
       tmyear = substr(basename(tmoffsetfiles),1,4)
       mssofff = mssoffsetfiles[order(mssyear)]
       tmofff = tmoffsetfiles[order(tmyear)]
-    }
+    } else {stop("there is not a matching number of MSS and TM years in the offset folder, can't continue")}
     
     #find the mean pixel-wise difference between mss and tm images
     for(i in 1:length(mssofff)){
@@ -303,10 +303,10 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
 #     writeGDAL(meandif, meandiffile, drivername = "ENVI", type = "Int16", mvFlag = -32768) #, options="INTERLEAVE=BAND"
     
     meandif=0 #memory
-    
+
     #adjust the mss composites to reflect the offset
     for(i in 1:length(mssofff)){
-      print("adjusting mss file:",mssofff[i])
+      print(paste("adjusting mss file:", mssofff[i]))
       r = raster(mssofff[i]) + meandiforig
       projection(r) = set_projection(files[1])
       
