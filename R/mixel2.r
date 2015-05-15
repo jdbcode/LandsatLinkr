@@ -326,170 +326,170 @@ mixel2 = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafi
     #r=0 #memory
     
     #sample the composites to calculate RMSE
-    print("determing offset between unadjusted and adjusted mss data")
-    n_random = 5000
-    n_years = length(mssofff)
-    coords = sampleRandom(meandiforig, size=n_random, na.rm=TRUE, xy=T)
-    coords = data.frame(point=seq(1:nrow(coords)),x=coords[,1],y=coords[,2])
-    if(index == "tca"){difvalue = extract(meandiforig, coords[,2:3])/100} else{
-      difvalue = extract(meandiforig, coords[,2:3])
-    }
-    
-    for(f in 1:length(mssofff)){  #
-      if(index == "tca"){
-        mssvalue = extract(raster(mssofff[f]),coords[,2:3])/100
-        tmvalue = extract(raster(tmofff[f]),coords[,2:3])/100
-      } else{
-        mssvalue = extract(raster(mssofff[f]),coords[,2:3])
-        tmvalue = extract(raster(tmofff[f]),coords[,2:3])
-      }
-      origdif = tmvalue-mssvalue
-      adjdif = tmvalue-(mssvalue+difvalue)
-      year = substr(basename(mssofff[f]),1,4)
-      if(f == 1){fulldf = data.frame(coords,year,tmvalue,mssvalue,difvalue,origdif,adjdif)} else {
-        df = data.frame(coords,year,tmvalue,mssvalue,difvalue,origdif,adjdif)
-        fulldf = rbind(fulldf, df)
-      }
-    }
-    print("preparing mss offset table")
-    fulldf = fulldf[complete.cases(fulldf),]
-    fulldf$origdifsqr = fulldf$origdif^2
-    fulldf$adjdifsqr = fulldf$adjdif^2
-    fulldf$origabsdif = abs(fulldf$origdif)
-    fulldf$adjabsdif = abs(fulldf$adjdif)
-    outsampfile = file.path(offsetdir,"offset_sample.csv")
-    print("writing mss offset table")
-    write.csv(fulldf, outsampfile, row.names=F)
-    
-    print("calculating summaries of mss offset table")
-    origrmse = aggregate(fulldf$origdifsqr, by=list(fulldf$point), FUN=function(x){sqrt(sum(x, na.rm=T)/n_years)})
-    adjrmse = aggregate(fulldf$adjdifsqr, by=list(fulldf$point), FUN=function(x){sqrt(sum(x, na.rm=T)/n_years)})
-    origmae = aggregate(fulldf$origabsdif, by=list(fulldf$point), FUN=mean, na.rm=T)
-    adjmae = aggregate(fulldf$adjabsdif, by=list(fulldf$point), FUN=mean, na.rm=T)
-    
-    rmsesummary = data.frame(point=origrmse$Group.1,origrmse=origrmse$x,
-                             adjrmse=adjrmse$x,origmae=origmae$x,adjmae=adjmae$x)
-
-#     remove dependency on plyr::ddply    
-#     rmsesummary = ddply(fulldf,.(point), here(summarize), 
-#                         origrmse = sqrt(sum(origdifsqr, na.rm=T)/n_years),
-#                         adjrmse = sqrt(sum(adjdifsqr, na.rm=T)/n_years),
-#                         origmae = mean(origabsdif, na.rm=T),
-#                         adjmae = mean(adjabsdif, na.rm=T))
-    
-    origrmsemean = mean(rmsesummary$origrmse, na.rm=T)
-    adjrmsemean = mean(rmsesummary$adjrmse, na.rm=T)
-    origmaemean = mean(rmsesummary$origmae, na.rm=T)
-    adjmaemean = mean(rmsesummary$adjmae, na.rm=T)
-    
-    #rmse
-    print("plotting mss offset table summaries")
-    d_origdif = density(fulldf$origdif)
-    d_adjdif = density(fulldf$adjdif)
-    d_max = max(d_origdif$y,d_adjdif$y)+0.01
-    pngout = file.path(offsetdir,"offset_histogram.png")
-    png(pngout, width = 800, height=700)
-    plot(d_origdif,
-         main="Mean offset between coincident MSS and TM annual composites for a sample of pixel time series",
-         xlab=index, col="blue",
-         ylim=c(0,d_max))
-    lines(d_adjdif, col="red")
-    abline(v=mean(fulldf$origdif,na.rm=T),lty=2, col="blue")
-    abline(v=mean(fulldf$adjdif,na.rm=T), lty=2, col="red")
-    legend(x=min(d_origdif$x),y=max(d_max),
-           c("no adjustment", "mean adjustment"),
-           lty=c(1,1),
-           col=c("blue", "red"))
-    dev.off()
-    
-    
-    d_origrmse = density(rmsesummary$origrmse)
-    d_adjrmse = density(rmsesummary$adjrmse)
-    d_max = max(d_origrmse$y,d_adjrmse$y)+0.05
-    pngout = file.path(offsetdir,"offset_rmse.png")
-    png(pngout, width = 800, height=700)
-    plot(d_origrmse,
-         main="RMSE for coincident MSS and TM annual composites for a sample of pixel time series",
-         xlab=index, col="blue",
-         ylim=c(0,d_max))
-    lines(d_adjrmse, col="red")
-    abline(v=origrmsemean,lty=2, col="blue")
-    abline(v=adjrmsemean, lty=2, col="red")
-    lxoff = ((max(d_origrmse$x) - adjrmsemean)*0.25) + adjrmsemean
-    legend(x=lxoff,y=max(d_max),
-           c("no adjustment", "mean adjustment"),
-           lty=c(1,1),
-           col=c("blue", "red"))
-    dev.off()
-    
-    
-    d_origmae = density(rmsesummary$origmae)
-    d_adjmae = density(rmsesummary$adjmae)
-    d_max = max(d_origmae$y,d_adjmae$y)+0.05
-    pngout = file.path(offsetdir,"offset_mae.png")
-    png(pngout, width = 800, height=700)
-    plot(d_origmae,
-         main="MAE for coincident MSS and TM annual composites for a sample of pixel time series",
-         xlab=index, col="blue",
-         ylim=c(0,d_max))
-    lines(d_adjmae, col="red")
-    abline(v=origmaemean,lty=2, col="blue")
-    abline(v=adjmaemean, lty=2, col="red")
-    lxoff = ((max(d_origmae$x) - adjmaemean)*0.25) + adjmaemean
-    legend(x=lxoff,y=max(d_max),
-           c("no adjustment", "mean adjustment"),
-           lty=c(1,1),
-           col=c("blue", "red"))
-    dev.off()
-    
+#     print("determing offset between unadjusted and adjusted mss data")
+#     n_random = 5000
+#     n_years = length(mssofff)
+#     coords = sampleRandom(meandiforig, size=n_random, na.rm=TRUE, xy=T)
+#     coords = data.frame(point=seq(1:nrow(coords)),x=coords[,1],y=coords[,2])
+#     if(index == "tca"){difvalue = extract(meandiforig, coords[,2:3])/100} else{
+#       difvalue = extract(meandiforig, coords[,2:3])
+#     }
+#     
+#     for(f in 1:length(mssofff)){  #
+#       if(index == "tca"){
+#         mssvalue = extract(raster(mssofff[f]),coords[,2:3])/100
+#         tmvalue = extract(raster(tmofff[f]),coords[,2:3])/100
+#       } else{
+#         mssvalue = extract(raster(mssofff[f]),coords[,2:3])
+#         tmvalue = extract(raster(tmofff[f]),coords[,2:3])
+#       }
+#       origdif = tmvalue-mssvalue
+#       adjdif = tmvalue-(mssvalue+difvalue)
+#       year = substr(basename(mssofff[f]),1,4)
+#       if(f == 1){fulldf = data.frame(coords,year,tmvalue,mssvalue,difvalue,origdif,adjdif)} else {
+#         df = data.frame(coords,year,tmvalue,mssvalue,difvalue,origdif,adjdif)
+#         fulldf = rbind(fulldf, df)
+#       }
+#     }
+#     print("preparing mss offset table")
+#     fulldf = fulldf[complete.cases(fulldf),]
+#     fulldf$origdifsqr = fulldf$origdif^2
+#     fulldf$adjdifsqr = fulldf$adjdif^2
+#     fulldf$origabsdif = abs(fulldf$origdif)
+#     fulldf$adjabsdif = abs(fulldf$adjdif)
+#     outsampfile = file.path(offsetdir,"offset_sample.csv")
+#     print("writing mss offset table")
+#     write.csv(fulldf, outsampfile, row.names=F)
+#     
+#     print("calculating summaries of mss offset table")
+#     origrmse = aggregate(fulldf$origdifsqr, by=list(fulldf$point), FUN=function(x){sqrt(sum(x, na.rm=T)/n_years)})
+#     adjrmse = aggregate(fulldf$adjdifsqr, by=list(fulldf$point), FUN=function(x){sqrt(sum(x, na.rm=T)/n_years)})
+#     origmae = aggregate(fulldf$origabsdif, by=list(fulldf$point), FUN=mean, na.rm=T)
+#     adjmae = aggregate(fulldf$adjabsdif, by=list(fulldf$point), FUN=mean, na.rm=T)
+#     
+#     rmsesummary = data.frame(point=origrmse$Group.1,origrmse=origrmse$x,
+#                              adjrmse=adjrmse$x,origmae=origmae$x,adjmae=adjmae$x)
+# 
+# #     remove dependency on plyr::ddply    
+# #     rmsesummary = ddply(fulldf,.(point), here(summarize), 
+# #                         origrmse = sqrt(sum(origdifsqr, na.rm=T)/n_years),
+# #                         adjrmse = sqrt(sum(adjdifsqr, na.rm=T)/n_years),
+# #                         origmae = mean(origabsdif, na.rm=T),
+# #                         adjmae = mean(adjabsdif, na.rm=T))
+#     
 #     origrmsemean = mean(rmsesummary$origrmse, na.rm=T)
 #     adjrmsemean = mean(rmsesummary$adjrmse, na.rm=T)
-#     origrmsestdev = sd(rmsesummary$origrmse, na.rm=T)
-#     adjrmsestdev = sd(rmsesummary$adjrmse, na.rm=T)
+#     origmaemean = mean(rmsesummary$origmae, na.rm=T)
+#     adjmaemean = mean(rmsesummary$adjmae, na.rm=T)
 #     
 #     #rmse
-#     g = ggplot()+
-#       geom_density(data = fulldf, aes(x=origdif, fill="no adjustment"), alpha = 0.2)+
-#       geom_density(data = fulldf, aes(x=adjdif, fill="mean adjustment"), alpha = 0.2) +
-#       theme_bw()+
-#       xlab(index)+
-#       guides(fill = guide_legend(title = NULL))+
-#       ggtitle("Mean offset between coincident MSS and TM annual composites for a sample of pixel time series")
-#     
+#     print("plotting mss offset table summaries")
+#     d_origdif = density(fulldf$origdif)
+#     d_adjdif = density(fulldf$adjdif)
+#     d_max = max(d_origdif$y,d_adjdif$y)+0.01
 #     pngout = file.path(offsetdir,"offset_histogram.png")
-#     png(pngout,width=800, height=700)
-#     print(g)
+#     png(pngout, width = 800, height=700)
+#     plot(d_origdif,
+#          main="Mean offset between coincident MSS and TM annual composites for a sample of pixel time series",
+#          xlab=index, col="blue",
+#          ylim=c(0,d_max))
+#     lines(d_adjdif, col="red")
+#     abline(v=mean(fulldf$origdif,na.rm=T),lty=2, col="blue")
+#     abline(v=mean(fulldf$adjdif,na.rm=T), lty=2, col="red")
+#     legend(x=min(d_origdif$x),y=max(d_max),
+#            c("no adjustment", "mean adjustment"),
+#            lty=c(1,1),
+#            col=c("blue", "red"))
 #     dev.off()
 #     
-#     g = ggplot()+
-#       geom_density(data = rmsesummary, aes(x=origrmse, fill="no adjustment"), alpha = 0.2)+
-#       geom_density(data = rmsesummary, aes(x=adjrmse, fill="mean adjustment"), alpha = 0.2) +
-#       theme_bw()+
-#       xlab(paste(index,"rmse"))+
-#       guides(fill = guide_legend(title = NULL))+
-#       ggtitle("RMSE for coincident MSS and TM annual composites for a sample of pixel time series")
 #     
+#     d_origrmse = density(rmsesummary$origrmse)
+#     d_adjrmse = density(rmsesummary$adjrmse)
+#     d_max = max(d_origrmse$y,d_adjrmse$y)+0.05
 #     pngout = file.path(offsetdir,"offset_rmse.png")
-#     png(pngout,width=800, height=700)
-#     print(g)
+#     png(pngout, width = 800, height=700)
+#     plot(d_origrmse,
+#          main="RMSE for coincident MSS and TM annual composites for a sample of pixel time series",
+#          xlab=index, col="blue",
+#          ylim=c(0,d_max))
+#     lines(d_adjrmse, col="red")
+#     abline(v=origrmsemean,lty=2, col="blue")
+#     abline(v=adjrmsemean, lty=2, col="red")
+#     lxoff = ((max(d_origrmse$x) - adjrmsemean)*0.25) + adjrmsemean
+#     legend(x=lxoff,y=max(d_max),
+#            c("no adjustment", "mean adjustment"),
+#            lty=c(1,1),
+#            col=c("blue", "red"))
 #     dev.off()
 #     
-#     g = ggplot()+
-#       geom_density(data = rmsesummary, aes(x=origmae, fill="no adjustment"), alpha = 0.2)+
-#       geom_density(data = rmsesummary, aes(x=adjmae, fill="mean adjustment"), alpha = 0.2) +
-#       theme_bw()+
-#       xlab(paste(index,"mae"))+
-#       guides(fill = guide_legend(title = NULL))+
-#       ggtitle("MAE for coincident MSS and TM annual composites for a sample of pixel time series")
 #     
+#     d_origmae = density(rmsesummary$origmae)
+#     d_adjmae = density(rmsesummary$adjmae)
+#     d_max = max(d_origmae$y,d_adjmae$y)+0.05
 #     pngout = file.path(offsetdir,"offset_mae.png")
-#     png(pngout,width=800, height=700)
-#     print(g)
+#     png(pngout, width = 800, height=700)
+#     plot(d_origmae,
+#          main="MAE for coincident MSS and TM annual composites for a sample of pixel time series",
+#          xlab=index, col="blue",
+#          ylim=c(0,d_max))
+#     lines(d_adjmae, col="red")
+#     abline(v=origmaemean,lty=2, col="blue")
+#     abline(v=adjmaemean, lty=2, col="red")
+#     lxoff = ((max(d_origmae$x) - adjmaemean)*0.25) + adjmaemean
+#     legend(x=lxoff,y=max(d_max),
+#            c("no adjustment", "mean adjustment"),
+#            lty=c(1,1),
+#            col=c("blue", "red"))
 #     dev.off()
 #     
-#     g=fulldf=rmsesummary=0 #memory
-    
-    fulldf=rmsesummary=0 #memory
+# #     origrmsemean = mean(rmsesummary$origrmse, na.rm=T)
+# #     adjrmsemean = mean(rmsesummary$adjrmse, na.rm=T)
+# #     origrmsestdev = sd(rmsesummary$origrmse, na.rm=T)
+# #     adjrmsestdev = sd(rmsesummary$adjrmse, na.rm=T)
+# #     
+# #     #rmse
+# #     g = ggplot()+
+# #       geom_density(data = fulldf, aes(x=origdif, fill="no adjustment"), alpha = 0.2)+
+# #       geom_density(data = fulldf, aes(x=adjdif, fill="mean adjustment"), alpha = 0.2) +
+# #       theme_bw()+
+# #       xlab(index)+
+# #       guides(fill = guide_legend(title = NULL))+
+# #       ggtitle("Mean offset between coincident MSS and TM annual composites for a sample of pixel time series")
+# #     
+# #     pngout = file.path(offsetdir,"offset_histogram.png")
+# #     png(pngout,width=800, height=700)
+# #     print(g)
+# #     dev.off()
+# #     
+# #     g = ggplot()+
+# #       geom_density(data = rmsesummary, aes(x=origrmse, fill="no adjustment"), alpha = 0.2)+
+# #       geom_density(data = rmsesummary, aes(x=adjrmse, fill="mean adjustment"), alpha = 0.2) +
+# #       theme_bw()+
+# #       xlab(paste(index,"rmse"))+
+# #       guides(fill = guide_legend(title = NULL))+
+# #       ggtitle("RMSE for coincident MSS and TM annual composites for a sample of pixel time series")
+# #     
+# #     pngout = file.path(offsetdir,"offset_rmse.png")
+# #     png(pngout,width=800, height=700)
+# #     print(g)
+# #     dev.off()
+# #     
+# #     g = ggplot()+
+# #       geom_density(data = rmsesummary, aes(x=origmae, fill="no adjustment"), alpha = 0.2)+
+# #       geom_density(data = rmsesummary, aes(x=adjmae, fill="mean adjustment"), alpha = 0.2) +
+# #       theme_bw()+
+# #       xlab(paste(index,"mae"))+
+# #       guides(fill = guide_legend(title = NULL))+
+# #       ggtitle("MAE for coincident MSS and TM annual composites for a sample of pixel time series")
+# #     
+# #     pngout = file.path(offsetdir,"offset_mae.png")
+# #     png(pngout,width=800, height=700)
+# #     print(g)
+# #     dev.off()
+# #     
+# #     g=fulldf=rmsesummary=0 #memory
+#     
+#     fulldf=rmsesummary=0 #memory
 
     #make final mss composites
     print("compositing mss data using adjustment")
