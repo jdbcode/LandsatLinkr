@@ -9,7 +9,7 @@
 #' @export
 
 # http://earthexplorer.usgs.gov/ Landsat CDR TM and ETM+ images
-tmunpackr = function(file, proj="default", reso=30){
+tmunpackr = function(file, proj, reso=30){
   #tcset = "all", "tc", "tca"
 #   tcset="all" #hardwire
 #   
@@ -83,19 +83,19 @@ tmunpackr = function(file, proj="default", reso=30){
   #gc()
   
   #reproject the image #need to add in writing proj file for default
-  if(proj == "default"){proj = origproj}
-  if(proj == "albers"){proj = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"}
+  #if(proj == "default"){proj = origproj}
+  #if(proj == "albers"){proj = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"}
     write(proj, outprojfile)
     gdalwarp(srcfile=tempstack, dstfile=projstack, 
                s_srs=origproj, t_srs=proj, of="GTiff", 
                r="bilinear", srcnodata=-9999, dstnodata=-32768, multi=T, #"near"
                tr=c(reso,reso), co="INTERLEAVE=BAND")
     
-    #project the mask
-    gdalwarp(srcfile=tempmask, dstfile=projmask, 
-             s_srs=origproj, t_srs=proj, of="GTiff", 
-             r="mode", srcnodata=255, dstnodata=255, multi=T,
-             tr=c(reso,reso), co="INTERLEAVE=BAND")
+#     #project the mask
+#     gdalwarp(srcfile=tempmask, dstfile=projmask, 
+#              s_srs=origproj, t_srs=proj, of="GTiff", 
+#              r="mode", srcnodata=255, dstnodata=255, multi=T,
+#              tr=c(reso,reso), co="INTERLEAVE=BAND")
 
   
 

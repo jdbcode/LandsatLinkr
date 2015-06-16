@@ -35,10 +35,25 @@ run_landsatlinkr = function(){
       #       if(selection == "30 meter"){reso = 30}
       #       if(selection == "60 meter"){reso = 60}
       
-      choices = c("Native NAD83 UTM", "USGS North American Albers")
-      selection = select.list(choices, title = "Select a map projection to use")
-      if(selection == "Native NAD83 UTM (not recommended!)"){proj = "default"}
-      if(selection == "USGS North American Albers"){proj = "albers"}
+      #choices = c("USGS North American Albers", "User-provided projection","Native NAD83 UTM (not recommended!)", )
+      #selection = select.list(choices, title = "Select a map projection to use")
+      #if(selection == "Native NAD83 UTM (not recommended!)"){proj = "default"}
+      #if(selection == "USGS North American Albers"){proj = "albers"}
+      #if(selection == "User-provided"){
+      print("Please define a projection to use for this project")
+      print("If you need assistance, see the 'Selecting a geographic projection' section in the user manual")
+      choices = c("Manual PROJ.4 definition", "Extract PROJ.4 from a reference raster")
+      selection = select.list(choices, title = "How do you want to define the projection")
+      if(selection =="Manual PROJ.4 definition"){
+        proj = readline("  Provide PROJ.4 string: ") #http://spatialreference.org/
+      }
+      if(selection == "Extract PROJ.4 from a reference raster"){
+        file = choose.files(caption = "Select a raster file to extract projection information from", multi=F)
+        proj = gdalsrsinfo(srs_def=file,o="proj4")
+        proj = sub("'","",proj)
+        proj = sub(" '","",proj)
+      }
+      #}
     }
     
     demfile=NULL

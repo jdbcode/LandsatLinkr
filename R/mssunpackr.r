@@ -2,14 +2,14 @@
 #'
 #' Decompresses, stacks, and optionally reprojects LPGS MSS images recieved from USGS EROS as .tar.gz files
 #' @param file Filename of LPGS Landsat MSS image filename (full system path to file) 
-#' @param proj CRS projection definition. By default no projection will take place. Optionally specify a CRS projection string or "albers" for the USGS version of Albers Equal Area Conic 
+#' @param proj PROJ.4 projection definition. By default no projection will take place. Optionally specify a CRS projection string or "albers" for the USGS version of Albers Equal Area Conic 
 #' @param reso numeric. the target pixel size for the output image
 #' @import raster
 #' @import gdalUtils
 #' @export
 
 
-mssunpackr = function(file, proj="default", reso=60){
+mssunpackr = function(file, proj, reso=60){
   
   randomstring = paste(sample(c(0:9, letters, LETTERS), 6, replace=TRUE),collapse="")
   tempdir = file.path(dirname(file),randomstring) #temp
@@ -81,20 +81,20 @@ mssunpackr = function(file, proj="default", reso=60){
     writeGDAL(s, tempstack, drivername = "GTiff", options="INTERLEAVE=BAND", type = "Byte", mvFlag = 0) #, drivername = "GTiff"
     
     #reproject the image #need to add in writing proj file for default
-    if(proj != "default"){
-      if(proj == "albers"){proj = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"}
+    #if(proj != "default"){
+      #if(proj == "albers"){proj = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"}
       write(proj, outprojfile)
       gdalwarp(srcfile=tempstack, dstfile=projstack, 
                s_srs=origproj, t_srs=proj, of="GTiff",
                r="near", srcnodata=0, dstnodata=0, multi=T,
                tr=c(reso,reso), co="INTERLEAVE=BAND")
-    } else {
-      write(origproj, outprojfile)
-      gdalwarp(srcfile=tempstack, dstfile=projstack, 
-               s_srs=origproj, t_srs=origproj, of="GTiff",
-               r="near", srcnodata=0, dstnodata=0, multi=T,
-               tr=c(reso,reso), co="INTERLEAVE=BAND")
-    }
+#     } else {
+#       write(origproj, outprojfile)
+#       gdalwarp(srcfile=tempstack, dstfile=projstack, 
+#                s_srs=origproj, t_srs=origproj, of="GTiff",
+#                r="near", srcnodata=0, dstnodata=0, multi=T,
+#                tr=c(reso,reso), co="INTERLEAVE=BAND")
+#     }
     
     #trim the na rows and cols
     if(proj != "default"){infile = projstack} else {infile = tempstack} 

@@ -4,12 +4,12 @@
 \alias{mssunpackr}
 \title{Decompress, stack, and reproject LPSG MSS images}
 \usage{
-mssunpackr(file, proj = "default", reso = 60)
+mssunpackr(file, proj, reso = 60)
 }
 \arguments{
 \item{file}{Filename of LPGS Landsat MSS image filename (full system path to file)}
 
-\item{proj}{CRS projection definition. By default no projection will take place. Optionally specify a CRS projection string or "albers" for the USGS version of Albers Equal Area Conic}
+\item{proj}{PROJ.4 projection definition. By default no projection will take place. Optionally specify a CRS projection string or "albers" for the USGS version of Albers Equal Area Conic}
 
 \item{reso}{numeric. the target pixel size for the output image}
 }
