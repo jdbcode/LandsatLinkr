@@ -91,11 +91,11 @@ tmunpackr = function(file, proj, reso=30){
                r="bilinear", srcnodata=-9999, dstnodata=-32768, multi=T, #"near"
                tr=c(reso,reso), co="INTERLEAVE=BAND")
     
-#     #project the mask
-#     gdalwarp(srcfile=tempmask, dstfile=projmask, 
-#              s_srs=origproj, t_srs=proj, of="GTiff", 
-#              r="mode", srcnodata=255, dstnodata=255, multi=T,
-#              tr=c(reso,reso), co="INTERLEAVE=BAND")
+     #project the mask
+     gdalwarp(srcfile=tempmask, dstfile=projmask, 
+              s_srs=origproj, t_srs=proj, of="GTiff", 
+              r="mode", srcnodata=255, dstnodata=255, multi=T,
+              tr=c(reso,reso), co="INTERLEAVE=BAND")
 
   
 
