@@ -4,12 +4,16 @@
 \alias{msscvm}
 \title{Create a cloud and cloud shadow mask for Landsat MSS imagery}
 \usage{
-msscvm(file, demfile)
+msscvm(file, demfile, topoprep, test = F, overwrite = F)
 }
 \arguments{
-\item{file}{MSS image filename (full system path to MSS file)}
+\item{file}{character. MSS reflectance image filename (full system path to MSS file)}
 
-\item{demfile}{DEM filename (full system path to spatially coincident DEM file)}
+\item{demfile}{character. DEM filename (full system path to spatially coincident DEM file)}
+
+\item{topoprep}{logical. TRUE if slope and aspect are already created in the "topo" folder and FALSE if not}
+
+\item{test}{logical. If TRUE clouds, cloud shadows and clear pixels have unique values, if FALSE obscured are 0 and clear are 1}
 }
 \value{
 A binary raster with the same dimensions as the MSS image where pixels with value 1 represent clear pixel and 0 as obsured by either cloud or cloud shadow

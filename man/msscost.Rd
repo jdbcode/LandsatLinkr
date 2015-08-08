@@ -4,12 +4,10 @@
 \alias{msscost}
 \title{Convert DN values to surface reflectance}
 \usage{
-msscost(file, drkobjv)
+msscost(file, overwrite = F)
 }
 \arguments{
 \item{file}{The full path name of the *archv file}
-
-\item{drkobjv}{dark object values from mssdofinder}
 }
 \description{
 Convert DN values to surface reflectance using the COST model with dark object subtraction

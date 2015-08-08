@@ -4,7 +4,7 @@
 \alias{resample}
 \title{Resamples MSS dos_sr and cloudmask images to 30m}
 \usage{
-resample(file)
+resample(file, overwrite = F)
 }
 \arguments{
 \item{file}{character. full path to either an MSS *reflectance.tif or *cloudmask.tif file}
