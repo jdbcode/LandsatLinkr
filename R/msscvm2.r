@@ -13,13 +13,17 @@
 #' @export
 
 
-msscvm2 = function(file, demfile, topoprep, test=F){
+msscvm2 = function(file, demfile, topoprep, test=F, overwrite=F){
   #msscvm
   #get the metadata
 #   file="E:/llr_test/mixed/mss/wrs1/036032/images/1973/LM10360321973191_reflectance.tif"
 #   demfile="E:/llr_test/mixed/mss/wrs1/036032/topo/wrs1_036032_60m_dem.tif"
 #   topoprep = T
 #   test=F
+  
+  check = file_check(file,"cloudmask.tif",overwrite)
+  print(check)
+  if(check == 0){return(0)}
   
   ref = raster(file)
   info = get_metadata(file)

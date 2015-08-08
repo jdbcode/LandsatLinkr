@@ -7,19 +7,17 @@
 #' @export
 
 
-mssdn2refl = function(file){
+mssdn2refl = function(file, overwrite=F){
+  
+  check = file_check(file,"reflectance.tif",overwrite)
+  print(check)
+  if(check == 0){return(0)}
   
   #link to the equations to convert DN to TOA and TOA to SR
   #http://landsathandbook.gsfc.nasa.gov/data_prod/prog_sect11_3.html
   
   #define the reflectance function
   refl = function(file, band, gain, bias, sunzen, d, esun){
-    #     file = "E:/llr_test/30m/mss/wrs1/036032/images/1973/LM10360321973191_archv.tif"
-    #     band =1
-    #     gain = info$b1gain
-    #     bias = info$b1bias
-    #     esun = esun[1]
-    
     orig = raster(file, band)
     img = as.matrix(orig)   
     img = ((gain*img)+bias)
@@ -28,11 +26,6 @@ mssdn2refl = function(file){
     img = round(img * 10000)
     img = setValues(orig,img)
     return(img)
-    #     dataType(img) = "INT2S"
-    #     projection(img) = set_projection(file)
-    #     img = as(img, "SpatialGridDataFrame")         #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
-    #     outfile = sub("archv", paste("refl_temp_",band,sep=""), file)
-    #     writeGDAL(img, outfile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
   }
   
   #read in the image metadata  
@@ -60,36 +53,10 @@ mssdn2refl = function(file){
   #stack the bands
   img = stack(b1,b2,b3,b4)
   
-#   #read in the DN image data  
-#   b = brick(file)
-#   
-#   img = as.array(b)   
-#   img[,,1] = ((info$b1gain*img[,,1])+info$b1bias)
-#   img[,,2] = ((info$b2gain*img[,,2])+info$b2bias)
-#   img[,,3] = ((info$b3gain*img[,,3])+info$b3bias)
-#   img[,,4] = ((info$b4gain*img[,,4])+info$b4bias)
-# 
-#   img[img<0] = 0
-# 
-#   #convert solar zenith angle to radians for cos calculation (r expects radians)
-#   sunzenith = info$sunzen/57.2958 
-#   
-#   #calulate SR from DOS TOA
-#   img[,,1] = (pi * img[,,1] * (d^2))/(esun[1] * cos(sunzenith))
-#   img[,,2] = (pi * img[,,2] * (d^2))/(esun[2] * cos(sunzenith))
-#   img[,,3] = (pi * img[,,3] * (d^2))/(esun[3] * cos(sunzenith))
-#   img[,,4] = (pi * img[,,4] * (d^2))/(esun[4] * cos(sunzenith))
-#   
-#   #scale
-#   img = round(img * 10000)
-  
-#   gc()
-#   removeTmpFiles()
-#   img = setValues(b,img)
-  #dataType(img) = "INT2S"
+  #write it out
   projection(img) = set_projection(file)
   img = as(img, "SpatialGridDataFrame")         #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
   outfile = sub("archv", "reflectance", file)
   writeGDAL(img, outfile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
-  
+  return(1)
 }

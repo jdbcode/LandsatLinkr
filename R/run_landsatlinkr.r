@@ -24,21 +24,41 @@ run_landsatlinkr = function(){
     #if(selection == "Fit neat lines"){process = 9}
     
     print(paste("You have selected:",selection))
-    correct = select.list(c("Yes","No","Exist"), title = "Is that correct?")
-    if(correct == "Exist"){stop}
+    correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+    if(correct == "Exit"){return("Stopping LLR")}
   }
   
   #################################################################################################################
   #define the number of cores to use
   
   if(sum(process %in% seq(1,8)) > 0){  
-    choices = c("No", "Yes")
-    print("")
-    selection = select.list(choices, title = "Process in parallel using 2 cores when possible?")
-    if(selection == "No"){cores = 1}
-    if(selection == "Yes"){cores = 2}
+    
+    correct = "No"
+    while(correct == "No"){
+      choices = c("Yes", "No")
+      selection = select.list(choices, title = "Process in parallel using 2 cores when possible?")
+      if(selection == "Yes"){cores = 2}
+      if(selection == "No"){cores = 1}
+      print(paste("You have selected:",selection))
+      correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+      if(correct == "Exit"){return("Stopping LLR")}
+    }
   }
   
+  
+  if(sum(process %in% seq(1,8)) > 0){  
+    
+    correct = "No"
+    while(correct == "No"){
+      choices = c("Yes", "No")
+      selection = select.list(choices, title = "If files from a process already exist, should they be overwritten?")
+      if(selection == "Yes"){overwrite = T}
+      if(selection == "No"){overwrite = F}
+      print(paste("You have selected:",selection))
+      correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+      if(correct == "Exit"){return("Stopping LLR")}
+    }
+  }
   
   #################################################################################################################
   #prepare mss and tm/etm+ data
@@ -51,7 +71,6 @@ run_landsatlinkr = function(){
     correct = "No"
     while(correct == "No"){
       if(sum(process %in% seq(1,5)) > 0){
-        print("")
         print("please select an MSS directory to process")
         scenedir = choose.dir(caption = "Select an MSS scene directory. ex. 'C:/mss/wrs1/036032'")
       } else{
@@ -60,8 +79,8 @@ run_landsatlinkr = function(){
       }
       
       print(paste("You have selected:",scenedir))
-      correct = select.list(c("Yes","No","Exist"), title = "Is that correct?")
-      if(correct == "Exist"){stop}
+      correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+      if(correct == "Exit"){return("Stopping LLR")}
     }
     
     #reso = 60 #set default - not used anymore since we are running MSS at 60 and TM at 30
@@ -83,9 +102,9 @@ run_landsatlinkr = function(){
     
     correct = "No"
     while(correct == "No"){  
-      print("") 
       print("Please define a projection to use for this project")
       print("If you need assistance, see the 'Selecting a geographic projection' section in the user manual")
+      print("If you want to exit, press the 'return' key and then select 'Exist'")
       #choices = c("Manual PROJ.4 definition", "Extract PROJ.4 from a reference raster")
       #selection = select.list(choices, title = "How do you want to define the projection")
       #if(selection =="Manual PROJ.4 definition"){
@@ -101,8 +120,8 @@ run_landsatlinkr = function(){
       #}
       
       print(paste("You have selected:",proj))
-      correct = select.list(c("Yes","No","Exist"), title = "Is that correct?")
-      if(correct == "Exist"){stop}
+      correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+      if(correct == "Exit"){return("Stopping LLR")}
     }
     
     #################################################################################################################
@@ -111,16 +130,15 @@ run_landsatlinkr = function(){
     if(sum(process %in% seq(1,5)) > 0){
       correct = "No"
       while(correct == "No"){
-      print("")
         print("Please select a scene corresponding DEM file")
         demfile = choose.files(caption = "Select a scene corresponding DEM file", multi=F)
         print(paste("You have selected:",demfile))
-        correct = select.list(c("Yes","No","Exist"), title = "Is that correct?")
-        if(correct == "Exist"){stop}
+        correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+        if(correct == "Exit"){return("Stopping LLR")}
       }
     }
     #return(list(scenedir, demfile, proj, reso, process,cores))
-    prepare_images(scenedir, demfile, proj=proj, reso=reso, process=process,cores=cores)
+    prepare_images(scenedir, demfile, proj=proj, process=process,cores=cores, overwrite=overwrite)
   }
   
 
@@ -133,22 +151,28 @@ run_landsatlinkr = function(){
     #################################################################################################################
     #select directories for calibration
     if(sum(process %in% 7) > 0){
-      
+      print("Beginning scene selection for MSS to TM/ETM+ calibration")
+      print("Please see the 'Running LLR Step 3 - MSS to TM/ETM+ calibration' section of the user guide for assistance")
+      print("-----------------------------------------------------------------------")
       correct = "No"
       while(correct == "No"){
+        print("Select a MSS WRS-1 scene directory.")
         msswrs1dir = choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'")
+        print("Select a MSS WRS-2 scene directory.")
         msswrs2dir = choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'")
-        tmwrs2dir = choose.dir(caption = "Select a TM WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
+        print("Select a TM/ETM+ WRS-2 scene directory.")
+        tmwrs2dir = choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
         outdir=NULL
         index=NULL
         runname=NULL
         process = 1
         
+        print("-----------------------------------------------------------------------")
         print(paste("You have selected MSS WRS-1 scene:",msswrs1dir))
         print(paste("You have selected MSS WRS-2 scene:",msswrs2dir))
-        print(paste("You have selected TM WRS-2 scene:",tmwrs2dir))
-        correct = select.list(c("Yes","No","Exist"), title = "Is that correct?")
-        if(correct == "Exist"){stop}
+        print(paste("You have selected TM/ETM+ WRS-2 scene:",tmwrs2dir))
+        correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+        if(correct == "Exit"){return("Stopping LLR")}
       }
     }
     
@@ -189,19 +213,18 @@ run_landsatlinkr = function(){
         print(paste("You have selected MSS WRS-1 scene:",msswrs1dir))
         print(paste("You have selected MSS WRS-2 scene:",msswrs2dir))
         print(paste("You have selected TM WRS-2 scene:",tmwrs2dir))
-        correct = select.list(c("Yes","No","Exist"), title = "Is that correct?")
-        if(correct == "Exist"){stop}
+        correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+        if(correct == "Exit"){return("Stopping LLR")}
       }
       
       correct = "No"
       while(correct == "No"){
-        print("")
         print("Please select a directory to write the outputs to. ex. 'C:/composites/study_area'")
         outdir = choose.dir(caption = "Select a directory to write the outputs to. ex. 'C:/composites/study_area'")
         
         print(paste("You have selected:",outdir))
-        correct = select.list(c("Yes","No","Exist"), title = "Is that correct?")
-        if(correct == "Exist"){stop}
+        correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+        if(correct == "Exit"){return("Stopping LLR")}
       }
       
       #         choices = c("Tasseled cap angle",
@@ -222,11 +245,9 @@ run_landsatlinkr = function(){
       correct = "No"
       while(correct == "No"){
         runname = readline("Provide a unique name for the composite series. ex. project1: ")
-        
-        print("")
         print(paste("You have selected:",runname))
-        correct = select.list(c("Yes","No","Exist"), title = "Is that correct?")
-        if(correct == "Exist"){stop}
+        correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+        if(correct == "Exit"){return("Stopping LLR")}
       }
       
       #################################################################################################################
@@ -239,10 +260,9 @@ run_landsatlinkr = function(){
         correct = "No"
         while(correct == "No"){
           useareafile = choose.files(caption = "Select a 'usearea' file", multi=F)
-          print("")
           print(paste("You have selected:",useareafile))
-          correct = select.list(c("Yes","No","Exist"), title = "Is that correct?")
-          if(correct == "Exist"){stop}
+          correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+          if(correct == "Exit"){return("Stopping LLR")}
         }
       }
       
@@ -260,14 +280,13 @@ run_landsatlinkr = function(){
             check = (xmx > xmn) + (ymx > ymn)
             if(check != 2){print("error - coordinates do not create a square - try again")}
           }
-          print("")
           print("You have selected:")
           print(paste("max x coordinate:",xmx ))
           print(paste("min x coordinate:",xmn ))
           print(paste("max y coordinate:",ymx ))
           print(paste("min y coordinate:",ymn ))
-          correct = select.list(c("Yes","No","Exist"), title = "Is that correct?")
-          if(correct == "Exist"){stop}
+          correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+          if(correct == "Exit"){return("Stopping LLR")}
         }
         useareafile = file.path(outdir, paste(runname,"_usearea.tif",sep=""))
         make_usearea_file(c(msswrs1dir[1],msswrs2dir[1],tmwrs2dir[1]), useareafile, xmx, xmn, ymx, ymn)
@@ -282,7 +301,7 @@ run_landsatlinkr = function(){
     #################################################################################################################
     #execute the calibrate_and_composite function
     
-    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=cores, process=process)
+    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=cores, process=process, overwrite=overwrite)
   }
   
   #if(sum(process %in% 9 > 0)){

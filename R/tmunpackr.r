@@ -9,13 +9,17 @@
 #' @export
 
 # http://earthexplorer.usgs.gov/ Landsat CDR TM and ETM+ images
-tmunpackr = function(file, proj, reso=30){
+tmunpackr = function(file, proj, overwrite=F){
   #tcset = "all", "tc", "tca"
 #   tcset="all" #hardwire
 #   
 #   file = "E:/llr_test/mixed/tm/wrs2/034032/targz/LT50340321984181-SC20141117152258.tar.gz"
 #   proj="albers"
 #   reso=30
+  
+  check = file_check(file,"ledaps.tif",overwrite)
+  print(check)
+  if(check == 0){return(0)}
   
   #set new directories
   randomstring = paste(sample(c(0:9, letters, LETTERS), 6, replace=TRUE),collapse="")
@@ -89,13 +93,13 @@ tmunpackr = function(file, proj, reso=30){
     gdalwarp(srcfile=tempstack, dstfile=projstack, 
                s_srs=origproj, t_srs=proj, of="GTiff", 
                r="bilinear", srcnodata=-9999, dstnodata=-32768, multi=T, #"near"
-               tr=c(reso,reso), co="INTERLEAVE=BAND")
+               tr=c(30,30), co="INTERLEAVE=BAND")
     
      #project the mask
      gdalwarp(srcfile=tempmask, dstfile=projmask, 
               s_srs=origproj, t_srs=proj, of="GTiff", 
               r="mode", srcnodata=255, dstnodata=255, multi=T,
-              tr=c(reso,reso), co="INTERLEAVE=BAND")
+              tr=c(30,30), co="INTERLEAVE=BAND")
 
   
 

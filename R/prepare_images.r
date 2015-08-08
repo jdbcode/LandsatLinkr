@@ -11,25 +11,26 @@
 #' @export
 
 
-prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, process=seq(1:5), cores=2){
+prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:5), cores=2, overwrite=F){
   
   targzdir = file.path(scenedir,"targz")
   imgdir = file.path(scenedir,"images")
+  
+  cfun = function(a, b) NULL
   
   #mssunpackr
   if(all(is.na(match(process,1))) == F){
     print("Running mssunpackr")
     files = list.files(targzdir,"tar.gz",full.names=T)
-    reso = 60
-    if(reso == 30){cores = 1}
+    overwrite=F
     t=proc.time()
     if(cores == 2){
       print("...in parallel")
       cl = makeCluster(cores)
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% mssunpackr(files[i], proj=proj, reso=reso)
+      o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% mssunpackr(files[i], proj=proj, overwrite=overwrite)
       stopCluster(cl)
-    } else {for(i in 1:length(files)){mssunpackr(files[i], proj=proj, reso=reso)}}
+    } else {for(i in 1:length(files)){mssunpackr(files[i], proj=proj, overwrite=overwrite)}}
     print(proc.time()-t)
   }
   
@@ -46,7 +47,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
       print("...in parallel")
       cl=makeCluster(cores)
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% msswarp(reffile=reffile, fixfile=files[i], sample=1000)
+      o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% msswarp(reffile=reffile, fixfile=files[i], sample=1000)
       stopCluster(cl)
     } else {for(i in 1:length(files)){msswarp(reffile=reffile, fixfile=files[i], sample=1000)}}
     print(proc.time()-t)
@@ -62,7 +63,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
       print("...in parallel")
       cl=makeCluster(cores)
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% mssdn2refl(files[i]) #mssdn2rad
+      o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% mssdn2refl(files[i]) #mssdn2rad
       stopCluster(cl)
     } else {for(i in 1:length(files)){mssdn2refl(files[i])}} #mssdn2rad
     print(proc.time()-t)
@@ -78,7 +79,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
       print("...in parallel")
       cl=makeCluster(cores) #high memory with 2
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% mssatcor(files[i], outtype=3)
+      o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% mssatcor(files[i], outtype=3)
       stopCluster(cl)
     } else {for(i in 1:length(files)){mssatcor(files[i], outtype=3)}}
     print(proc.time()-t)
@@ -109,21 +110,34 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
     s_srs = projection(template)
     t_srs = set_projection(examplefile)
     
-    gdalwarp(srcfile=demfile,dstfile=newdem,
-             s_srs=s_srs,t_srs=t_srs, tr=c(reso,reso), dstnodata=-32768, ot="Int16")
+    havedem = file.exists(newdem)
+    if(havedem == T & overwrite == T | havedem == F){
+      if(havedem == T){unlink(newdem)}
+      gdalwarp(srcfile=demfile,dstfile=newdem,
+               s_srs=s_srs,t_srs=t_srs, tr=c(60,60), dstnodata=-32768, ot="Int16")
+    }
+    
+    dem = raster(newdem)
     
     print("...Preparing Slope")
-    dem = raster(newdem)
-    img = terrain(dem, opt="slope")
-    projection(img) = set_projection(examplefile)
-    img = as(img, "SpatialGridDataFrame")         #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
-    writeGDAL(img, newslope, drivername = "GTiff", type = "Float32", options="INTERLEAVE=BAND") #, mvFlag = -32768
+    haveslope = file.exists(newslope)
+    if(haveslope == T & overwrite == T | haveslope == F){
+      if(haveslope == T){unlink(newslope)}
+      img = terrain(dem, opt="slope")
+      projection(img) = set_projection(examplefile)
+      img = as(img, "SpatialGridDataFrame")         #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+      writeGDAL(img, newslope, drivername = "GTiff", type = "Float32", options="INTERLEAVE=BAND") #, mvFlag = -32768
+    }
     
     print("...Preparing Aspect")
-    img = terrain(dem, opt="aspect")
-    projection(img) = set_projection(examplefile)
-    img = as(img, "SpatialGridDataFrame")         #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
-    writeGDAL(img, newasp, drivername = "GTiff", type = "Float32", options="INTERLEAVE=BAND") #, mvFlag = -32768  
+    haveasp = file.exists(newasp)
+    if(haveasp == T & overwrite == T | haveasp == F){
+      if(haveasp == T){unlink(newasp)}
+      img = terrain(dem, opt="aspect")
+      projection(img) = set_projection(examplefile)
+      img = as(img, "SpatialGridDataFrame")         #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+      writeGDAL(img, newasp, drivername = "GTiff", type = "Float32", options="INTERLEAVE=BAND") #, mvFlag = -32768  
+    }
     
     img=0
     
@@ -135,7 +149,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
 #       o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% msscvm2(files[i], demfile)
 #       stopCluster(cl)
 #     } else {for(i in 1:length(files)){msscvm2(files[i], demfile)}}
-    for(i in 1:length(files)){msscvm2(files[i], newdem, topoprep=T, test=F)} #demfile
+    for(i in 1:length(files)){msscvm2(files[i], newdem, topoprep=T, test=F, overwrite=overwrite)} #demfile
     print(proc.time()-t)
   }
   
@@ -149,11 +163,10 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", reso=60, proce
     if(cores == 2){
       cl=makeCluster(cores) #high memory with 2
       registerDoParallel(cl)
-      cfun <- function(a, b) NULL
       t = proc.time()
-      o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% tmunpackr(files[i], proj=proj, reso=reso)
+      o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% tmunpackr(files[i], proj=proj, overwrite=overwrite)
       stopCluster(cl)
-    } else {for(i in 1:length(files)){tmunpackr(files[i], proj=proj, reso=reso)}}
+    } else {for(i in 1:length(files)){tmunpackr(files[i], proj=proj, overwrite=overwrite)}}
     print(proc.time()-t)
   }
 }
