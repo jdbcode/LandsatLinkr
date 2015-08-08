@@ -22,7 +22,6 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
   if(all(is.na(match(process,1))) == F){
     print("Running mssunpackr")
     files = list.files(targzdir,"tar.gz",full.names=T)
-    overwrite=F
     t=proc.time()
     if(cores == 2){
       print("...in parallel")
@@ -41,7 +40,6 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
     diagfiles = list.files(imgdir, pattern="cloud_rmse.csv", full.names=T, recursive=T)
     tbl = do.call(rbind, lapply(diagfiles, read.table, header = F,sep = ','))
     reffile = as.character(tbl[order(round(tbl[,3],digits=1), tbl[,2]),][1,1])
-    if(xres(raster(files[1])) == 30){cores = 1}
     t = proc.time()
     if(cores == 2){
       print("...in parallel")
@@ -57,31 +55,29 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
   if(all(is.na(match(process,3))) == F){
     print("Running mssdn2refl")
     files = list.files(imgdir, pattern="archv.tif", full.names=T, recursive=T)
-    if(xres(raster(files[1])) == 30){cores = 1}
     t = proc.time()
     if(cores == 2){
       print("...in parallel")
       cl=makeCluster(cores)
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% mssdn2refl(files[i]) #mssdn2rad
+      o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% mssdn2refl(files[i], overwrite)
       stopCluster(cl)
-    } else {for(i in 1:length(files)){mssdn2refl(files[i])}} #mssdn2rad
+    } else {for(i in 1:length(files)){mssdn2refl(files[i], overwrite)}}
     print(proc.time()-t)
   }
   
   #convert to surface reflectance
   if(all(is.na(match(process,4))) == F){
-    print("Running mssatcor")
+    print("Running msscost")
     files = list.files(imgdir, pattern="archv.tif", full.names=T, recursive=T)
-    if(xres(raster(files[1])) == 30){cores = 1}
     t = proc.time()
     if(cores == 2){
       print("...in parallel")
-      cl=makeCluster(cores) #high memory with 2
+      cl=makeCluster(cores)
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% mssatcor(files[i], outtype=3)
+      o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% msscost(files[i], overwrite)
       stopCluster(cl)
-    } else {for(i in 1:length(files)){mssatcor(files[i], outtype=3)}}
+    } else {for(i in 1:length(files)){msscost(files[i], overwrite)}}
     print(proc.time()-t)
   }
   
@@ -91,9 +87,6 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
     files = list.files(imgdir, pattern="reflectance", full.names=T, recursive=T) #"radiance.tif"
     
     print("...Preparing DEM")
-    #file = "E:/llr_test/30m/mss/wrs1/036032/images/1973/LM10360321973191_reflectance.tif"
-    #demfile = "K:/gis_data/dems/wrs_dem/wrs1_036032_60m_dem.tif"
-    
     examplefile = files[1]
     dname = dirname(examplefile)
     scenedir = substr(dname,1,nchar(dname)-12)
@@ -125,7 +118,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
       if(haveslope == T){unlink(newslope)}
       img = terrain(dem, opt="slope")
       projection(img) = set_projection(examplefile)
-      img = as(img, "SpatialGridDataFrame")         #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+      img = as(img, "SpatialGridDataFrame")
       writeGDAL(img, newslope, drivername = "GTiff", type = "Float32", options="INTERLEAVE=BAND") #, mvFlag = -32768
     }
     
@@ -135,7 +128,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
       if(haveasp == T){unlink(newasp)}
       img = terrain(dem, opt="aspect")
       projection(img) = set_projection(examplefile)
-      img = as(img, "SpatialGridDataFrame")         #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
+      img = as(img, "SpatialGridDataFrame")
       writeGDAL(img, newasp, drivername = "GTiff", type = "Float32", options="INTERLEAVE=BAND") #, mvFlag = -32768  
     }
     
@@ -143,13 +136,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
     
     print("...Making masks")
     t = proc.time()
-#     if(cores == 2){
-#       cl=makeCluster(cores) #high memory with 2
-#       registerDoParallel(cl)
-#       o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% msscvm2(files[i], demfile)
-#       stopCluster(cl)
-#     } else {for(i in 1:length(files)){msscvm2(files[i], demfile)}}
-    for(i in 1:length(files)){msscvm2(files[i], newdem, topoprep=T, test=F, overwrite=overwrite)} #demfile
+    for(i in 1:length(files)){msscvm(files[i], newdem, topoprep=T, test=F, overwrite=overwrite)} #demfile
     print(proc.time()-t)
   }
   
@@ -161,7 +148,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
     if(reso == 30){cores = 1}
     t = proc.time()
     if(cores == 2){
-      cl=makeCluster(cores) #high memory with 2
+      cl=makeCluster(cores)
       registerDoParallel(cl)
       t = proc.time()
       o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% tmunpackr(files[i], proj=proj, overwrite=overwrite)
