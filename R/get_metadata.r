@@ -10,7 +10,13 @@ get_metadata = function(file){
   tbl = unlist(read.delim(mtlfile, header=F, skipNul=T))
   
   #get the path row "ppprrr"
-  ppprrr = substr(basename(file), 4,9)
+  ppprrr = substr(bname, 4,9)
+  
+  #get the day-of-year
+  doy = as.numeric(substr(bname, 14,16))
+  
+  #get the image id
+  imgid = substr(bname, 1, 21)
   
   #get the data type
   string = as.character(grep("DATA_TYPE = ", tbl, value=T))
@@ -42,26 +48,26 @@ get_metadata = function(file){
   gain = array(0,4)
   bias = array(0,4)
   
-  for(j in 1:4){
-    maxradsearch = paste("RADIANCE_MAXIMUM_BAND_", bands[j], " =", sep="")
+  for(i in 1:4){
+    maxradsearch = paste("RADIANCE_MAXIMUM_BAND_", bands[i], " =", sep="")
     string = as.character(grep(maxradsearch, tbl, value=T))
     pieces = unlist(strsplit(string, " "))
-    maxrad[j] = as.numeric(pieces[7])
+    maxrad[i] = as.numeric(pieces[7])
     
-    minradsearch = paste("RADIANCE_MINIMUM_BAND_", bands[j], " =", sep="")
+    minradsearch = paste("RADIANCE_MINIMUM_BAND_", bands[i], " =", sep="")
     string = as.character(grep(minradsearch, tbl, value=T))
     pieces = unlist(strsplit(string, " "))
-    minrad[j] = as.numeric(pieces[7])
+    minrad[i] = as.numeric(pieces[7])
     
-    radmultsearch = paste("RADIANCE_MULT_BAND_", bands[j], " =", sep="")
+    radmultsearch = paste("RADIANCE_MULT_BAND_", bands[i], " =", sep="")
     string = as.character(grep(radmultsearch, tbl, value=T))
     pieces = unlist(strsplit(string, " "))
-    gain[j] = as.numeric(pieces[7])
+    gain[i] = as.numeric(pieces[7])
     
-    radaddsearch = paste("RADIANCE_ADD_BAND_", bands[j], " =", sep="")
+    radaddsearch = paste("RADIANCE_ADD_BAND_", bands[i], " =", sep="")
     string = as.character(grep(radaddsearch, tbl, value=T))
     pieces = unlist(strsplit(string, " "))
-    bias[j] = as.numeric(pieces[7])
+    bias[i] = as.numeric(pieces[7])
   } 
   
   #prepare variables for inclusion in output table
@@ -91,8 +97,10 @@ get_metadata = function(file){
   if(sensor == "LANDSAT_5"){wrstype = "wrs2"}
   
   #fill in the output table
-  out = data.frame(
+  df = data.frame(
     ppprrr,
+    doy,
+    imgid,
     sensor,
     datatype,
     wrstype,
@@ -117,5 +125,5 @@ get_metadata = function(file){
     b4bias
   )
   
-  return(out)
+  return(df)
 }
