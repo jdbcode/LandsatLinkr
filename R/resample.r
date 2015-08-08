@@ -5,20 +5,32 @@
 #' @import gdalUtils
 #' @export
 
-resample = function(file){
+resample = function(file, overwrite=F){
   type = c(length(grep("dos_sr", file)), length(grep("cloudmask", file)))
   
   if(type[1] == 1){
+    check = file_check(file,"dos_sr_30m.tif",overwrite)
+    print(check)
+    if(check == 0){return(0)}
+    
     newfile = sub("dos_sr", "dos_sr_30m", file)
-    if(file.exists(newfile)==T){return()}
     gdalwarp(srcfile=file, dstfile=newfile,tr=c(30,30),
              srcnodata=-32768, dstnodata=-32768, multi=T)
+    
+    return(1)
   }
+  
+  
   if(type[2] == 1){
+    check = file_check(file,"cloudmask_30m.tif",overwrite)
+    print(check)
+    if(check == 0){return(0)}
+    
     newfile = sub("cloudmask", "cloudmask_30m", file)
-    if(file.exists(newfile)==T){return()}
     gdalwarp(srcfile=file, dstfile=newfile,tr=c(30,30),
              srcnodata=255, dstnodata=255, multi=T)
+    
+    return(1)
   }
 }
 
