@@ -52,6 +52,14 @@ file_check = function(file, output, overwrite){
       unlink(result)
       return(2)
     } else {return(0)}
+  } else if(output == "cloudmask_30m.tif"){
+    print("cloudmask_30m")
+    search = paste(imgid,"_cloudmask_30m.tif",sep="")
+    result = list.files(dname, search, recursive=T, full.names=T)
+    if(length(result) == 0){return(1)} else if(length(result) == 1 & overwrite == T){
+      unlink(result)
+      return(2)
+    } else {return(0)}
   } else if(output == "tca_30m.tif"){
     print("tca_30m")
     search = paste(imgid,"_tca_30m.tif",sep="")
