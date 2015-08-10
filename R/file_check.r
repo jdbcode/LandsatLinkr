@@ -86,7 +86,17 @@ file_check = function(file, output, overwrite){
       unlink(result)
       return(2)
     } else {return(0)}
-  } 
+  } else if(output == "l8sr.tif"){
+    print("l8sr")
+    ppprrrdir = substr(dname,1,(nchar(dname)-6)) 
+    search = paste(imgid,"_l8sr.tif",sep="")
+    result = list.files(ppprrrdir, search, recursive=T, full.names=T)
+    if(length(result) == 0){return(1)} else if(length(result) >= 1 & overwrite == T){
+      result = list.files(file.path(ppprrrdir,"images"), imgid, recursive=T, full.names=T)
+      unlink(result)
+      return(2)
+    } else {return(0)}
+  }
 }
 
 
