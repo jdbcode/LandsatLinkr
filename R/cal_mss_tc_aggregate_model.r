@@ -66,7 +66,7 @@ cal_mss_tc_aggregate_model = function(dir){
            ylim=limits)
       
       m = rlm(refsamp ~ comppred, data=df)
-      abline(coef = m$coefficients, lty=2, col="gray48", ,lwd=2.5)
+      abline(coef = m$coefficients, lty=2, col="gray48", lwd=2.5)
       for(i in 1:ncol(tmp)){abline(a = tmp[1,i], b=tmp[2,i], col=cols[i])}
       legend(x=limits[1]+25,y=limits[2]-25,
              c("mean",colnames(tmp)),
@@ -128,7 +128,7 @@ cal_mss_tc_aggregate_model = function(dir){
          xlim=limits,
          main=title,
          xlab=paste(index))
-    abline(v=meanrefsamp,lty=2, col=1, ,lwd=2.5)
+    abline(v=meanrefsamp,lty=2, col=1,lwd=2.5)
     abline(v=newdf$diffm, col=c(2:(length(newdf$diffm)+1)))
     legend(x=limits[2]-3000,y=max(d$y),
            c("mean",as.character(newdf$mss_img)),
