@@ -15,6 +15,12 @@ get_metadata = function(file){
   #get the day-of-year
   doy = as.numeric(substr(bname, 14,16))
   
+  #get the year
+  year = as.numeric(substr(bname, 10,13))
+  
+  #get the yearday
+  yearday = as.numeric(substr(bname, 10,16))
+  
   #get the image id
   imgid = substr(bname, 1, 21)
   
@@ -100,6 +106,8 @@ get_metadata = function(file){
   df = data.frame(
     ppprrr,
     doy,
+    year,
+    yearday,
     imgid,
     sensor,
     datatype,
