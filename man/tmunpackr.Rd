@@ -2,16 +2,18 @@
 % Please edit documentation in R/tmunpackr.r
 \name{tmunpackr}
 \alias{tmunpackr}
-\title{Decompress, stack, and reproject LPSG MSS images}
+\title{Decompress, stack, and reproject TM/ETM+ SR images}
 \usage{
-tmunpackr(file, proj, overwrite = F)
+tmunpackr(file, proj = "default", overwrite = F)
 }
 \arguments{
 \item{file}{character. full path name of the surface reflectance file}
 
-\item{outtype}{coded integer designating what units are desired in the output image: 1=DN, 2=radiance, 3=surface reflectance}
+\item{proj}{character. PROJ.4 projection definition.}
+
+\item{overwrite}{logical. True will overwrite the file if it already exists, False will skip processing if output file exists.}
 }
 \description{
-Decompresses, stacks, and optionally reprojects LPGS MSS images recieved from USGS EROS as .tar.gz files
+Decompress, stack, and reproject TM/ETM+ SR images
 }
 
