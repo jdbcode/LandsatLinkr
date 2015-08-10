@@ -1,21 +1,17 @@
-#' Decompress, stack, and reproject LPSG MSS images
+#' Decompress, stack, and reproject TM/ETM+ SR images
 #'
-#' Decompresses, stacks, and optionally reprojects LPGS MSS images recieved from USGS EROS as .tar.gz files
+#' Decompress, stack, and reproject TM/ETM+ SR images
 #' @param file character. full path name of the surface reflectance file
-#' @param outtype coded integer designating what units are desired in the output image: 1=DN, 2=radiance, 3=surface reflectance
+#' @param proj character. PROJ.4 projection definition.
+#' @param overwrite logical. True will overwrite the file if it already exists, False will skip processing if output file exists. 
 #' @import raster
 #' @import gdalUtils
 #' @import rgdal
 #' @export
 
-# http://earthexplorer.usgs.gov/ Landsat CDR TM and ETM+ images
-tmunpackr = function(file, proj, overwrite=F){
-  #tcset = "all", "tc", "tca"
-#   tcset="all" #hardwire
-#   
-#   file = "E:/llr_test/mixed/tm/wrs2/034032/targz/LT50340321984181-SC20141117152258.tar.gz"
-#   proj="albers"
-#   reso=30
+
+tmunpackr = function(file, proj="default", overwrite=F){
+  # http://earthexplorer.usgs.gov/ Landsat CDR TM and ETM+ images
   
   check = file_check(file,"ledaps.tif",overwrite)
   print(check)
@@ -43,7 +39,7 @@ tmunpackr = function(file, proj, overwrite=F){
   fmask = grep("cfmask.tif", files, value=T) # <= 1 okay background 255
   outbase = substr(basename(file),1,16) 
   tempstack = file.path(tempdir,paste(outbase,"_tempstack.tif",sep=""))
-  tempvrt = sub("tempstack.tif", "tempmask.vrt", tempstack)
+  tempvrt = sub("tempstack.tif", "tempstack.vrt", tempstack)
   tempmask = sub("tempstack", "tempmask", tempstack)
   projstack = sub("tempstack", "projstack", tempstack)
   projmask = sub("tempstack", "projmask", tempstack)
@@ -59,11 +55,6 @@ tmunpackr = function(file, proj, overwrite=F){
   #stack the image bands and write out
   gdalbuildvrt(gdalfile=bands, output.vrt = tempvrt, separate=T) #, tr=c(reso,reso)
   gdal_translate(src_dataset=tempvrt, dst_dataset=tempstack, of = "GTiff", co="INTERLEAVE=BAND")
-  
-   #s = stack(bands)
-   #origproj = projection(s)
-   #s = as(s, "SpatialGridDataFrame")       
-   #writeGDAL(s, tempstack, drivername = "ENVI", type = "Int16", mvFlag = -9999)
   
   #make a composite cloudmask
   s = as.matrix(raster(shadow))
@@ -84,34 +75,25 @@ tmunpackr = function(file, proj, overwrite=F){
   writeGDAL(mask, tempmask, drivername = "GTiff", type = "Byte", mvFlag = 255, options="INTERLEAVE=BAND")
   
   s=c=sn=f=mask=0 #clear the memory
-  #gc()
   
   #reproject the image #need to add in writing proj file for default
-  #if(proj == "default"){proj = origproj}
-  #if(proj == "albers"){proj = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"}
-    write(proj, outprojfile)
-    gdalwarp(srcfile=tempstack, dstfile=projstack, 
-               s_srs=origproj, t_srs=proj, of="GTiff", 
-               r="bilinear", srcnodata=-9999, dstnodata=-32768, multi=T, #"near"
-               tr=c(30,30), co="INTERLEAVE=BAND")
-    
-     #project the mask
-     gdalwarp(srcfile=tempmask, dstfile=projmask, 
-              s_srs=origproj, t_srs=proj, of="GTiff", 
-              r="mode", srcnodata=255, dstnodata=255, multi=T,
-              tr=c(30,30), co="INTERLEAVE=BAND")
-
+  if(proj == "default"){proj = origproj}
+  write(proj, outprojfile)
+  gdalwarp(srcfile=tempstack, dstfile=projstack, 
+           s_srs=origproj, t_srs=proj, of="GTiff", 
+           r="bilinear", srcnodata=-9999, dstnodata=-32768, multi=T, #"near"
+           tr=c(30,30), co="INTERLEAVE=BAND")
   
-
+  #project the mask
+  gdalwarp(srcfile=tempmask, dstfile=projmask, 
+           s_srs=origproj, t_srs=proj, of="GTiff", 
+           r="mode", srcnodata=255, dstnodata=255, multi=T,
+           tr=c(30,30), co="INTERLEAVE=BAND")
+  
+  
+  
   #trim the na rows and cols
-  if(proj != "default"){
-    infile = projstack
-    inmask = projmask
-  } else {
-    infile = tempstack
-    inmask = tempmask
-  } 
-  trim_na_rowcol(infile, finalstack, inmask, finalmask)
+  trim_na_rowcol(projstack, finalstack, projmask, finalmask)
   
   #tasseled cap
   ref = raster(finalstack, 1)
@@ -126,7 +108,7 @@ tmunpackr = function(file, proj, overwrite=F){
   gcoef = c(-0.1603, -0.2819, -0.4934, 0.7940, -0.0002, -0.1446)
   wcoef = c(0.0315, 0.2021, 0.3102, 0.1594,-0.6806, -0.6109)
   
-
+  
   bright = (b1*bcoef[1])+(b2*bcoef[2])+(b3*bcoef[3])+(b4*bcoef[4])+(b5*bcoef[5])+(b6*bcoef[6])
   green = (b1*gcoef[1])+(b2*gcoef[2])+(b3*gcoef[3])+(b4*gcoef[4])+(b5*gcoef[5])+(b6*gcoef[6])
   wet = (b1*wcoef[1])+(b2*wcoef[2])+(b3*wcoef[3])+(b4*wcoef[4])+(b5*wcoef[5])+(b6*wcoef[6])
@@ -136,12 +118,12 @@ tmunpackr = function(file, proj, overwrite=F){
   #gc()
   #calc tc and convert to a raster
   #if(tcset == "all" | tcset == "tc"){
-    tcb = matrix_to_raster(finalstack,bright)
-    tcg = matrix_to_raster(finalstack,green)
-    tcw = matrix_to_raster(finalstack,wet)
-    wet=0  
-    tca = atan(green/bright) * (180/pi) * 100
-    bright=green=0  
+  tcb = matrix_to_raster(finalstack,bright)
+  tcg = matrix_to_raster(finalstack,green)
+  tcw = matrix_to_raster(finalstack,wet)
+  wet=0  
+  tca = atan(green/bright) * (180/pi) * 100
+  bright=green=0  
   tca = matrix_to_raster(finalstack,tca)
   
   temptcb = file.path(tempdir,paste(outbase,"_temptcb.tif",sep=""))
@@ -169,25 +151,6 @@ tmunpackr = function(file, proj, overwrite=F){
   tc = as(tca, "SpatialGridDataFrame")
   tca=0
   writeGDAL(tc, tcafile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
-  
-  #tcb = setValues(ref,bright)
-    #tcg = setValues(ref,green)
-    #tcw = setValues(ref,wet)   
-#     tc = stack(tcb,tcg,tcw)
-#     projection(tc) = set_projection(tcfile)
-#     gc()  
-#     tc = as(tc, "SpatialGridDataFrame")
-#     writeGDAL(tc, tcfile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
-  #}
-  
-  #if(tcset == "all" | tcset == "tca"){
-    #calc tc angle and convert to a raster
-#     tca = atan(green/bright) * (180/pi) * 100
-#     tca = setValues(ref,tca)
-#     projection(tca) = set_projection(tcafile)
-#     tca = as(tca, "SpatialGridDataFrame")
-#     writeGDAL(tca, tcafile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
-#   }
   
   #delete temporary files
   unlink(tempdir, recursive=T, force=T)
