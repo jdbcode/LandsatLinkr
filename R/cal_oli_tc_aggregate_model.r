@@ -6,7 +6,27 @@
 #' @export
 
 
-cal_oli_tc_aggregate_model = function(dir){
+cal_oli_tc_aggregate_model = function(dir, overwrite=F){
+  
+  #make new directory
+  outdir = file.path(dir,"aggregate_model")
+  dir.create(outdir, recursive=T, showWarnings=F)
+  
+  #check to see if single cal has already been run
+  files = list.files(outdir)
+  thesefiles = c("tca_aggregate_mean_dif.png","tca_aggregate_regression.png","tca_cal_aggregate_coef.csv","tca_cal_aggregate_sample.csv","tca_cal_combined_coef.csv","tca_single_mean_dif.png","tca_single_regression.png",
+                 "tcb_aggregate_mean_dif.png","tcb_aggregate_regression.png","tcb_cal_aggregate_coef.csv","tcb_cal_aggregate_sample.csv","tcb_cal_combined_coef.csv","tcb_single_mean_dif.png","tcb_single_regression.png",
+                 "tcg_aggregate_mean_dif.png","tcg_aggregate_regression.png","tcg_cal_aggregate_coef.csv","tcg_cal_aggregate_sample.csv","tcg_cal_combined_coef.csv","tcg_single_mean_dif.png","tcg_single_regression.png",
+                 "tcw_aggregate_mean_dif.png","tcw_aggregate_regression.png","tcw_cal_aggregate_coef.csv","tcw_cal_aggregate_sample.csv","tcw_cal_combined_coef.csv","tcw_single_mean_dif.png","tcw_single_regression.png")
+  
+  results = rep(NA,length(thesefiles))
+  for(i in 1:length(results)){
+    test = grep(thesefiles[i], files)
+    results[i] = length(test) > 0
+  }
+  if(all(results) == T & overwrite == F){return(0)}
+  
+  ###########define some functions############
   plot_multi_cal = function(df,index, model, outfile){
     
     if(index == "tcb"){limits = c(-500, 10000)}
@@ -34,20 +54,7 @@ cal_oli_tc_aggregate_model = function(dir){
              lty=rep(1,ncol(tmp)),
              col=cols)
       
-      
       dev.off()
-      
-      
-      #       g = ggplot(df, aes(x=singlepred, y=refsamp, colour=oli_img)) +
-      #         geom_density2d(bins=3)+
-      #         geom_smooth(method="rlm", se = FALSE)+
-      #         xlim(limits)+
-      #         ylim(limits)+
-      #         xlab(paste("oli predicted",index))+
-      #         ylab(paste("tm",index))+
-      #         ggtitle(paste("single model 2d data density contours and robust linear regression lines for",index))+
-      #         coord_fixed(ratio = 1)+
-      #         theme_bw()
     }
     if(model == "aggregate"){
       
@@ -73,27 +80,8 @@ cal_oli_tc_aggregate_model = function(dir){
              lty=c(2,rep(1,ncol(tmp))),
              col=c("gray48",cols))
       
-      
-      #print(g)
       dev.off()
-      
-      #       g=ggplot()+
-      #         geom_density2d(bins=3,data=df, aes(x=comppred, y=refsamp, colour=oli_img))+
-      #         geom_smooth(method="rlm", data=df, aes(x=comppred, y=refsamp, colour=oli_img), se = FALSE)+
-      #         geom_smooth(method="rlm", data=df, aes(x=comppred, y=refsamp), colour="black", size=1, se = FALSE, linetype="dashed")+
-      #         xlim(limits)+
-      #         ylim(limits)+
-      #         xlab(paste("oli predicted",index))+
-      #         ylab(paste("tm",index))+
-      #         ggtitle(paste("aggregate model 2d data density contours and robust linear regression lines for",index))+
-      #         coord_fixed(ratio = 1)+
-      #         theme_bw()
     }
-    
-    #     png(outfile, width = 1100, height=800)
-    #     print(g)
-    #     dev.off()
-    #return(g)
   }
   
   plot_multi_cal_dif = function(df, index, model, outfile){
@@ -113,15 +101,6 @@ cal_oli_tc_aggregate_model = function(dir){
       title = paste("aggregate model mean prediction differences from actual values for",index)
     }
     
-    #     g = ggplot(df, aes(x=refsamp))+
-    #       geom_density(colour="black",linetype="dashed")+
-    #       geom_vline(data = newdf,aes(xintercept = diffm, colour = oli_img), show_guide = TRUE, size=0.5) +
-    #       geom_vline(xintercept = meanrefsamp , colour = "black", size=1, linetype="dashed") +
-    #       xlim(limits)+
-    #       xlab(paste(index))+
-    #       ggtitle(title)+
-    #       theme_bw()
-    
     png(outfile, width = 1100, height=800)
     d = density(df$refsamp)
     plot(d,
@@ -135,9 +114,7 @@ cal_oli_tc_aggregate_model = function(dir){
            lty=c(2,rep(1,length(newdf$diffm))),
            col=c(1,2:(length(newdf$diffm)+1)))
     
-    #print(g)
     dev.off()
-    #return(g)
   }
   
   aggregate_cal_diag = function(sample_files, coef_files, index, outdir){
@@ -146,7 +123,7 @@ cal_oli_tc_aggregate_model = function(dir){
       tbl = do.call("rbind", lapply(sample_files, read.csv, header = TRUE))
     } else {tbl = sample_files}
     if(index == "tca"){model = rlm(refsamp ~ comppred, data=tbl)} else {
-      model = rlm(refsamp ~ b1samp + b2samp + b3samp + b4samp + b5samp + b6samp + b7samp, data=tbl)
+      model = rlm(refsamp ~ b2samp + b3samp + b4samp + b5samp + b6samp + b7samp, data=tbl)
       tbl$comppred = round(predict(model))
     }
     tbl$singlepreddif = tbl$refsamp - tbl$singlepred
@@ -154,7 +131,7 @@ cal_oli_tc_aggregate_model = function(dir){
     tblcoef = model$coefficients
     r = cor(tbl$refsamp,tbl$comppred)
     if(index == "tca"){coef = data.frame(index=index,yint=tblcoef[1],b1c=tblcoef[2],r=r)} else {
-      coef = data.frame(index=index,yint=tblcoef[1],b1c=tblcoef[2],b2c=tblcoef[3],b3c=tblcoef[4],b4c=tblcoef[5],b5c=tblcoef[6],b6c=tblcoef[7],b7c=tblcoef[8],r=r)}
+      coef = data.frame(index=index,yint=tblcoef[1],b2c=tblcoef[2],b3c=tblcoef[3],b4c=tblcoef[4],b5c=tblcoef[5],b6c=tblcoef[6],b7c=tblcoef[7],r=r)}
     
     coeftbl = do.call("rbind", lapply(coef_files, read.csv, header = TRUE))
     outfile = file.path(outdir,paste(index,"_cal_combined_coef.csv",sep=""))
@@ -178,9 +155,7 @@ cal_oli_tc_aggregate_model = function(dir){
     return(tbl)
   }
   
-  outdir = file.path(dir,"aggregate_model")
-  dir.create(outdir, recursive=T, showWarnings=F)
-  
+  #######run the functions
   tcbsamps = list.files(dir,"tcb_cal_samp.csv",recursive=T,full.names=T)
   tcgsamps = list.files(dir,"tcg_cal_samp.csv",recursive=T,full.names=T)
   tcwsamps = list.files(dir,"tcw_cal_samp.csv",recursive=T,full.names=T)
@@ -201,11 +176,13 @@ cal_oli_tc_aggregate_model = function(dir){
   atbl = aggregate_cal_diag(tcasamps, tcacoef, "tca", outdir)
   
   #create plane plots
-  tcb_samp_file = file.path(outdir,"tcb_cal_aggregate_sample.csv")
-  tcg_samp_file = file.path(outdir,"tcg_cal_aggregate_sample.csv")
-  tcw_samp_file = file.path(outdir,"tcw_cal_aggregate_sample.csv")
-  outfile = file.path(outdir,"aggregate_cal_tc_planes_comparison.png") 
-  #make_tc_planes_comparison(tcb_samp_file, tcg_samp_file, tcw_samp_file, outfile)
+#   tcb_samp_file = file.path(outdir,"tcb_cal_aggregate_sample.csv")
+#   tcg_samp_file = file.path(outdir,"tcg_cal_aggregate_sample.csv")
+#   tcw_samp_file = file.path(outdir,"tcw_cal_aggregate_sample.csv")
+#   outfile = file.path(outdir,"aggregate_cal_tc_planes_comparison.png") 
+#   make_tc_planes_comparison(tcb_samp_file, tcg_samp_file, tcw_samp_file, outfile)
+  
+  return(1)
 }
 
 
