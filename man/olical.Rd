@@ -4,7 +4,7 @@
 \alias{olical}
 \title{Calibrate OLI images to TM images}
 \usage{
-olical(oliwrs2dir, tmwrs2dir, cores = 2)
+olical(oliwrs2dir, tmwrs2dir, cores = 2, overwrite = overwrite)
 }
 \arguments{
 \item{oliwrs2dir}{character. oli WRS-2 scene directory path}

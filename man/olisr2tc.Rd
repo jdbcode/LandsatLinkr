@@ -4,7 +4,7 @@
 \alias{olisr2tc}
 \title{Create oli TC from surface reflectance and modeled coefficients}
 \usage{
-olisr2tc(oli_file, bcoef, gcoef, wcoef, mode)
+olisr2tc(oli_file, bcoef, gcoef, wcoef, mode, overwrite = F)
 }
 \arguments{
 \item{oli_file}{character. full path name to oli surface reflectance file}

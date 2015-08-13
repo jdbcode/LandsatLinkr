@@ -4,7 +4,7 @@
 \alias{olical_single}
 \title{Calibrate oli images to TM images}
 \usage{
-olical_single(oli_file, tm_file)
+olical_single(oli_file, tm_file, overwrite = F)
 }
 \arguments{
 \item{oliwrs2dir}{character. oli WRS-2 scene directory path}

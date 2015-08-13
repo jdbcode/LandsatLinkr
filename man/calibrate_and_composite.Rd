@@ -4,9 +4,9 @@
 \alias{calibrate_and_composite}
 \title{Calibrate MSS imagery to TM and make cloud-free composites}
 \usage{
-calibrate_and_composite(msswrs1dir, msswrs2dir, tmwrs2dir, index, outdir,
-  runname, useareafile, doyears = "all", order = "none", overlap = "mean",
-  cores = 2, process = c(1, 2))
+calibrate_and_composite(msswrs1dir, msswrs2dir, tmwrs2dir, oliwrs2dir, index,
+  outdir, runname, useareafile, doyears = "all", order = "none",
+  overlap = "mean", cores = 2, process, overwrite = F)
 }
 \arguments{
 \item{msswrs1dir}{character. mss wrs1 directory path}

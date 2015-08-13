@@ -4,7 +4,7 @@
 \alias{cal_oli_tc_aggregate_model}
 \title{Create an aggregate oli TC model}
 \usage{
-cal_oli_tc_aggregate_model(dir)
+cal_oli_tc_aggregate_model(dir, overwrite = F)
 }
 \arguments{
 \item{dirname}{character. the directory to the calibration folder}
