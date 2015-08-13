@@ -18,13 +18,11 @@
 #' @export
 
 
-calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=2, process=c(1,2)){
+calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=2, process, overwrite=F){
   
   #msscal
-  if(all(is.na(match(process,1))) == F){
+  if(1 %in% process ==T){
     #resample MSS
-#     msswrs1dir = "E:/llr_test/mixed/mss/wrs1/036032"
-#     msswrs2dir = "E:/llr_test/mixed/mss/wrs2/034032"
     print("Resampling MSS reflectance and cloudmask images")
     msswrs1srfiles = list.files(msswrs1dir, "dos_sr.tif", recursive=T, full.names=T)
     msswrs1cloudfiles = list.files(msswrs1dir, "cloudmask.tif", recursive=T, full.names=T)
@@ -47,8 +45,16 @@ calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,
     print(proc.time()-t)
   }
   
+  #olical
+  if(2 %in% process ==T){
+    print("Running oilcal")
+    t=proc.time()
+    olical(msswrs1dir, msswrs2dir, tmwrs2dir, cores=cores, overwrite=overwrite)
+    print(proc.time()-t)
+  }
+  
   #mixel
-  if(all(is.na(match(process,2))) == F){
+  if(3 %in% process ==T){
     print("Running mixel")
     t=proc.time()
     if(index == "all"){

@@ -12,15 +12,17 @@ run_landsatlinkr = function(){
   while(correct == "No"){
     choices = c("Prepare MSS",
                 "Prepare TM/ETM+",
-                "Calibrate MSS to TM/ETM+",
+                "Calibrate MSS to TM",
+                "Calibrare OLI to ETM+",
                 "Composite imagery")#,
                 #"Fit neat lines")
     
     selection = select.list(choices, title = "Select a process to run")
     if(selection == "Prepare MSS"){process = seq(1:5)}
     if(selection == "Prepare TM/ETM+"){process = 6}
-    if(selection == "Calibrate MSS to TM/ETM+"){process = 7}
-    if(selection == "Composite imagery"){process = 8}
+    if(selection == "Calibrate MSS to TM"){process = 7}
+    if(selection == "Calibrate OLI to ETM+"){process = 8}
+    if(selection == "Composite imagery"){process = 9}
     #if(selection == "Fit neat lines"){process = 9}
     
     print(paste("You have selected:",selection))
@@ -31,7 +33,7 @@ run_landsatlinkr = function(){
   #################################################################################################################
   #define the number of cores to use
   
-  if(sum(process %in% seq(1,8)) > 0){  
+  if(sum(process %in% seq(1,9)) > 0){  
     
     correct = "No"
     while(correct == "No"){
@@ -46,7 +48,7 @@ run_landsatlinkr = function(){
   }
   
   
-  if(sum(process %in% seq(1,8)) > 0){  
+  if(sum(process %in% seq(1,9)) > 0){  
     
     correct = "No"
     while(correct == "No"){
@@ -146,13 +148,13 @@ run_landsatlinkr = function(){
   #msscal and mixel
   #################################################################################################################
 
-  if(sum(process %in% c(7,8)) > 0){
+  if(sum(process %in% 7:9) > 0){
     
     #################################################################################################################
     #select directories for calibration
     if(sum(process %in% 7) > 0){
-      print("Beginning scene selection for MSS to TM/ETM+ calibration")
-      print("Please see the 'Running LLR Step 3 - MSS to TM/ETM+ calibration' section of the user guide for assistance")
+      print("Beginning scene selection for MSS to TM calibration")
+      print("Please see the 'Running LLR Step 3 - MSS to TM calibration' section of the user guide for assistance")
       print("-----------------------------------------------------------------------")
       correct = "No"
       while(correct == "No"){
@@ -162,10 +164,11 @@ run_landsatlinkr = function(){
         msswrs2dir = choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'")
         print("Select a TM/ETM+ WRS-2 scene directory.")
         tmwrs2dir = choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
+        oliwrs2dir=NULL
         outdir=NULL
         index=NULL
         runname=NULL
-        process = 1
+        calcomprocess = 1
         
         print("-----------------------------------------------------------------------")
         print(paste("You have selected MSS WRS-1 scene:",msswrs1dir))
@@ -177,9 +180,37 @@ run_landsatlinkr = function(){
     }
     
     #################################################################################################################
+    #select directories for calibration
+    if(sum(process %in% 8) > 0){
+      print("Beginning scene selection for OLI to ETM+ calibration")
+      print("Please see the 'Running LLR Step 3 - OLI to ETM+ calibration' section of the user guide for assistance")
+      print("-----------------------------------------------------------------------")
+      correct = "No"
+      while(correct == "No"){
+        print("Select a OLI WRS-2 scene directory.")
+        oliwrs2dir = choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs1/036032'")
+        print("Select a TM/ETM+ WRS-2 scene directory.")
+        tmwrs2dir = choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
+        msswrs1dir=NULL
+        msswrs2dir=NULL
+        outdir=NULL
+        index=NULL
+        runname=NULL
+        calcomprocess = 2
+        
+        print("-----------------------------------------------------------------------")
+        print(paste("You have selected OLI WRS-2 scene:",oliwrs2dir))
+        print(paste("You have selected TM/ETM+ WRS-2 scene:",tmwrs2dir))
+        correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+        if(correct == "Exit"){return("Stopping LLR")}
+      }
+    }
+    
+    
+    #################################################################################################################
     #select directories for mosaicking
     
-    if(sum(process %in% 8) > 0){
+    if(sum(process %in% 9) > 0){
       correct = "No"
       while(correct == "No"){
         choices = c("Yes", "No")
@@ -291,7 +322,7 @@ run_landsatlinkr = function(){
         useareafile = file.path(outdir, paste(runname,"_usearea.tif",sep=""))
         make_usearea_file(c(msswrs1dir[1],msswrs2dir[1],tmwrs2dir[1]), useareafile, xmx, xmn, ymx, ymn)
       }
-      process = 2
+      calcomprocess = 3
     }
     #}
     #if(sum((process %in% 7) > 0)){process[1] = 1}
@@ -301,7 +332,7 @@ run_landsatlinkr = function(){
     #################################################################################################################
     #execute the calibrate_and_composite function
     
-    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=cores, process=process, overwrite=overwrite)
+    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=cores, process=calcomprocess, overwrite=overwrite)
   }
   
   #if(sum(process %in% 9 > 0)){
