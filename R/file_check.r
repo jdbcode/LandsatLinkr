@@ -7,7 +7,6 @@
 #' @export
 
 file_check = function(file, output, overwrite){
-
   bname = basename(file)
   dname = dirname(file) 
   imgid = substr(bname, 1, 16)
@@ -93,6 +92,14 @@ file_check = function(file, output, overwrite){
     result = list.files(ppprrrdir, search, recursive=T, full.names=T)
     if(length(result) == 0){return(1)} else if(length(result) >= 1 & overwrite == T){
       result = list.files(file.path(ppprrrdir,"images"), imgid, recursive=T, full.names=T)
+      unlink(result)
+      return(2)
+    } else {return(0)}
+  } else if(output == "l8sr_tc.tif"){
+    print("l8sr_tc")
+    search = paste(imgid,"_tc",sep="")
+    result = list.files(dname, search, recursive=T, full.names=T)
+    if(length(result) == 0){return(1)} else if(length(result) >= 1 & overwrite == T){
       unlink(result)
       return(2)
     } else {return(0)}
