@@ -7,8 +7,7 @@
 #' @export
 
 
-olical = function(oliwrs2dir, tmwrs2dir, cores=2){  
-  
+olical = function(oliwrs2dir, tmwrs2dir, cores=2, overwrite=overwrite){  
   
   olifiles = list.files(oliwrs2dir, "l8sr.tif", recursive=T, full.names=T)
   tmfiles = list.files(tmwrs2dir, "tc.tif", recursive=T, full.names=T)
@@ -31,12 +30,11 @@ olical = function(oliwrs2dir, tmwrs2dir, cores=2){
   oliyearday = as.numeric(substr(olibase, 10, 16))
   
   len = length(olifilessub)
-  match = data.frame(oli=olifilessub, etm=NA)
+  match = data.frame(oli=olifilessub, etm=NA, stringsAsFactors=FALSE)
   for(i in 1:len){
-    thisone = order(abs(oliyearday[i]-tmyearday))[1]
-    match$etm[i] = tmfiles[thisone]
-  }  
-  
+    closest = order(abs(oliyearday[i]-tmyearday))[1]
+    match$etm[i] = tmfiles[closest]
+  }
   
   #do single pair modeling
   print("single image pair modeling")
@@ -44,22 +42,21 @@ olical = function(oliwrs2dir, tmwrs2dir, cores=2){
     cl = makeCluster(cores)
     registerDoParallel(cl)
     cfun <- function(a, b) NULL
-    o = foreach(i=1:len, .combine="cfun",.packages="LandsatLinkr") %dopar% olical_single(match$oli[i], match$etm[i]) #
+    o = foreach(i=1:len, .combine="cfun",.packages="LandsatLinkr") %dopar% olical_single(match$oli[i], match$etm[i], overwrite=overwrite) #
     stopCluster(cl)
-  } else {for(i in 1:len){olical_single(match$oli[i], match$etm[i])}}
+  } else {for(i in 1:len){olical_single(match$oli[i], match$etm[i], overwrite=overwrite)}}
   
   #do aggregated modeling
   caldir = file.path(oliwrs2dir,"calibration")
   print("...aggregate image pair modeling")
-  cal_oli_tc_aggregate_model(caldir)
+  cal_oli_tc_aggregate_model(caldir,overwrite=overwrite)
   
   #predict tc and tca from aggregate model
   calagdir = file.path(caldir,"aggregate_model")
-  bcoef = as.numeric(read.csv(file.path(calagdir,"tcb_cal_aggregate_coef.csv"))[1,2:10])
-  gcoef = as.numeric(read.csv(file.path(calagdir,"tcg_cal_aggregate_coef.csv"))[1,2:10])
-  wcoef = as.numeric(read.csv(file.path(calagdir,"tcw_cal_aggregate_coef.csv"))[1,2:10])
+  bcoef = as.numeric(read.csv(file.path(calagdir,"tcb_cal_aggregate_coef.csv"))[1,3:8])
+  gcoef = as.numeric(read.csv(file.path(calagdir,"tcg_cal_aggregate_coef.csv"))[1,3:8])
+  wcoef = as.numeric(read.csv(file.path(calagdir,"tcw_cal_aggregate_coef.csv"))[1,3:8])
   
   print("...applying model to all oli images")
-  for(i in 1:len){olisr2tc(olifiles[i],bcoef,gcoef,wcoef,"apply")}
-  
+  for(i in 1:len){olisr2tc(olifiles[i],bcoef,gcoef,wcoef,"apply",overwrite=F)}
 }
