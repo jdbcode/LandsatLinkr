@@ -47,12 +47,12 @@ calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,in
   
   #olical
   if(2 %in% process ==T){
-    print("Running oilcal")
+    print("Running olical")
     t=proc.time()
-    olical(msswrs1dir, msswrs2dir, tmwrs2dir, cores=cores, overwrite=overwrite)
+    olical(oliwrs2dir, tmwrs2dir, cores=cores, overwrite=overwrite)
     print(proc.time()-t)
   }
-  
+
   #mixel
   if(3 %in% process ==T){
     print("Running mixel")
@@ -60,10 +60,10 @@ calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,in
     if(index == "all"){
       index = c("tca", "tcb", "tcg", "tcw")
       outdir = c(file.path(outdir,"tca"),file.path(outdir,"tcb"),file.path(outdir,"tcg"),file.path(outdir,"tcw"))
-      for(i in 1:length(index)){mixel2(msswrs1dir,msswrs2dir,tmwrs2dir,index[i],outdir[i],runname,useareafile,doyears="all",order="none",overlap="mean")}
+      for(i in 1:length(index)){mixel(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index[i],outdir[i],runname,useareafile,doyears="all",order="none",overlap="mean")}
     } else {
       outdir = file.path(outdir,index)
-      mixel2(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean")
+      mixel(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean")
     }
     print(proc.time()-t)
   }  

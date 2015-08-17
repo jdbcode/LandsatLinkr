@@ -91,7 +91,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
     dname = dirname(examplefile)
     scenedir = substr(dname,1,nchar(dname)-12)
     topodir = file.path(scenedir,"topo")
-    dir.create(topodir)
+    dir.create(topodir, showWarnings=F)
     info = get_metadata(examplefile)
     template = raster(examplefile)
     reso = xres(template)
@@ -112,20 +112,20 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
     
     dem = raster(newdem)
     
-    print("...Preparing Slope")
     haveslope = file.exists(newslope)
     if(haveslope == T & overwrite == T | haveslope == F){
       if(haveslope == T){unlink(newslope)}
+      print("...Preparing Slope")
       img = terrain(dem, opt="slope")
       projection(img) = set_projection(examplefile)
       img = as(img, "SpatialGridDataFrame")
       writeGDAL(img, newslope, drivername = "GTiff", type = "Float32", options="INTERLEAVE=BAND") #, mvFlag = -32768
     }
     
-    print("...Preparing Aspect")
     haveasp = file.exists(newasp)
     if(haveasp == T & overwrite == T | haveasp == F){
       if(haveasp == T){unlink(newasp)}
+      print("...Preparing Aspect")
       img = terrain(dem, opt="aspect")
       projection(img) = set_projection(examplefile)
       img = as(img, "SpatialGridDataFrame")
@@ -154,6 +154,23 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
       o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% tmunpackr(files[i], proj=proj, overwrite=overwrite)
       stopCluster(cl)
     } else {for(i in 1:length(files)){tmunpackr(files[i], proj=proj, overwrite=overwrite)}}
+    print(proc.time()-t)
+  }
+  
+  #unpack oli
+  if(all(is.na(match(process,7))) == F){
+    print("Running oliunpackr")
+    files = list.files(targzdir, pattern="tar.gz", full.names=T, recursive=T)
+    reso = 30
+    if(reso == 30){cores = 1}
+    t = proc.time()
+    if(cores == 2){
+      cl=makeCluster(cores)
+      registerDoParallel(cl)
+      t = proc.time()
+      o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% oliunpackr(files[i], proj=proj, overwrite=overwrite)
+      stopCluster(cl)
+    } else {for(i in 1:length(files)){oliunpackr(files[i], proj=proj, overwrite=overwrite)}}
     print(proc.time()-t)
   }
 }

@@ -83,18 +83,24 @@ olical_single = function(oli_file, tm_file, overwrite=F){
   ref_mask_img = crop(ref_mask_img,int)
   
   #make a composite mask
-  oli_b5_v = as.vector(oli_b5_img)
-  ref_tca_v = as.vector(ref_tca_img)
+
   oli_mask_v = as.vector(oli_mask_img)
   ref_mask_v = as.vector(ref_mask_img)
 
-  mask = oli_mask_v*ref_mask_v
-  nas = which(mask == 0)
-  dif = oli_b5_v - ref_tca_v
-  dif[nas] = NA
-  stdv = sd(dif, na.rm=T)
-  center = mean(dif, na.rm=T)
-  dif = dif < (center+stdv*2) & dif > (center-stdv*2)
+  mask = oli_mask_v*ref_mask_v #make composite mask
+  oli_mask_v = ref_mask_v = 0 # save memory
+  
+  #load oli and etm+ bands
+  oli_b5_v = as.vector(oli_b5_img)
+  ref_tca_v = as.vector(ref_tca_img)
+  
+  dif = oli_b5_v - ref_tca_v #find the difference
+  oli_b5_v = ref_tca_v = 0 #save memory
+  nas = which(mask == 0) #find the bads in the mask
+  dif[nas] = NA #set the bads in the dif to NA so they are not included in the calc of mean and stdev
+  stdv = sd(dif, na.rm=T) #get stdev of difference
+  center = mean(dif, na.rm=T) #get the mean difference
+  dif = dif < (center+stdv*2) & dif > (center-stdv*2) #find the pixels that are not that different
     
   
   goods = which(dif == 1)
@@ -110,7 +116,7 @@ olical_single = function(oli_file, tm_file, overwrite=F){
   sampxy = xyFromCell(oli_mask_img, samp)
   
   #save memory
-  oli_mask_v = ref_mask_v = mask = oli_b5_v = ref_tca_v = 0
+  mask = 0
   
   #extract the sample pixels from the bands
   olisamp = extract(subset(oli_sr_img, 2:7), sampxy)

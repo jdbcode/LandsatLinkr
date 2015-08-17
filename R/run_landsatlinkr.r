@@ -12,17 +12,19 @@ run_landsatlinkr = function(){
   while(correct == "No"){
     choices = c("Prepare MSS",
                 "Prepare TM/ETM+",
+                "Prepare OLI",
                 "Calibrate MSS to TM",
-                "Calibrare OLI to ETM+",
+                "Calibrate OLI to ETM+",
                 "Composite imagery")#,
                 #"Fit neat lines")
     
     selection = select.list(choices, title = "Select a process to run")
     if(selection == "Prepare MSS"){process = seq(1:5)}
     if(selection == "Prepare TM/ETM+"){process = 6}
-    if(selection == "Calibrate MSS to TM"){process = 7}
-    if(selection == "Calibrate OLI to ETM+"){process = 8}
-    if(selection == "Composite imagery"){process = 9}
+    if(selection == "Prepare OLI"){process = 7}
+    if(selection == "Calibrate MSS to TM"){process = 8}
+    if(selection == "Calibrate OLI to ETM+"){process = 9}
+    if(selection == "Composite imagery"){process = 10}
     #if(selection == "Fit neat lines"){process = 9}
     
     print(paste("You have selected:",selection))
@@ -33,7 +35,7 @@ run_landsatlinkr = function(){
   #################################################################################################################
   #define the number of cores to use
   
-  if(sum(process %in% seq(1,9)) > 0){  
+  if(sum(process %in% seq(1,10)) > 0){  
     
     correct = "No"
     while(correct == "No"){
@@ -48,7 +50,7 @@ run_landsatlinkr = function(){
   }
   
   
-  if(sum(process %in% seq(1,9)) > 0){  
+  if(sum(process %in% seq(1,10)) > 0){  
     
     correct = "No"
     while(correct == "No"){
@@ -69,15 +71,20 @@ run_landsatlinkr = function(){
   #################################################################################################################
   #select a directory to process
   
-  if(sum(process %in% seq(1,6)) > 0){
+  if(sum(process %in% seq(1,7)) > 0){
     correct = "No"
     while(correct == "No"){
       if(sum(process %in% seq(1,5)) > 0){
         print("please select an MSS directory to process")
         scenedir = choose.dir(caption = "Select an MSS scene directory. ex. 'C:/mss/wrs1/036032'")
-      } else{
+      }
+      if(sum(process %in% 6) > 0){
         print("please select a TM/ETM+ directory to process")
         scenedir = choose.dir(caption = "Select an TM/ETM+ scene directory. ex. 'C:/tm/wrs2/036032'")
+      }
+      if(sum(process %in% 7) > 0){
+        print("please select a OLI directory to process")
+        scenedir = choose.dir(caption = "Select an OLI scene directory. ex. 'C:/oli/wrs2/036032'")
       }
       
       print(paste("You have selected:",scenedir))
@@ -85,13 +92,6 @@ run_landsatlinkr = function(){
       if(correct == "Exit"){return("Stopping LLR")}
     }
     
-    #reso = 60 #set default - not used anymore since we are running MSS at 60 and TM at 30
-    #proj = "albers" #set default
-    # if(sum(process %in% c(1,6)) > 0){
-    #       choices = c("30 meter", "60 meter")
-    #       selection = select.list(choices, title = "Select a pixel resolution to use")
-    #       if(selection == "30 meter"){reso = 30}
-    #       if(selection == "60 meter"){reso = 60}
     
     #choices = c("USGS North American Albers", "User-provided projection","Native NAD83 UTM (not recommended!)", )
     #selection = select.list(choices, title = "Select a map projection to use")
@@ -148,11 +148,11 @@ run_landsatlinkr = function(){
   #msscal and mixel
   #################################################################################################################
 
-  if(sum(process %in% 7:9) > 0){
+  if(sum(process %in% 8:10) > 0){
     
     #################################################################################################################
     #select directories for calibration
-    if(sum(process %in% 7) > 0){
+    if(sum(process %in% 8) > 0){
       print("Beginning scene selection for MSS to TM calibration")
       print("Please see the 'Running LLR Step 3 - MSS to TM calibration' section of the user guide for assistance")
       print("-----------------------------------------------------------------------")
@@ -181,7 +181,7 @@ run_landsatlinkr = function(){
     
     #################################################################################################################
     #select directories for calibration
-    if(sum(process %in% 8) > 0){
+    if(sum(process %in% 9) > 0){
       print("Beginning scene selection for OLI to ETM+ calibration")
       print("Please see the 'Running LLR Step 3 - OLI to ETM+ calibration' section of the user guide for assistance")
       print("-----------------------------------------------------------------------")
@@ -210,7 +210,13 @@ run_landsatlinkr = function(){
     #################################################################################################################
     #select directories for mosaicking
     
-    if(sum(process %in% 9) > 0){
+    if(sum(process %in% 10) > 0){
+    
+      msswrs1dir=NULL
+      msswrs2dir=NULL
+      tmwrs2dir=NULL
+      oliwrs2dir=NULL
+    
       correct = "No"
       while(correct == "No"){
         choices = c("Yes", "No")
@@ -227,23 +233,33 @@ run_landsatlinkr = function(){
         answer = "Yes"
         while(answer == "Yes"){
           print("Here is what you have so far - MSS WRS-2 scene:")
-          print(msswrs1dir)
+          print(msswrs2dir)
           answer = select.list(choices, title = "Is there another MSS WRS-2 scene directory to add?")
           if(answer == "Yes"){msswrs2dir = c(msswrs2dir, choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'"))}
         }
         
-        tmwrs2dir = choose.dir(caption = "Select a TM WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
+        tmwrs2dir = choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
         answer = "Yes"
         while(answer == "Yes"){
           print("Here is what you have so far - TM/ETM+ WRS-2 scene:")
-          print(msswrs1dir)
+          print(tmwrs2dir)
           answer = select.list(choices, title = "Is there another TM/ETM+ WRS-2 scene directory to add?")
-          if(answer == "Yes"){tmwrs2dir = c(tmwrs2dir, choose.dir(caption = "Select a TM WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'"))}
-        }  
+          if(answer == "Yes"){tmwrs2dir = c(tmwrs2dir, choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'"))}
+        } 
+        
+        oliwrs2dir = choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs2/034032'")
+        answer = "Yes"
+        while(answer == "Yes"){
+          print("Here is what you have so far - OLI WRS-2 scene:")
+          print(oliwrs2dir)
+          answer = select.list(choices, title = "Is there another OLI WRS-2 scene directory to add?")
+          if(answer == "Yes"){oliwrs2dir = c(oliwrs2dir, choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs2/034032'"))}
+        } 
         
         print(paste("You have selected MSS WRS-1 scene:",msswrs1dir))
         print(paste("You have selected MSS WRS-2 scene:",msswrs2dir))
-        print(paste("You have selected TM WRS-2 scene:",tmwrs2dir))
+        print(paste("You have selected TM/ETM+ WRS-2 scene:",tmwrs2dir))
+        print(paste("You have selected OLI WRS-2 scene:",oliwrs2dir))
         correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
         if(correct == "Exit"){return("Stopping LLR")}
       }
@@ -320,7 +336,7 @@ run_landsatlinkr = function(){
           if(correct == "Exit"){return("Stopping LLR")}
         }
         useareafile = file.path(outdir, paste(runname,"_usearea.tif",sep=""))
-        make_usearea_file(c(msswrs1dir[1],msswrs2dir[1],tmwrs2dir[1]), useareafile, xmx, xmn, ymx, ymn)
+        make_usearea_file(c(msswrs1dir[1],msswrs2dir[1],tmwrs2dir[1],oliwrs2dir[1]), useareafile, xmx, xmn, ymx, ymn)
       }
       calcomprocess = 3
     }

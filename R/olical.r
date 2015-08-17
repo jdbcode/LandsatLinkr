@@ -37,7 +37,7 @@ olical = function(oliwrs2dir, tmwrs2dir, cores=2, overwrite=overwrite){
   }
   
   #do single pair modeling
-  print("single image pair modeling")
+  print("...single image pair modeling")
   if(cores==2){
     cl = makeCluster(cores)
     registerDoParallel(cl)
@@ -58,5 +58,5 @@ olical = function(oliwrs2dir, tmwrs2dir, cores=2, overwrite=overwrite){
   wcoef = as.numeric(read.csv(file.path(calagdir,"tcw_cal_aggregate_coef.csv"))[1,3:8])
   
   print("...applying model to all oli images")
-  for(i in 1:len){olisr2tc(olifiles[i],bcoef,gcoef,wcoef,"apply",overwrite=F)}
+  for(i in 1:len){olisr2tc(olifiles[i],bcoef,gcoef,wcoef,"apply",overwrite=overwrite)}
 }
