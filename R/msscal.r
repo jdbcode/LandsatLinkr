@@ -10,10 +10,6 @@
 
 msscal = function(msswrs1dir, msswrs2dir, tmwrs2dir, cores=2){  
   
-  #   msswrs1dir = "E:/llr_test/mixed/mss/wrs1/036032"
-  #   msswrs2dir = "E:/llr_test/mixed/mss/wrs2/034032"
-  #   tmwrs2dir = "E:/llr_test/mixed/tm/wrs2/034032"
-  
   mssfiles = list.files(msswrs2dir, "dos_sr_30m.tif", recursive=T, full.names=T)
   tmfiles = list.files(tmwrs2dir, "tc.tif", recursive=T, full.names=T)
   
@@ -48,8 +44,9 @@ msscal = function(msswrs1dir, msswrs2dir, tmwrs2dir, cores=2){
     if(checks[3]==1){print("...tcg")}
     if(checks[4]==1){print("...tcw")}
   }
+  cores=1
   if(check != 4){
-    print("single image pair modeling")
+    print("...single image pair modeling")
     if(cores==2){
       cl = makeCluster(cores)
       registerDoParallel(cl)
@@ -62,22 +59,7 @@ msscal = function(msswrs1dir, msswrs2dir, tmwrs2dir, cores=2){
     print("...aggregate image pair modeling")
     cal_mss_tc_aggregate_model(dir)
   }
-  #   dir = file.path(dir,"aggregate_model")
-  #   bcoef = as.numeric(read.csv(file.path(dir,"tcb_cal_aggregate_coef.csv"))[1,2:6])
-  #   gcoef = as.numeric(read.csv(file.path(dir,"tcg_cal_aggregate_coef.csv"))[1,2:6])
-  #   wcoef = as.numeric(read.csv(file.path(dir,"tcw_cal_aggregate_coef.csv"))[1,2:6])
-  #   
-  #   print("...applying model to MSS training images")
-  #   cores = 1
-  #   if(cores==2){
-  #     cl = makeCluster(cores)
-  #     registerDoParallel(cl)
-  #     t=proc.time()
-  #     cfun <- function(a, b) NULL
-  #     o = foreach(i=1:length(mssf), .combine="cfun",.packages="LandsatLinkr") %dopar% msssr2tc(mssf[i],bcoef,gcoef,wcoef,"calibrate") #
-  #     stopCluster(cl)
-  #   } else {for(i in 1:length(mssf)){msssr2tc(mssf[i],bcoef,gcoef,wcoef,"calibrate")}}
-  
+
   msswrs1imgdir = file.path(msswrs1dir,"images")
   msswrs2imgdir = file.path(msswrs2dir,"images")
   
