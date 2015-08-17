@@ -8,6 +8,7 @@
 get_metadata = function(file){
   mtlfile = file.path(dirname(file),paste(substr(basename(file),1,17),"MTL.txt", sep=""))
   tbl = unlist(read.delim(mtlfile, header=F, skipNul=T))
+  bname = basename(file)
   
   #get the path row "ppprrr"
   ppprrr = substr(bname, 4,9)
