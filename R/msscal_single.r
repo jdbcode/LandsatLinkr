@@ -11,9 +11,6 @@
 
 msscal_single = function(mss_file, tm_file){
   
-#   mss_file = mssf[1]
-#   tm_file = tmf[1]
-  
   get_intersection = function(files){
     int = intersect(extent(raster(files[1])),extent(raster(files[2])))
     if(length(files) >= 3){for(i in 3:length(files))int = intersect(extent(raster(files[i])), int)}
@@ -129,7 +126,6 @@ msscal_single = function(mss_file, tm_file){
   model = predict_mss_index(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file, ref_tc_file, "tcb", sampoutfile, samplen)
   bcoef = model[[1]]
   bsamp = model[[2]]
-  #bplot = model[[3]]
   br = cor(bsamp$refsamp, bsamp$singlepred)
   
   #TCG
@@ -140,7 +136,6 @@ msscal_single = function(mss_file, tm_file){
   model = predict_mss_index(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file, ref_tc_file, "tcg", sampoutfile, samplen)
   gcoef = model[[1]]
   gsamp = model[[2]]
-  #gplot = model[[3]]
   gr = cor(gsamp$refsamp, gsamp$singlepred)
   
   #TCW
@@ -151,7 +146,6 @@ msscal_single = function(mss_file, tm_file){
   model = predict_mss_index(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file, ref_tc_file, "tcw", sampoutfile, samplen)
   wcoef = model[[1]]
   wsamp = model[[2]]
-  #wplot = model[[3]]
   wr = cor(wsamp$refsamp, wsamp$singlepred)
   
   #TCA
@@ -168,26 +162,9 @@ msscal_single = function(mss_file, tm_file){
   
   r = cor(final$refsamp, final$singlepred)
   coef = rlm(final$refsamp ~ final$singlepred)
-#   g = ggplot(final, aes(singlepred, refsamp)) +
-#     stat_binhex(bins = 100)+
-#     scale_fill_gradientn(name = "Count", colours = rainbow(7))+
-#     xlab(paste(basename(mss_sr_file),"tca")) +
-#     ylab(paste(basename(ref_tc_file),"tca")) +
-#     ggtitle(paste("tca linear regression: slope =",paste(signif(coef$coefficients[2], digits=3),",",sep=""),
-#                   "y Intercept =",paste(round(coef$coefficients[1], digits=3),",",sep=""),
-#                   "r =",signif(r, digits=3))) +
-#     theme(plot.title = element_text(size = 12)) +
-#     geom_smooth(method="rlm", colour = "black", se = FALSE) + 
-#     coord_fixed(ratio = 1)+
-#     theme_bw()  
-#   pngout = sub("samp.csv", "plot.png",sampoutfile)
-#   png(pngout,width=700, height=700)
-#   print(g)
-#   dev.off()
   
   pngout = sub("samp.csv", "plot.png",sampoutfile)
   png(pngout,width=700, height=700)
-  #print(g)
   title = paste("tca linear regression: slope =",paste(signif(coef$coefficients[2], digits=3),",",sep=""),
                                    "y Intercept =",paste(round(coef$coefficients[1], digits=3),",",sep=""),
                                    "r =",signif(r, digits=3))
