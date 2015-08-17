@@ -133,8 +133,7 @@ msscvm = function(file, demfile, topoprep, test=F, overwrite=F){
   cloud = setValues(ref,cloud)
   cloud = focal(cloud, w=matrix(1,5,5), fun=max, na.rm=F, pad=T, padValue=0)
   
-  reso = xres(ref)
-  if(reso == 60){
+  reso = 60
     r = raster(ncol=31,nrow=31)
     ext = extent(0, 31, 0, 31)
     extent(r) = ext
@@ -143,18 +142,7 @@ msscvm = function(file, demfile, topoprep, test=F, overwrite=F){
     r[16,16] = 1
     dist = gridDistance(r, 1)
     kernal = dist <= 16
-  }
-  if(reso == 30){
-    r = raster(ncol=61,nrow=61)
-    ext = extent(0, 61, 0, 61)
-    extent(r) = ext
-    projection(r) = set_projection(file)
-    r[] = NA
-    r[31,31] = 1
-    dist = gridDistance(r, 1)
-    kernal = dist <= 31
-  }
-  
+
   shadowproj = focal(cloud, w=as.matrix(kernal), fun=max, na.rm=F, pad=T, padValue=0)
   shiftstart = 1000/tan((pi/180)*info$sunelev)
   shiftend = 7000/tan((pi/180)*info$sunelev)
