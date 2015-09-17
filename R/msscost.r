@@ -18,7 +18,7 @@ msscost = function(file, overwrite=F){
   refl = function(file, band, gain, bias, sunzenith, d, esun, dov){
     orig = raster(file, band)
     img = as.matrix(orig)   
-    img = ((gain*img)+bias)-dov
+    img = ((gain*img)+bias)-((gain*dov)+bias)
     img[img < 0] = 0
     img = (pi * img * (d^2))/(esun * cos(sunzenith))
     img = round(img * 10000)
