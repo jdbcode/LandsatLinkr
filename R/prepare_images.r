@@ -97,9 +97,9 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
     reso = xres(template)
     demname = paste(info$wrstype,"_",info$ppprrr,"_",reso,"m","_dem.tif",sep="")
     newdem = file.path(topodir,demname)
-    newslope = sub("dem","slope",newdem)
-    newasp = sub("dem","aspect",newdem)
-    newill = sub("dem","illumination",newdem)
+    newslope = file.path(topodir,sub("dem","slope",demname))
+    newasp = file.path(topodir,sub("dem","aspect",demname))
+    newill = file.path(topodir,sub("dem","illumination",demname))
     s_srs = projection(template)
     t_srs = set_projection(examplefile)
     
