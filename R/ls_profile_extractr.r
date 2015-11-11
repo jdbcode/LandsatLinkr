@@ -1,11 +1,11 @@
 library(raster)
 
 writeplot = function(file,date,tcb,tcg,tcw,tca,first=F,last=F){
-  start='{"PlotID": 1, "Values": ['
+  start='var data = {"PlotID": 1, "Values": ['
   int=', '
   end=']}'
   imginfo = paste(
-    paste('{"ImageDate": ', date,',',sep=""),
+    paste('{"Year": ', date,',',sep=""),
     paste(' "TCB": ', tcb,',',sep=""),
     paste(' "TCG": ', tcg,',',sep=""),
     paste(' "TCW": ', tcw,',',sep=""),
@@ -30,7 +30,7 @@ makeChipStrip = function(imgStack){
     if(i == 1){
       fullSeries = subset(imgStack,i)
     } else{
-      shifted = shift(subset(imgStack,i),x=0,y=singleShift*(i-1))
+      shifted = shift(subset(imgStack,i),x=0,y=singleShift*(i-1)*-1)
       fullSeries = merge(fullSeries,shifted)
     }
   }
@@ -38,7 +38,7 @@ makeChipStrip = function(imgStack){
 }
 
 stretchBGW = function(template, index){
-  img = as.array(template)
+  img = as.matrix(template)
   n_stdev = 2
   bmin = 3098-(1247*n_stdev)
   bmax = 3098+(1247*n_stdev)
@@ -135,7 +135,7 @@ chronoInfo = function(dir,file,outpng){
 x=-1175187.0000
 y= 2533375.0000
 dir = "L:/composites/test10"
-file = "L:/composites/test10/test10.json"
+file = "L:/composites/test10/test10.js"
 outpng = "L:/composites/test10/chipstrip.png"
 
 chronoInfo(dir,file,outpng)
