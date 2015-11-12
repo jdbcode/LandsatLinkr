@@ -1,7 +1,7 @@
 library(raster)
 
-writeplot = function(file,date,tcb,tcg,tcw,tca,first=F,last=F){
-  start='var data = {"PlotID": 1, "Values": ['
+writeplot = function(file,gmBounds,date,tcb,tcg,tcw,tca,first=F,last=F){
+  start=paste('var data = {"PlotID": 1,','"LatLon":[',gmBounds[1,2],',',gmBounds[1,1],'],','"bounds":[',gmBounds[2,2],',',gmBounds[3,2],',',gmBounds[3,1],',',gmBounds[2,1],'],','"Values": [')
   int=', '
   end=']}'
   imginfo = paste(
@@ -12,7 +12,6 @@ writeplot = function(file,date,tcb,tcg,tcw,tca,first=F,last=F){
     paste(' "TCA": ', tca,sep=""),
     '}',
     sep="")
-  
   if(first == T){
     write(start, file, append=TRUE)
     write(paste(imginfo,int,sep=""), file, append=TRUE)
@@ -74,6 +73,7 @@ stretchBGW = function(template, index){
 }
 
 chronoInfo = function(dir,file,outpng){
+  unlink(file)
   tcbstack = list.files(dir, "tcb_composite_stack.bsq", recursive = T, full.names = T)
   tcgstack = list.files(dir, "tcg_composite_stack.bsq", recursive = T, full.names = T)
   tcwstack = list.files(dir, "tcw_composite_stack.bsq", recursive = T, full.names = T)
@@ -82,12 +82,29 @@ chronoInfo = function(dir,file,outpng){
   files = list.files(file.path(dir,"tcb"), "composite.bsq")
   years = sort(unique(substr(files,1,4)))
   
-  coords = data.frame(x,y)
-  
   tcbb = extend(brick(tcbstack),130)
   tcgb = extend(brick(tcgstack),130)
   tcwb = extend(brick(tcwstack),130)
   tcab = extend(brick(tcastack),130)
+  
+  coords = data.frame(x,y)
+  reso = xres(tcbb)
+  half = reso*127.5
+  ul = matrix(c(x-half, y+half), nrow=1)
+  lr = matrix(c(x+half, y-half), nrow=1)
+  proj = projection(tcbb)
+  spCoordProj = SpatialPoints(matrix(c(x, y), nrow=1),proj4string=CRS(proj))
+  SpCoordLonLat = spTransform(spCoordProj, CRS("+init=epsg:4269"))
+  SpCoordLonLat = coordinates(SpCoordLonLat)
+  spUlProj = SpatialPoints(ul,proj4string=CRS(proj))
+  SpUlLonLat = spTransform(spUlProj, CRS("+init=epsg:4269"))
+  SpUlLonLat = coordinates(SpUlLonLat)
+  spLrProj = SpatialPoints(lr,proj4string=CRS(proj))
+  SpLrLonLat = spTransform(spLrProj, CRS("+init=epsg:4269"))
+  SpLrLonLat = coordinates(SpLrLonLat)
+  gmBounds = matrix(c(SpCoordLonLat,SpUlLonLat,SpLrLonLat),ncol = 2,byrow = T)
+  
+  
   
   tcbv = extract(tcbb, coords)
   tcgv = extract(tcgb, coords)
@@ -99,9 +116,9 @@ chronoInfo = function(dir,file,outpng){
   for(i in 1:len){
     print(paste(i,"/",len,sep=""))
     thisyear=as.numeric(years[i])
-    if(i == 1){writeplot(file,thisyear,tcbv[i],tcgv[i],tcwv[i],tcav[i], first=T, last=F)}
-    if(i != 1 & i != len){writeplot(file,thisyear,tcbv[i],tcgv[i],tcwv[i],tcav[i], first=F, last=F)}
-    if(i == len){writeplot(file,thisyear,tcbv[i],tcgv[i],tcwv[i],tcav[i], first=F, last=T)}
+    if(i == 1){writeplot(file,gmBounds,thisyear,tcbv[i],tcgv[i],tcwv[i],tcav[i], first=T, last=F)}
+    if(i != 1 & i != len){writeplot(file,gmBounds,thisyear,tcbv[i],tcgv[i],tcwv[i],tcav[i], first=F, last=F)}
+    if(i == len){writeplot(file,gmBounds,thisyear,tcbv[i],tcgv[i],tcwv[i],tcav[i], first=F, last=T)}
   }
   
   thisCell = cellFromXY(tcbb,coords)
@@ -132,8 +149,8 @@ chronoInfo = function(dir,file,outpng){
 
 ################################################################
 
-x=-1175187.0000
-y= 2533375.0000
+x=-1175387.0000
+y= 2532975.0000
 dir = "L:/composites/test10"
 file = "L:/composites/test10/test10.js"
 outpng = "L:/composites/test10/chipstrip.png"
