@@ -149,11 +149,11 @@ chronoInfo = function(dir,file,outpng){
 
 ################################################################
 
-x=-1175387.0000
-y= 2532975.0000
-dir = "L:/composites/test10"
-file = "L:/composites/test10/test10.js"
-outpng = "L:/composites/test10/chipstrip.png"
+#x=-1175387.0000
+#y= 2532975.0000
+#dir = "L:/composites/test10"
+#file = "L:/composites/test10/test10.js"
+#outpng = "L:/composites/test10/chipstrip.png"
 
-chronoInfo(dir,file,outpng)
+#chronoInfo(dir,file,outpng)
 
