@@ -17,7 +17,7 @@ mssunpackr = function(file, proj, overwrite=F){
   
   randomstring = paste(sample(c(0:9, letters, LETTERS), 6, replace=TRUE),collapse="")
   tempdir = file.path(dirname(file),randomstring) #temp
-  untar(file, exdir=tempdir) #decompress the file
+  untar(file, exdir=tempdir, tar="internal") #decompress the file
   mtlfile = list.files(tempdir, pattern = "MTL.txt", full.names = T, recursive = T)
   tbl = unlist(read.delim(mtlfile, header=F, skipNul=T))
   dtype = as.character(grep("DATA_TYPE = ", tbl, value=T))

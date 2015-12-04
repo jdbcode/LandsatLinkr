@@ -31,7 +31,7 @@ oliunpackr = function(file, proj="default", overwrite=F){
   dir.create(outdir, recursive=T, showWarnings=F)
   
   #decompress the image and get/set files names
-  untar(file, exdir=tempdir) #decompress the file
+  untar(file, exdir=tempdir, tar="internal") #decompress the file
   files = list.files(tempdir, full.names=T)
   bands = grep("band", files, value=T)
   fmask = grep("cfmask.tif", files, value=T) # <= 1 okay background 255

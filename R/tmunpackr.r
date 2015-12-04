@@ -30,7 +30,7 @@ tmunpackr = function(file, proj="default", overwrite=F){
   dir.create(outdir, recursive=T, showWarnings=F)
   
   #decompress the image and get/set files names
-  untar(file, exdir=tempdir) #decompress the file
+  untar(file, exdir=tempdir, tar="internal") #decompress the file
   files = list.files(tempdir, full.names=T)
   bands = grep("band", files, value=T)
   shadow = grep("cloud_shadow_qa.tif", files, value=T) #0 okay, 255 bad
