@@ -15,7 +15,7 @@ resample = function(file, overwrite=F){
     
     newfile = sub("dos_sr", "dos_sr_30m", file)
     gdalwarp(srcfile=file, dstfile=newfile,tr=c(30,30),
-             srcnodata=-32768, dstnodata=-32768, multi=T)
+             srcnodata=-32768, dstnodata=-32768, multi=T, r="cubic")
     
     return(1)
   }
