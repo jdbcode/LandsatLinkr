@@ -19,7 +19,7 @@
 
 
 mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean"){
-  
+
   mixel_find = function(files, refimg){
     
     #get the extents of the files
@@ -372,31 +372,35 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
   
   #deal with the overlapping mss/tm composites
   print("dealing with any temporally overlapping MSS/TM composites")
+  
+  
   msscompfiles = list.files(mssdir, ".bsq$", recursive=T, full.names=T)
   tmcompfiles = list.files(tmdir, ".bsq$", recursive=T, full.names=T)
   thesetm = which(basename(tmcompfiles) %in% basename(msscompfiles))
   ref_files = sort(tmcompfiles[thesetm])
   thesemss = which(basename(msscompfiles) %in% basename(tmcompfiles))
   dep_files = sort(msscompfiles[thesemss])
-  for(i in 1:length(dep_files)){
-    mssr= raster(dep_files[i])
-    mssrnas = which(values(mssr)==0)
-    mssr[mssrnas] = NA
-    tmr= raster(ref_files[i])
-    tmrnas = which(values(tmr)==0)
-    tmr[tmrnas] = NA
-    newimg = mosaic(mssr,tmr, fun="mean", na.rm=T)
-    combnas = c(mssrnas, tmrnas)
-    newimg[combnas] = 0
-    projection(newimg) = set_projection(files[1])
-    
-    outimgfile = file.path(outdir,basename(dep_files[i]))
-    writeRaster(newimg, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
-    envifilename = sub("bsq","envi",outimgfile)
-    envixmlfile = paste(envifilename,".aux.xml",sep="")
-    bsqxmlfile = sub("envi","bsq",envixmlfile)
-    file.rename(envifilename,outimgfile)
-    file.rename(envixmlfile,bsqxmlfile)
+  if(length(dep_files) > 0){
+    for(i in 1:length(dep_files)){
+      mssr= raster(dep_files[i])
+      mssrnas = which(values(mssr)==0)
+      mssr[mssrnas] = NA
+      tmr= raster(ref_files[i])
+      tmrnas = which(values(tmr)==0)
+      tmr[tmrnas] = NA
+      newimg = mosaic(mssr,tmr, fun="mean", na.rm=T)
+      combnas = c(mssrnas, tmrnas)
+      newimg[combnas] = 0
+      projection(newimg) = set_projection(files[1])
+      
+      outimgfile = file.path(outdir,basename(dep_files[i]))
+      writeRaster(newimg, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
+      envifilename = sub("bsq","envi",outimgfile)
+      envixmlfile = paste(envifilename,".aux.xml",sep="")
+      bsqxmlfile = sub("envi","bsq",envixmlfile)
+      file.rename(envifilename,outimgfile)
+      file.rename(envixmlfile,bsqxmlfile)
+    }
   }
   
   print("dealing with any temporally overlapping ETM+/OLI composites")
@@ -405,27 +409,29 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
   ref_files = sort(tmcompfiles[thesetm])
   theseoli = which(basename(olicompfiles) %in% basename(tmcompfiles))
   dep_files = sort(olicompfiles[theseoli])
-  for(i in 1:length(dep_files)){
-    mssr= raster(dep_files[i])
-    mssrnas = which(values(mssr)==0)
-    mssr[mssrnas] = NA
-    tmr= raster(ref_files[i])
-    tmrnas = which(values(tmr)==0)
-    tmr[tmrnas] = NA
-    newimg = mosaic(mssr,tmr, fun="mean", na.rm=T)
-    combnas = c(mssrnas, tmrnas)
-    newimg[combnas] = 0
-    projection(newimg) = set_projection(files[1])
-    
-    outimgfile = file.path(outdir,basename(dep_files[i]))
-    writeRaster(newimg, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
-    envifilename = sub("bsq","envi",outimgfile)
-    envixmlfile = paste(envifilename,".aux.xml",sep="")
-    bsqxmlfile = sub("envi","bsq",envixmlfile)
-    file.rename(envifilename,outimgfile)
-    file.rename(envixmlfile,bsqxmlfile)
+  if(length(dep_files) > 0){
+    for(i in 1:length(dep_files)){
+      mssr= raster(dep_files[i])
+      mssrnas = which(values(mssr)==0)
+      mssr[mssrnas] = NA
+      tmr= raster(ref_files[i])
+      tmrnas = which(values(tmr)==0)
+      tmr[tmrnas] = NA
+      newimg = mosaic(mssr,tmr, fun="mean", na.rm=T)
+      combnas = c(mssrnas, tmrnas)
+      newimg[combnas] = 0
+      projection(newimg) = set_projection(files[1])
+      
+      outimgfile = file.path(outdir,basename(dep_files[i]))
+      writeRaster(newimg, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
+      envifilename = sub("bsq","envi",outimgfile)
+      envixmlfile = paste(envifilename,".aux.xml",sep="")
+      bsqxmlfile = sub("envi","bsq",envixmlfile)
+      file.rename(envifilename,outimgfile)
+      file.rename(envixmlfile,bsqxmlfile)
+    }
   }
-  
+    
   #rename files
   print("directory and file organization/cleaning")
   imglists = list.files(outdir, paste(runname,"_",index,"_composite_img_list.csv",sep=""), recursive=T, full.names=T)

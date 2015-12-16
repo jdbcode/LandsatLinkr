@@ -212,49 +212,71 @@ run_landsatlinkr = function(){
     
     if(sum(process %in% 10) > 0){
     
-      msswrs1dir=NULL
-      msswrs2dir=NULL
-      tmwrs2dir=NULL
-      oliwrs2dir=NULL
+      msswrs1dir=NA
+      msswrs2dir=NA
+      tmwrs2dir=NA
+      oliwrs2dir=NA
     
       correct = "No"
       while(correct == "No"){
         choices = c("Yes", "No")
-        msswrs1dir = choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'")
-        answer = "Yes"
-        while(answer == "Yes"){
-          print("Here is what you have so far - MSS WRS-1 scene:")
-          print(msswrs1dir)
-          answer = select.list(choices, title = "Is there another MSS WRS-1 scene directory to add?")
-          if(answer == "Yes"){msswrs1dir = c(msswrs1dir, choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'"))}
+        
+
+        doType = select.list(c("Yes","No","Exit"), title = "Are there MSS WRS-1 images you would like to include in composites?")
+        if(doType == "Exit"){return("Stopping LLR")} else 
+        if(doType == "Yes"){
+          msswrs1dir = choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'")
+          answer = "Yes"
+          while(answer == "Yes"){
+            print("Here is what you have so far - MSS WRS-1 scene:")
+            print(msswrs1dir)
+            answer = select.list(choices, title = "Is there another MSS WRS-1 scene directory to add?")
+            if(answer == "Yes"){msswrs1dir = c(msswrs1dir, choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'"))}
+          }
+        }
+
+        
+
+        doType = select.list(c("Yes","No","Exit"), title = "Are there MSS WRS-2 images you would like to include in composites?")
+        if(doType == "Exit"){return("Stopping LLR")} else 
+        if(doType == "Yes"){        
+          msswrs2dir = choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'")
+          answer = "Yes"
+          while(answer == "Yes"){
+            print("Here is what you have so far - MSS WRS-2 scene:")
+            print(msswrs2dir)
+            answer = select.list(choices, title = "Is there another MSS WRS-2 scene directory to add?")
+            if(answer == "Yes"){msswrs2dir = c(msswrs2dir, choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'"))}
+          }
         }
         
-        msswrs2dir = choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'")
-        answer = "Yes"
-        while(answer == "Yes"){
-          print("Here is what you have so far - MSS WRS-2 scene:")
-          print(msswrs2dir)
-          answer = select.list(choices, title = "Is there another MSS WRS-2 scene directory to add?")
-          if(answer == "Yes"){msswrs2dir = c(msswrs2dir, choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'"))}
+        
+        doType = select.list(c("Yes","No","Exit"), title = "Are there TM/ETM+ WRS-2 images you would like to include in composites?")
+        if(doType == "Exit"){return("Stopping LLR")} else 
+        if(doType == "Yes"){            
+          tmwrs2dir = choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
+          answer = "Yes"
+          while(answer == "Yes"){
+            print("Here is what you have so far - TM/ETM+ WRS-2 scene:")
+            print(tmwrs2dir)
+            answer = select.list(choices, title = "Is there another TM/ETM+ WRS-2 scene directory to add?")
+            if(answer == "Yes"){tmwrs2dir = c(tmwrs2dir, choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'"))}
+          }
         }
         
-        tmwrs2dir = choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
-        answer = "Yes"
-        while(answer == "Yes"){
-          print("Here is what you have so far - TM/ETM+ WRS-2 scene:")
-          print(tmwrs2dir)
-          answer = select.list(choices, title = "Is there another TM/ETM+ WRS-2 scene directory to add?")
-          if(answer == "Yes"){tmwrs2dir = c(tmwrs2dir, choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'"))}
-        } 
         
-        oliwrs2dir = choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs2/034032'")
-        answer = "Yes"
-        while(answer == "Yes"){
-          print("Here is what you have so far - OLI WRS-2 scene:")
-          print(oliwrs2dir)
-          answer = select.list(choices, title = "Is there another OLI WRS-2 scene directory to add?")
-          if(answer == "Yes"){oliwrs2dir = c(oliwrs2dir, choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs2/034032'"))}
-        } 
+        doType = select.list(c("Yes","No","Exit"), title = "Are there OLI WRS-2 images you would like to include in composites?")
+        if(doType == "Exit"){return("Stopping LLR")} else 
+        if(doType == "Yes"){  
+          oliwrs2dir = choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs2/034032'")
+          answer = "Yes"
+          while(answer == "Yes"){
+            print("Here is what you have so far - OLI WRS-2 scene:")
+            print(oliwrs2dir)
+            answer = select.list(choices, title = "Is there another OLI WRS-2 scene directory to add?")
+            if(answer == "Yes"){oliwrs2dir = c(oliwrs2dir, choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs2/034032'"))}
+          } 
+        }
         
         print(paste("You have selected MSS WRS-1 scene:",msswrs1dir))
         print(paste("You have selected MSS WRS-2 scene:",msswrs2dir))
