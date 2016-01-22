@@ -121,6 +121,7 @@ olical_single = function(oli_file, tm_file, overwrite=F){
   #extract the sample pixels from the bands
   olisamp = extract(subset(oli_sr_img, 2:7), sampxy)
   tcsamp = extract(ref_tc_img, sampxy)
+  tcasamp = extract(ref_tca_img, sampxy)
   
   #make sure the values are good for running regression on (diversity)
   unib2samp = length(unique(olisamp[,1]))
@@ -133,30 +134,37 @@ olical_single = function(oli_file, tm_file, overwrite=F){
   unitcbsamp = length(unique(tcsamp[,1]))
   unitcgsamp = length(unique(tcsamp[,2]))
   unitcwsamp = length(unique(tcsamp[,3]))
+  unitcasamp = length(unique(tcasamp))
+  
   
   if(unib2samp < 15 | unib3samp < 15 | unib4samp < 15 | unib5samp < 15 | unib6samp < 15 | 
-     unib7samp < 15 | unitcbsamp < 15 | unitcgsamp < 15 | unitcwsamp < 15){return()}
-  
+     unib7samp < 15 | unitcbsamp < 15 | unitcgsamp < 15 | unitcwsamp < 15 | unitcasamp < 15){return()}
+  print("made it here!!!")
   
   olibname = basename(oli_sr_file)
   refbname = basename(ref_tc_file)
+  refabname = basename(ref_tca_file)
   
   tcb_tbl = data.frame(olibname,refbname,"tcb",sampxy,tcsamp[,1],olisamp)
   tcg_tbl = data.frame(olibname,refbname,"tcg",sampxy,tcsamp[,2],olisamp)
   tcw_tbl = data.frame(olibname,refbname,"tcw",sampxy,tcsamp[,3],olisamp)
+  tca_tbl = data.frame(olibname,refabname,"tca",sampxy,tcasamp,olisamp)
+  
   
   tcb_tbl = tcb_tbl[complete.cases(tcb_tbl),]
   tcg_tbl = tcg_tbl[complete.cases(tcg_tbl),]
   tcw_tbl = tcw_tbl[complete.cases(tcw_tbl),]
+  tca_tbl = tca_tbl[complete.cases(tca_tbl),]
   
   ##############take this out################
-  print(all.equal(nrow(tcb_tbl),nrow(tcg_tbl),nrow(tcw_tbl)))
+  #print(all.equal(nrow(tcb_tbl),nrow(tcg_tbl),nrow(tcw_tbl)))
   ###########################################
   
   cnames = c("oli_img","ref_img","index","x","y","refsamp","b2samp","b3samp","b4samp","b5samp","b6samp","b7samp") 
   colnames(tcb_tbl) = cnames
   colnames(tcg_tbl) = cnames
   colnames(tcw_tbl) = cnames
+  colnames(tca_tbl) = cnames
   
   #predict the indices
   #TCB
@@ -181,54 +189,64 @@ olical_single = function(oli_file, tm_file, overwrite=F){
   wr = cor(wsamp$refsamp, wsamp$singlepred)
   
   #TCA
-  singlepred = atan(gsamp$singlepred/bsamp$singlepred) * (180/pi) * 100
-  refsamp = atan(gsamp$refsamp/bsamp$refsamp) * (180/pi) * 100
-  tbl = data.frame(oli_img = olibname,
-                   ref_img = refbname,
-                   index = "tca",
-                   x = tcb_tbl$x,
-                   y = tcb_tbl$y,
-                   refsamp,singlepred)
-  final = tbl[complete.cases(tbl),]
   outsampfile = file.path(outdir,paste(oliimgid,"_tca_cal_samp.csv",sep=""))
-  write.csv(final, outsampfile, row.names=F)
+  model = predict_oli_index(tca_tbl, outsampfile)
+  acoef = model[[1]]
+  asamp = model[[2]]
+  ar = cor(asamp$refsamp, asamp$singlepred)
+  
+  #TCA
+  #singlepred = atan(gsamp$singlepred/bsamp$singlepred) * (180/pi) * 100
+  #refsamp = atan(gsamp$refsamp/bsamp$refsamp) * (180/pi) * 100
+  #tbl = data.frame(oli_img = olibname,
+  #                 ref_img = refbname,
+  #                 index = "tca",
+  #                 x = tcb_tbl$x,
+  #                 y = tcb_tbl$y,
+  #                 refsamp,singlepred)
+  #final = tbl[complete.cases(tbl),]
+  #outsampfile = file.path(outdir,paste(oliimgid,"_tca_cal_samp.csv",sep=""))
+  #write.csv(final, outsampfile, row.names=F)
   
   #plot it
-  r = cor(final$refsamp, final$singlepred)
-  coef = rlm(final$refsamp ~ final$singlepred)
+  #r = cor(final$refsamp, final$singlepred)
+  #coef = rlm(final$refsamp ~ final$singlepred)
 
-  pngout = sub("samp.csv", "plot.png",outsampfile)
-  png(pngout,width=700, height=700)
-  title = paste("tca linear regression: slope =",paste(signif(coef$coefficients[2], digits=3),",",sep=""),
-                "y Intercept =",paste(round(coef$coefficients[1], digits=3),",",sep=""),
-                "r =",signif(r, digits=3))
-  plot(x=final$singlepred,y=final$refsamp,
-       main=title,
-       xlab=paste(olibname,"tca"),
-       ylab=paste(refbname,"tca"))
-  abline(coef = coef$coefficients, col="red")  
-  dev.off()
+  #pngout = sub("samp.csv", "plot.png",outsampfile)
+  #png(pngout,width=700, height=700)
+  #title = paste("tca linear regression: slope =",paste(signif(coef$coefficients[2], digits=3),",",sep=""),
+  #              "y Intercept =",paste(round(coef$coefficients[1], digits=3),",",sep=""),
+  #              "r =",signif(r, digits=3))
+  #plot(x=final$singlepred,y=final$refsamp,
+  #     main=title,
+  #     xlab=paste(olibname,"tca"),
+  #     ylab=paste(refbname,"tca"))
+  #abline(coef = coef$coefficients, col="red")  
+  #dev.off()
   
-  info = data.frame(oli_file = olibname, ref_file = refbname,
-                    index = "tca", yint = as.numeric(coef$coefficients[1]),
-                    b1c = as.numeric(coef$coefficients[2]), r=r)
+  #info = data.frame(oli_file = olibname, ref_file = refbname,
+  #                  index = "tca", yint = as.numeric(coef$coefficients[1]),
+  #                  b1c = as.numeric(coef$coefficients[2]), r=r)
   
-  coefoutfile = file.path(outdir,paste(oliimgid,"_tca_cal_coef.csv",sep=""))
-  write.csv(info, coefoutfile, row.names=F)
+  #coefoutfile = file.path(outdir,paste(oliimgid,"_tca_cal_coef.csv",sep=""))
+  #write.csv(info, coefoutfile, row.names=F)
   
   
   #write out the coef files
-  data.frame(oli_file=olibname, ref_file=refbname, index="tcb", bcoef, r=br)
-  data.frame(oli_file=olibname, ref_file=refbname, index="tcg", gcoef, r=gr)
-  data.frame(oli_file=olibname, ref_file=refbname, index="tcw", wcoef, r=wr)
+  tcbinfo = data.frame(oli_file=olibname, ref_file=refbname, index="tcb", bcoef, r=br)
+  tcginfo = data.frame(oli_file=olibname, ref_file=refbname, index="tcg", gcoef, r=gr)
+  tcwinfo = data.frame(oli_file=olibname, ref_file=refbname, index="tcw", wcoef, r=wr)
+  tcainfo = data.frame(oli_file=olibname, ref_file=refabname, index="tca", acoef, r=ar)
   
-  coefoutfile = file.path(outdir,paste(oliimgid,"_tcb_cal_coef.csv",sep=""))
-  coefoutfile = file.path(outdir,paste(oliimgid,"_tcg_cal_coef.csv",sep=""))
-  coefoutfile = file.path(outdir,paste(oliimgid,"_tcw_cal_coef.csv",sep=""))
+  tcbcoefoutfile = file.path(outdir,paste(oliimgid,"_tcb_cal_coef.csv",sep=""))
+  tcgcoefoutfile = file.path(outdir,paste(oliimgid,"_tcg_cal_coef.csv",sep=""))
+  tcwcoefoutfile = file.path(outdir,paste(oliimgid,"_tcw_cal_coef.csv",sep=""))
+  tcacoefoutfile = file.path(outdir,paste(oliimgid,"_tca_cal_coef.csv",sep=""))
   
-  write.csv(info, coefoutfile, row.names=F)
-  write.csv(info, coefoutfile, row.names=F)
-  write.csv(info, coefoutfile, row.names=F)
+  write.csv(tcbinfo, tcbcoefoutfile, row.names=F)
+  write.csv(tcginfo, tcgcoefoutfile, row.names=F)
+  write.csv(tcwinfo, tcwcoefoutfile, row.names=F)
+  write.csv(tcainfo, tcacoefoutfile, row.names=F)
   
   
   #outfile = file.path(outdir,paste(oliimgid,"_tc_cal_planes.png",sep=""))

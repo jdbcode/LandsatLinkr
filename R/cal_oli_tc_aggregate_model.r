@@ -7,6 +7,8 @@
 
 
 cal_oli_tc_aggregate_model = function(dir, overwrite=F){
+  #dir = "K:/test/oli/wrs2/038029/calibration"
+  #overwrite=T
   
   #make new directory
   outdir = file.path(dir,"aggregate_model")
@@ -122,16 +124,17 @@ cal_oli_tc_aggregate_model = function(dir, overwrite=F){
     if(class(sample_files) != "data.frame"){
       tbl = do.call("rbind", lapply(sample_files, read.csv, header = TRUE))
     } else {tbl = sample_files}
-    if(index == "tca"){model = rlm(refsamp ~ comppred, data=tbl)} else {
+    #if(index == "tca"){model = rlm(refsamp ~ comppred, data=tbl)} else {
       model = rlm(refsamp ~ b2samp + b3samp + b4samp + b5samp + b6samp + b7samp, data=tbl)
       tbl$comppred = round(predict(model))
-    }
+    #}
     tbl$singlepreddif = tbl$refsamp - tbl$singlepred
     tbl$comppreddif = tbl$refsamp - tbl$comppred
     tblcoef = model$coefficients
     r = cor(tbl$refsamp,tbl$comppred)
-    if(index == "tca"){coef = data.frame(index=index,yint=tblcoef[1],b1c=tblcoef[2],r=r)} else {
-      coef = data.frame(index=index,yint=tblcoef[1],b2c=tblcoef[2],b3c=tblcoef[3],b4c=tblcoef[4],b5c=tblcoef[5],b6c=tblcoef[6],b7c=tblcoef[7],r=r)}
+    #if(index == "tca"){coef = data.frame(index=index,yint=tblcoef[1],b1c=tblcoef[2],r=r)} else {
+      coef = data.frame(index=index,yint=tblcoef[1],b2c=tblcoef[2],b3c=tblcoef[3],b4c=tblcoef[4],b5c=tblcoef[5],b6c=tblcoef[6],b7c=tblcoef[7],r=r)
+      #}
     
     coeftbl = do.call("rbind", lapply(coef_files, read.csv, header = TRUE))
     outfile = file.path(outdir,paste(index,"_cal_combined_coef.csv",sep=""))
@@ -155,6 +158,35 @@ cal_oli_tc_aggregate_model = function(dir, overwrite=F){
     return(tbl)
   }
   
+  find_good_samples = function(coeffiles){
+    len = length(coeffiles)
+    id = substr(basename(coeffiles),1,16)
+    r = array(NA,len)
+    df = data.frame(id,r)
+    for(i in 1:len){
+      r = read.csv(coeffiles[i], header = TRUE)$r
+      df$r[i] = r
+    }
+    n_goods = 0
+    thresh = 0.7
+    while(n_goods < 1){
+      goods = which(df$r > thresh)
+      n_goods = length(goods)
+      thresh = thresh-0.05
+    }
+    return(as.character(df$id[goods]))
+  }
+  
+  extract_good_samples = function(files, goodids){
+    len = length(goodids)
+    these = 0
+    for(i in 1:len){
+      match = grep(goodids[i], files)
+      if(length(match) == 1){these = c(these,files[match])}
+    }
+    return(these[2:length(these)])
+  }
+  
   #######run the functions
   tcbsamps = list.files(dir,"tcb_cal_samp.csv",recursive=T,full.names=T)
   tcgsamps = list.files(dir,"tcg_cal_samp.csv",recursive=T,full.names=T)
@@ -166,14 +198,30 @@ cal_oli_tc_aggregate_model = function(dir, overwrite=F){
   tcwcoef = list.files(dir,"tcw_cal_coef.csv",recursive=T,full.names=T)
   tcacoef = list.files(dir,"tca_cal_coef.csv",recursive=T,full.names=T)
   
+  tcbgoods = find_good_samples(tcbcoef)
+  tcggoods = find_good_samples(tcgcoef)
+  tcwgoods = find_good_samples(tcwcoef)
+  tcagoods = find_good_samples(tcacoef)
+  
+  tcbsamps = extract_good_samples(tcbsamps, tcbgoods)
+  tcgsamps = extract_good_samples(tcgsamps, tcggoods)
+  tcwsamps = extract_good_samples(tcwsamps, tcwgoods)
+  tcasamps = extract_good_samples(tcasamps, tcagoods)
+  
+  tcbcoef = extract_good_samples(tcbcoef, tcbgoods)
+  tcgcoef = extract_good_samples(tcgcoef, tcggoods)
+  tcwcoef = extract_good_samples(tcwcoef, tcwgoods)
+  tcacoef = extract_good_samples(tcacoef, tcagoods)
+  
   btbl = aggregate_cal_diag(tcbsamps, tcbcoef, "tcb", outdir)
   gtbl = aggregate_cal_diag(tcgsamps, tcgcoef, "tcg", outdir)
   wtbl = aggregate_cal_diag(tcwsamps, tcwcoef, "tcw", outdir)
-  
-  tcasamps = do.call("rbind", lapply(tcasamps, read.csv, header = TRUE))
-  comppred = atan(gtbl$comppred/btbl$comppred) * (180/pi) * 100
-  tcasamps = data.frame(tcasamps,comppred)
   atbl = aggregate_cal_diag(tcasamps, tcacoef, "tca", outdir)
+  
+  #tcasamps = do.call("rbind", lapply(tcasamps, read.csv, header = TRUE))
+  #comppred = atan(gtbl$comppred/btbl$comppred) * (180/pi) * 100
+  #tcasamps = data.frame(tcasamps,comppred)
+  #atbl = aggregate_cal_diag(tcasamps, tcacoef, "tca", outdir)
   
   #create plane plots
 #   tcb_samp_file = file.path(outdir,"tcb_cal_aggregate_sample.csv")
