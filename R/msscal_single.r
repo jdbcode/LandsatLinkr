@@ -11,6 +11,9 @@
 
 msscal_single = function(mss_file, tm_file){
   
+  #mss_file = "K:/test/mss/wrs2/038029/images/1986/LM50380291986214_dos_sr_30m.tif"
+  #tm_file = "K:/test/tm/wrs2/038029/images/1986/LT50380291986214_tc.tif"
+  
   get_intersection = function(files){
     int = intersect(extent(raster(files[1])),extent(raster(files[2])))
     if(length(files) >= 3){for(i in 3:length(files))int = intersect(extent(raster(files[i])), int)}
@@ -87,9 +90,14 @@ msscal_single = function(mss_file, tm_file){
   ref_mask_img = crop(ref_mask_img,int)
   
   #make a composite mask
-  mss_mask_img = as.matrix(mss_mask_img)
-  ref_mask_img = as.matrix(ref_mask_img)
-  mask = mss_mask_img*ref_mask_img
+  #mss_mask_img = as.matrix(mss_mask_img)
+  #ref_mask_img = as.matrix(ref_mask_img)
+  mss_mask_v = as.vector(mss_mask_img)
+  ref_mask_v = as.vector(ref_mask_img)
+  #mask = mss_mask_img*ref_mask_img
+  mask = mss_mask_v*ref_mask_v
+  mss_mask_v = ref_mask_v = 0 # save memory
+  
   goods = which(mask == 1)
   if(length(goods) < 20000){return()}
   
@@ -103,7 +111,7 @@ msscal_single = function(mss_file, tm_file){
   sampxy = xyFromCell(mss_mask_img, samp) #added on 1/22/2016
   
   #save memory
-  mss_mask_img = ref_mask_img = mask = refpix =  0
+  mask = 0
   
   #extract the sample pixels from the bands
   #b1samp = as.matrix(subset(mss_sr_img, 1))[samp]
@@ -131,6 +139,8 @@ msscal_single = function(mss_file, tm_file){
   #if(unib1samp < 15 | unib2samp < 15 | unib3samp < 15 | unib4samp < 15 ){return()}
   if(unib1samp < 15 | unib2samp < 15 | unib3samp < 15 | unib4samp < 15 |
      unitcbsamp < 15 | unitcgsamp < 15 | unitcwsamp < 15 | unitcasamp < 15){return()}
+  
+  print("Made it here!")
   
   #samplen = length(samp)
   

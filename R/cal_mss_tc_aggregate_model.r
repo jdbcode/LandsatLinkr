@@ -150,16 +150,16 @@ cal_mss_tc_aggregate_model = function(dir){
     if(class(sample_files) != "data.frame"){
       tbl = do.call("rbind", lapply(sample_files, read.csv, header = TRUE))
     } else {tbl = sample_files}
-    if(index == "tca"){model = rlm(refsamp ~ comppred, data=tbl)} else {
+    #if(index == "tca"){model = rlm(refsamp ~ comppred, data=tbl)} else {
       model = rlm(refsamp ~ b1samp + b2samp + b3samp + b4samp, data=tbl)
       tbl$comppred = round(predict(model))
-    }
+    #}
     tbl$singlepreddif = tbl$refsamp - tbl$singlepred
     tbl$comppreddif = tbl$refsamp - tbl$comppred
     tblcoef = model$coefficients
     r = cor(tbl$refsamp,tbl$comppred)
-    if(index == "tca"){coef = data.frame(index=index,yint=tblcoef[1],b1c=tblcoef[2],r=r)} else {
-      coef = data.frame(index=index,yint=tblcoef[1],b1c=tblcoef[2],b2c=tblcoef[3],b3c=tblcoef[4],b4c=tblcoef[5],r=r)}
+    #if(index == "tca"){coef = data.frame(index=index,yint=tblcoef[1],b1c=tblcoef[2],r=r)} else {
+      coef = data.frame(index=index,yint=tblcoef[1],b1c=tblcoef[2],b2c=tblcoef[3],b3c=tblcoef[4],b4c=tblcoef[5],r=r)#}
     
     coeftbl = do.call("rbind", lapply(coef_files, read.csv, header = TRUE))
     outfile = file.path(outdir,paste(index,"_cal_combined_coef.csv",sep=""))
