@@ -7,6 +7,11 @@
 
 
 cal_mss_tc_aggregate_model = function(dir){
+  
+  #make new directory
+  outdir = file.path(dir,"aggregate_model")
+  dir.create(outdir, recursive=T, showWarnings=F)
+  
   plot_multi_cal = function(df,index, model, outfile){
     
     if(index == "tcb"){limits = c(-500, 10000)}
@@ -178,8 +183,38 @@ cal_mss_tc_aggregate_model = function(dir){
     return(tbl)
   }
   
-  outdir = file.path(dir,"aggregate_model")
-  dir.create(outdir, recursive=T, showWarnings=F)
+  find_good_samples = function(coeffiles){
+    len = length(coeffiles)
+    id = substr(basename(coeffiles),1,16)
+    r = array(NA,len)
+    df = data.frame(id,r)
+    for(i in 1:len){
+      r = read.csv(coeffiles[i], header = TRUE)$r
+      df$r[i] = r
+    }
+    n_goods = 0
+    thresh = 0.7
+    while(n_goods < 1){
+      goods = which(df$r > thresh)
+      n_goods = length(goods)
+      thresh = thresh-0.05
+    }
+    return(as.character(df$id[goods]))
+  }
+  
+  extract_good_samples = function(files, goodids){
+    len = length(goodids)
+    these = 0
+    for(i in 1:len){
+      match = grep(goodids[i], files)
+      if(length(match) == 1){these = c(these,files[match])}
+    }
+    return(these[2:length(these)])
+  }
+  
+  
+  
+
   
   tcbsamps = list.files(dir,"tcb_cal_samp.csv",recursive=T,full.names=T)
   tcgsamps = list.files(dir,"tcg_cal_samp.csv",recursive=T,full.names=T)
@@ -191,20 +226,41 @@ cal_mss_tc_aggregate_model = function(dir){
   tcwcoef = list.files(dir,"tcw_cal_coef.csv",recursive=T,full.names=T)
   tcacoef = list.files(dir,"tca_cal_coef.csv",recursive=T,full.names=T)
   
+  tcbgoods = find_good_samples(tcbcoef)
+  tcggoods = find_good_samples(tcgcoef)
+  tcwgoods = find_good_samples(tcwcoef)
+  tcagoods = find_good_samples(tcacoef)
+  
+  tcbsamps = extract_good_samples(tcbsamps, tcbgoods)
+  tcgsamps = extract_good_samples(tcgsamps, tcggoods)
+  tcwsamps = extract_good_samples(tcwsamps, tcwgoods)
+  tcasamps = extract_good_samples(tcasamps, tcagoods)
+  
+  tcbcoef = extract_good_samples(tcbcoef, tcbgoods)
+  tcgcoef = extract_good_samples(tcgcoef, tcggoods)
+  tcwcoef = extract_good_samples(tcwcoef, tcwgoods)
+  tcacoef = extract_good_samples(tcacoef, tcagoods)
+  
   btbl = aggregate_cal_diag(tcbsamps, tcbcoef, "tcb", outdir)
   gtbl = aggregate_cal_diag(tcgsamps, tcgcoef, "tcg", outdir)
   wtbl = aggregate_cal_diag(tcwsamps, tcwcoef, "tcw", outdir)
-  
-  tcasamps = do.call("rbind", lapply(tcasamps, read.csv, header = TRUE))
-  comppred = atan(gtbl$comppred/btbl$comppred) * (180/pi) * 100
-  tcasamps = data.frame(tcasamps,comppred)
   atbl = aggregate_cal_diag(tcasamps, tcacoef, "tca", outdir)
   
+  
+  #btbl = aggregate_cal_diag(tcbsamps, tcbcoef, "tcb", outdir)
+  #gtbl = aggregate_cal_diag(tcgsamps, tcgcoef, "tcg", outdir)
+  #wtbl = aggregate_cal_diag(tcwsamps, tcwcoef, "tcw", outdir)
+  
+  #tcasamps = do.call("rbind", lapply(tcasamps, read.csv, header = TRUE))
+  #comppred = atan(gtbl$comppred/btbl$comppred) * (180/pi) * 100
+  #tcasamps = data.frame(tcasamps,comppred)
+  #atbl = aggregate_cal_diag(tcasamps, tcacoef, "tca", outdir)
+  
   #create plane plots
-  tcb_samp_file = file.path(outdir,"tcb_cal_aggregate_sample.csv")
-  tcg_samp_file = file.path(outdir,"tcg_cal_aggregate_sample.csv")
-  tcw_samp_file = file.path(outdir,"tcw_cal_aggregate_sample.csv")
-  outfile = file.path(outdir,"aggregate_cal_tc_planes_comparison.png") 
+  #tcb_samp_file = file.path(outdir,"tcb_cal_aggregate_sample.csv")
+  #tcg_samp_file = file.path(outdir,"tcg_cal_aggregate_sample.csv")
+  #tcw_samp_file = file.path(outdir,"tcw_cal_aggregate_sample.csv")
+  #outfile = file.path(outdir,"aggregate_cal_tc_planes_comparison.png") 
   #make_tc_planes_comparison(tcb_samp_file, tcg_samp_file, tcw_samp_file, outfile)
 }
 

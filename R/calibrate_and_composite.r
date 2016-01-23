@@ -36,7 +36,7 @@ calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,in
       registerDoParallel(cl)
       o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% resample(files[i])
       stopCluster(cl)
-    } else {for(i in 1:length(files)){resample(files[i])}}
+    } else {for(i in 1:length(files)){o = resample(files[i])}}
     
     
     print("Running msscal")

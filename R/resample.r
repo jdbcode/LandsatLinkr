@@ -10,7 +10,7 @@ resample = function(file, overwrite=F){
   
   if(type[1] == 1){
     check = file_check(file,"dos_sr_30m.tif",overwrite)
-    print(check)
+    #print(check)
     if(check == 0){return(0)}
     
     newfile = sub("dos_sr", "dos_sr_30m", file)
@@ -23,7 +23,7 @@ resample = function(file, overwrite=F){
   
   if(type[2] == 1){
     check = file_check(file,"cloudmask_30m.tif",overwrite)
-    print(check)
+    #print(check)
     if(check == 0){return(0)}
     
     newfile = sub("cloudmask", "cloudmask_30m", file)

@@ -4,8 +4,7 @@
 \alias{predict_mss_index}
 \title{Predict MSS TC index}
 \usage{
-predict_mss_index(refsamp, b1samp, b2samp, b3samp, b4samp, mss_sr_file,
-  ref_file, index, outsampfile, samplen)
+predict_mss_index(tbl, outsampfile)
 }
 \arguments{
 \item{file}{The full path name of the *archv file}

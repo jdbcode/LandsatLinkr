@@ -139,7 +139,6 @@ olical_single = function(oli_file, tm_file, overwrite=F){
   
   if(unib2samp < 15 | unib3samp < 15 | unib4samp < 15 | unib5samp < 15 | unib6samp < 15 | 
      unib7samp < 15 | unitcbsamp < 15 | unitcgsamp < 15 | unitcwsamp < 15 | unitcasamp < 15){return()}
-  print("made it here!!!")
   
   olibname = basename(oli_sr_file)
   refbname = basename(ref_tc_file)
