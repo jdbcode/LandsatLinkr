@@ -7,8 +7,7 @@
 
 
 cal_oli_tc_aggregate_model = function(dir, overwrite=F){
-  #dir = "K:/test/oli/wrs2/038029/calibration"
-  #overwrite=T
+
   
   #make new directory
   outdir = file.path(dir,"aggregate_model")
@@ -168,7 +167,7 @@ cal_oli_tc_aggregate_model = function(dir, overwrite=F){
       df$r[i] = r
     }
     n_goods = 0
-    thresh = 0.7
+    thresh = 0.8
     while(n_goods < 1){
       goods = which(df$r > thresh)
       n_goods = length(goods)

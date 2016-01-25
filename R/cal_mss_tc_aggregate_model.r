@@ -8,6 +8,10 @@
 
 cal_mss_tc_aggregate_model = function(dir){
   
+  #dir = "K:/test/mss/wrs2/038029/calibration"
+  #overwrite=T
+  
+  
   #make new directory
   outdir = file.path(dir,"aggregate_model")
   dir.create(outdir, recursive=T, showWarnings=F)
@@ -193,7 +197,7 @@ cal_mss_tc_aggregate_model = function(dir){
       df$r[i] = r
     }
     n_goods = 0
-    thresh = 0.7
+    thresh = 0.8
     while(n_goods < 1){
       goods = which(df$r > thresh)
       n_goods = length(goods)
@@ -211,10 +215,6 @@ cal_mss_tc_aggregate_model = function(dir){
     }
     return(these[2:length(these)])
   }
-  
-  
-  
-
   
   tcbsamps = list.files(dir,"tcb_cal_samp.csv",recursive=T,full.names=T)
   tcgsamps = list.files(dir,"tcg_cal_samp.csv",recursive=T,full.names=T)
