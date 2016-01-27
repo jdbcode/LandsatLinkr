@@ -194,7 +194,10 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       #   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
       #get the row and column numbers for the fix image
-      a = cellFromXY(origfiximg, c(info[point,"refx"],info[point,"refy"])) #fiximg
+      origfiximg_x = info[point,"fixx"]-shiftit[1]
+      origfiximg_y = info[point,"fixy"]-shiftit[2]
+      #a = cellFromXY(origfiximg, c(info[point,"refx"],info[point,"refy"])) #fiximg
+      a = cellFromXY(origfiximg, c(origfiximg_x,origfiximg_y))
       fiximgrc = rowColFromCell(origfiximg, a)
       info[point,"fixcol"] = fiximgrc[2] #info[point,8] = fiximgrc[2]
       info[point,"fixrow"] = fiximgrc[1] #info[point,9] = fiximgrc[1]
