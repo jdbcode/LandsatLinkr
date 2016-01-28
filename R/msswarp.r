@@ -170,8 +170,19 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       
       good = which(values(ncc) == maxValue(ncc)) 
       good = good[1]
-      info[point,"fixx"] = xFromCell(ncc, good) #info[point,6] = xFromCell(ncc, good)#+(shiftit[1]*-1) #get the x coord of the highest peak, account for shift, and put in the info table
-      info[point,"fixy"] = yFromCell(ncc, good) #info[point,7] = yFromCell(ncc, good)#+(shiftit[2]*-1) #get the y coord of the highest peak, account for shift, and put in the info table
+      
+      ####
+      xoffsetcoord = xFromCell(ncc, good)
+      yoffsetcoord = yFromCell(ncc, good)
+      xoffset = xoffsetcoord - info[point,"refx"]
+      yoffset = yoffsetcoord - info[point,"refy"]
+      info[point,"fixx"] = xoffsetcoord-(xoffset*2)
+      info[point,"fixy"] = yoffsetcoord-(yoffset*2)
+      ####
+      
+      
+      #info[point,"fixx"] = xFromCell(ncc, good) #info[point,6] = xFromCell(ncc, good)#+(shiftit[1]*-1) #get the x coord of the highest peak, account for shift, and put in the info table
+      #info[point,"fixy"] = yFromCell(ncc, good) #info[point,7] = yFromCell(ncc, good)#+(shiftit[2]*-1) #get the y coord of the highest peak, account for shift, and put in the info table
       
       #   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       #   #write out image chips for testing
@@ -305,8 +316,10 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       #get the gcp string made
       fixcol = paste(info[,"fixcol"]) #fix col for tie point
       fixrow = paste(info[,"fixrow"]) #fix row for tie point
-      refx = paste(info[,"fixx"])  #fix x tie point coord 
-      refy = paste(info[,"fixy"])  #fix y tie point coord
+      #refx = paste(info[,"fixx"])  #fix x tie point coord 
+      #refy = paste(info[,"fixy"])  #fix y tie point coord
+      refx = paste(info[,"refx"])  #fix x tie point coord 
+      refy = paste(info[,"refy"])  #fix y tie point coord
       gcpstr = paste(" -gcp", fixcol, fixrow, refx, refy, collapse="")
       gcpfile = sub("archv.tif", "gcp.txt", fixfile)
       write(paste("reference file =", reffile), file=gcpfile)
@@ -318,7 +331,7 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       system(gdaltrans_cmd)
                   
       #gdal warp command
-      gdalwarp_cmd = paste("gdalwarp -of Gtiff -order 1 -ot Byte -srcnodata 0 -dstnodata 0 -co INTERLEAVE=BAND -overwrite -multi -tr", reso, reso, tempname, fixfile) #fixfile   "-tps"  "-order 2", "-order 3" 
+      gdalwarp_cmd = paste("gdalwarp -of Gtiff -order 2 -ot Byte -srcnodata 0 -dstnodata 0 -co INTERLEAVE=BAND -overwrite -multi -tr", reso, reso, tempname, fixfile) #fixfile   "-tps"  "-order 2", "-order 3" 
       system(gdalwarp_cmd)
       
       #delete the temp file
