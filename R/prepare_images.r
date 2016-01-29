@@ -147,11 +147,11 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
     
     if(sum(c(xminokay,xmaxokay,yminokay,ymaxokay)) != 4){
       print("Error - Please make sure DEM has minimum dimensions:")
-      print("x minimum:", xmin)
-      print("x maximum:", xmax)
-      print("y minimum:", ymin)
-      print("y maximum:", ymax)
-      print("For projection:",t_srs)
+      print(paste("x minimum:", xmin))
+      print(paste("x maximum:", xmax))
+      print(paste("y minimum:", ymin))
+      print(paste("y maximum:", ymax))
+      print(paste("For projection:",t_srs))
       return("Stopping LLR")
     }
     
