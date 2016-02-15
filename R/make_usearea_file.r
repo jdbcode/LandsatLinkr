@@ -11,6 +11,8 @@
 #' @export
 
 make_usearea_file = function(dir, outfile, xmx, xmn, ymx, ymn){
+  print("Making a use-area file for the specifed dimensions")
+  
   projfiles = list.files(path = file.path(dir[1], "images"), pattern="proj.txt", full.names=T, recursive=T)
   if(length(projfiles) == 0){projfiles = list.files(path = file.path(dir[2], "images"), pattern="proj.txt", full.names=T, recursive=T)}
   if(length(projfiles) == 0){projfiles = list.files(path = file.path(dir[3], "images"), pattern="proj.txt", full.names=T, recursive=T)} 
@@ -22,7 +24,13 @@ make_usearea_file = function(dir, outfile, xmx, xmn, ymx, ymn){
   r = raster(xmn=xmn, xmx=xmx, ymn=ymn, ymx=ymx, crs=crs, res=res)
   r[] = 1
   r = as(r, "SpatialGridDataFrame")       
-  writeGDAL(r, outfile, drivername = "GTiff", options="INTERLEAVE=BAND", type = "Byte", mvFlag = 0)
+  writeGDAL(r, outfile, drivername = "GTiff", options="INTERLEAVE=BAND", type = "Byte") #, mvFlag = 0
+  
+  #write out as a .bsq too so that it can be used in the LLR-LT program
+  print("Making a copy of use-area file as .bsq for optional use in LandTrendr")
+  bsqoutfile = sub(".tif", ".bsq", outfile)
+  gdal_translate(src_dataset=outfile, dst_dataset=bsqoutfile, of="ENVI", a_nodata="none")
+  
 }
 
 

@@ -12,6 +12,7 @@ make_usearea_file_bsq = function(infile, projref){
   
   #infile = "K:/test/composite/useareafile.tif"
   #projref = "K:/test/mss/wrs1/041029/images/1976/LM10410291976181_archv.tif"
+  print("Making a copy of use-area file as .bsq for optional use in LandTrendr")
   
   tempout = paste(infile,"_temp.tif",sep="")
   template = r = raster(infile)
@@ -30,6 +31,6 @@ make_usearea_file_bsq = function(infile, projref){
   
   s_srs = projection(raster(tempout))
   t_srs = set_projection(projref)
-  gdalwarp(srcfile=tempout, dstfile=outfile, s_srs=s_srs, t_srs=t_srs, order=1, tr=c(30,30), r="near", of="ENVI")
+  gdalwarp(srcfile=tempout, dstfile=outfile, s_srs=s_srs, t_srs=t_srs, order=1, tr=c(30,30), r="near", of="ENVI", dstnodata="none")
   unlink(tempout)
 }

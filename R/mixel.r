@@ -139,7 +139,9 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
       }
       
       len = length(these)
+      print(paste("using:",overlap))
       print("merging files:")
+      
       for(m in 1:len){
         print(basename(imgorder[m]))
         if(m == 1){mergeit = "r1"} else {mergeit = paste(mergeit,",r",m, sep="")}
@@ -148,8 +150,10 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
         eval(parse(text=dothis))
         if(m == len){
           if(overlap == "order"){mergeit = paste("newimg = merge(",mergeit,")", sep="")}
-          if(overlap == "mean"){mergeit = paste("newimg = mosaic(",mergeit,",fun=mean,na.rm=T,tolerance=0.5)", sep="")}
-          if(overlap == "median"){mergeit = paste("newimg = mosaic(",mergeit,",fun=median,na.rm=T)", sep="")}
+          else if(overlap == "mean"){mergeit = paste("newimg = mosaic(",mergeit,",fun=mean,na.rm=T)", sep="")}
+          else if(overlap == "median"){mergeit = paste("newimg = mosaic(",mergeit,",fun=median,na.rm=T)", sep="")}
+          else if(overlap == "max"){mergeit = paste("newimg = mosaic(",mergeit,",fun=max,na.rm=T)", sep="")}
+          else if(overlap == "min"){mergeit = paste("newimg = mosaic(",mergeit,",fun=min,na.rm=T)", sep="")}
         }
       }
       
@@ -331,6 +335,7 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
   tmdir = file.path(outdir,"tm")
   
   if(sum(length(overlapmssfiles),length(overlapolifiles)) == 0){ #if there are no overlapping MSS to TM and ETM+ to OLI then just composite without making pixel level offset adjustment
+    dir.create(outdir, recursive=T, showWarnings=F)
     mixel_composite(outdir, files, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
   }
   if(length(overlapmssfiles) != 0){

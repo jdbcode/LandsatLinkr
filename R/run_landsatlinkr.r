@@ -322,9 +322,22 @@ run_landsatlinkr = function(){
       #################################################################################################################
       #use area file or coordinates
       
+
+      
+      
       choices = c("From file",
                   "Provide coordinates")
       selection = select.list(choices, title = "What area do you want to create composites for?")
+      
+      #find a files to get the project reference
+      dirToCheck = c(msswrs1dir[1],msswrs2dir[1],tmwrs2dir[1],oliwrs2dir[1])
+      projfiles = list.files(path = file.path(dirToCheck[1], "images"), pattern=".tif$", full.names=T, recursive=T)
+      if(length(projfiles) == 0){projfiles = list.files(path = file.path(dirToCheck[2], "images"), pattern=".tif$", full.names=T, recursive=T)}
+      if(length(projfiles) == 0){projfiles = list.files(path = file.path(dirToCheck[3], "images"), pattern=".tif$", full.names=T, recursive=T)} 
+      if(length(projfiles) == 0){projfiles = list.files(path = file.path(dirToCheck[4], "images"), pattern=".tif$", full.names=T, recursive=T)}
+      projfile = projfiles[1]
+      
+      #deal with the selection
       if(selection == "From file"){
         correct = "No"
         while(correct == "No"){
@@ -332,10 +345,10 @@ run_landsatlinkr = function(){
           print(paste("You have selected:",useareafile))
           correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
           if(correct == "Exit"){return("Stopping LLR")}
+          
+          make_usearea_file_bsq(useareafile, projfile)
         }
-      }
-      
-      if(selection == "Provide coordinates"){
+      } else if(selection == "Provide coordinates"){
         
         correct = "No"
         while(correct == "No"){
@@ -360,6 +373,27 @@ run_landsatlinkr = function(){
         useareafile = file.path(outdir, paste(runname,"_usearea.tif",sep=""))
         make_usearea_file(c(msswrs1dir[1],msswrs2dir[1],tmwrs2dir[1],oliwrs2dir[1]), useareafile, xmx, xmn, ymx, ymn)
       }
+      
+      correct = "No"
+      while(correct == "No"){
+        choices = c("Mean",
+                    "Maximum",
+                    "Minimum",
+                    "Median *long processing time*")#,
+        #"Fit neat lines")
+        
+        overlap = select.list(choices, title = "Select a method to summarize the value of overlapping pixels")
+        
+        print(paste("You have selected:",overlap))
+        correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+        if(correct == "Exit"){return("Stopping LLR")}
+        
+        if(overlap == "Mean"){overlap = "mean"}
+        if(overlap == "Maximum"){overlap = "max"}
+        if(overlap == "Minimum"){overlap = "min"}
+        if(overlap == "Median *long processing time*"){overlap = "median"}
+        
+      }
       calcomprocess = 3
     }
     #}
@@ -370,7 +404,7 @@ run_landsatlinkr = function(){
     #################################################################################################################
     #execute the calibrate_and_composite function
     
-    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=cores, process=calcomprocess, overwrite=overwrite)
+    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap=overlap, cores=cores, process=calcomprocess, overwrite=overwrite)  #overlap="mean"
   }
   
   #if(sum(process %in% 9 > 0)){
