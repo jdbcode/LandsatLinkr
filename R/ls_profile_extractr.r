@@ -1,9 +1,10 @@
-library(raster)
 
-writeplot = function(file,gmBounds,date,tcb,tcg,tcw,tca,first=F,last=F){
-  start=paste('var data = {"PlotID": 1,','"LatLon":[',gmBounds[1,2],',',gmBounds[1,1],'],','"bounds":[',gmBounds[2,2],',',gmBounds[3,2],',',gmBounds[3,1],',',gmBounds[2,1],'],','"Values": [')
+
+writeplot = function(file,plot,gmBounds,date,tcb,tcg,tcw,tca, first=F,last=F, end=F, finalPlot=F){
+  chipstrip = paste('"imgs/plot_',plot,'_chipstrip.png,"',sep="")
+  start=paste('{"PlotID": ',plot,',','"chipStrip":',chipstrip,'"LatLon":[',gmBounds[1,2],',',gmBounds[1,1],'],','"bounds":[',gmBounds[2,2],',',gmBounds[3,2],',',gmBounds[3,1],',',gmBounds[2,1],'],','"Values": [')
   int=', '
-  end=']}'
+  if(end == T & finalPlot == F){end=']},'} else if(end == T & finalPlot == T){end=']}'}
   imginfo = paste(
     paste('{"Year": ', date,',',sep=""),
     paste(' "TCB": ', tcb,',',sep=""),
@@ -72,21 +73,8 @@ stretchBGW = function(template, index){
   return(img)
 }
 
-chronoInfo = function(dir,file,outpng){
-  unlink(file)
-  tcbstack = list.files(dir, "tcb_composite_stack.bsq", recursive = T, full.names = T)
-  tcgstack = list.files(dir, "tcg_composite_stack.bsq", recursive = T, full.names = T)
-  tcwstack = list.files(dir, "tcw_composite_stack.bsq", recursive = T, full.names = T)
-  tcastack = list.files(dir, "tca_composite_stack.bsq", recursive = T, full.names = T)
-  
-  files = list.files(file.path(dir,"tcb"), "composite.bsq")
-  years = sort(unique(substr(files,1,4)))
-  
-  tcbb = extend(brick(tcbstack),130)
-  tcgb = extend(brick(tcgstack),130)
-  tcwb = extend(brick(tcwstack),130)
-  tcab = extend(brick(tcastack),130)
-  
+
+chronoInfo = function(imgdir, outdir, plot, x, y, tcbb, tcgb, tcwb, tcab, years, jsfile, finalPlot=F){
   coords = data.frame(x,y)
   reso = xres(tcbb)
   half = reso*127.5
@@ -104,8 +92,6 @@ chronoInfo = function(dir,file,outpng){
   SpLrLonLat = coordinates(SpLrLonLat)
   gmBounds = matrix(c(SpCoordLonLat,SpUlLonLat,SpLrLonLat),ncol = 2,byrow = T)
   
-  
-  
   tcbv = extract(tcbb, coords)
   tcgv = extract(tcgb, coords)
   tcwv = extract(tcwb, coords)
@@ -113,12 +99,11 @@ chronoInfo = function(dir,file,outpng){
   
   #for making year composites
   len = length(years)
-  for(i in 1:len){
-    print(paste(i,"/",len,sep=""))
-    thisyear=as.numeric(years[i])
-    if(i == 1){writeplot(file,gmBounds,thisyear,tcbv[i],tcgv[i],tcwv[i],tcav[i], first=T, last=F)}
-    if(i != 1 & i != len){writeplot(file,gmBounds,thisyear,tcbv[i],tcgv[i],tcwv[i],tcav[i], first=F, last=F)}
-    if(i == len){writeplot(file,gmBounds,thisyear,tcbv[i],tcgv[i],tcwv[i],tcav[i], first=F, last=T)}
+  for(y in 1:len){
+    thisyear=as.numeric(years[y])
+    if(y == 1){writeplot(jsfile,plot,gmBounds,thisyear,tcbv[y],tcgv[y],tcwv[y],tcav[y], first=T, last=F, end=F)}
+    if(y != 1 & y != len){writeplot(jsfile,plot,gmBounds,thisyear,tcbv[y],tcgv[y],tcwv[y],tcav[y], first=F, last=F, end=F)}
+    if(y == len){writeplot(jsfile,plot,gmBounds,thisyear,tcbv[y],tcgv[y],tcwv[y],tcav[y], first=F, last=T, end=T, finalPlot=finalPlot)}
   }
   
   thisCell = cellFromXY(tcbb,coords)
@@ -140,20 +125,71 @@ chronoInfo = function(dir,file,outpng){
   
   s = stack(tcbseries,tcgseries,tcwseries)
   
+  outpng = file.path(outdir,"imgs",paste("plot_",plot,"_chipstrip.png",sep=""))
   png(outpng, width = 255, height=nrow(s))
   plotRGB(s,r=1, g=2, b=3, ext=NULL)
   dev.off()  
 }
 
+llr_time_machine = function(imgdir,outdir,coordfile){
+  
+  #read the csv plot file
+  plots = read.csv(coordfile) #plot#,x,y
+  
+  #create the javascript file path
+  jsfile = file.path(outdir,"LLRtimeMachine.js")
+  
+  #make sure output dirs exist/created
+  dir.create(outdir, recursive=T, showWarnings = F)
+  dir.create(file.path(outdir,"imgs"), recursive=T, showWarnings = F)
+  
+  
+  tcbstack = list.files(imgdir, "tcb_composite_stack.bsq$", recursive = T, full.names = T)
+  tcgstack = list.files(imgdir, "tcg_composite_stack.bsq$", recursive = T, full.names = T)
+  tcwstack = list.files(imgdir, "tcw_composite_stack.bsq$", recursive = T, full.names = T)
+  tcastack = list.files(imgdir, "tca_composite_stack.bsq$", recursive = T, full.names = T)
+  
+  n_tcbstack = length(tcbstack)
+  n_tcgstack = length(tcgstack)
+  n_tcwstack = length(tcwstack)
+  n_tcastack = length(tcastack)
+  if(sum(n_tcbstack,n_tcgstack,n_tcwstack,n_tcastack) != 4){
+    print("Error! You are missing some required files, or the provided directory is wrong.")
+    if(n_tcbstack == 0){print(paste("There was no *tcb_composite_stack.bsq file found at this directory:",imgdir,"(recursive search)"))}
+    if(n_tcgstack == 0){print(paste("There was no *tcg_composite_stack.bsq file found at this directory:",imgdir,"(recursive search)"))}
+    if(n_tcwstack == 0){print(paste("There was no *tcw_composite_stack.bsq file found at this directory:",imgdir,"(recursive search)"))}
+    if(n_tcastack == 0){print(paste("There was no *tca_composite_stack.bsq file found at this directory:",imgdir,"(recursive search)"))}
+    return
+    
+  }
+  
+  
+  files = list.files(file.path(imgdir,"tcb"), "composite.bsq")
+  years = sort(unique(substr(files,1,4)))
+  
+  tcbb = extend(brick(tcbstack),130)
+  tcgb = extend(brick(tcgstack),130)
+  tcwb = extend(brick(tcwstack),130)
+  tcab = extend(brick(tcastack),130)
+  
+  
+  #for each plot create the data
+  nplots = nrow(plots)
+  for(i in 1:nplots){
+    print(paste(i,"/",nplots,sep=""))
+    if(i == 1){
+      unlink(jsfile)
+      write('var data = [', jsfile, append=TRUE)
+    }
+    
+    if(i == nplots){
+      chronoInfo(imgdir, outdir, plots$plot[i], plots$x[i], plots$y[i], tcbb, tcgb, tcwb, tcab, years, jsfile, finalPlot=T)
+      write(']', jsfile, append=TRUE)
+    } else{
+      chronoInfo(imgdir, outdir, plots$plot[i], plots$x[i], plots$y[i], tcbb, tcgb, tcwb, tcab, years, jsfile)
+    }
+  }
+}
 
 
-################################################################
-
-#x=-1175387.0000
-#y= 2532975.0000
-#dir = "L:/composites/test10"
-#file = "L:/composites/test10/test10.js"
-#outpng = "L:/composites/test10/chipstrip.png"
-
-#chronoInfo(dir,file,outpng)
 
