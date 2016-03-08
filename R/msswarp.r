@@ -41,7 +41,7 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
   #tbl = unlist(read.delim(verfile, header=F))
   #rmseline = as.character(grep("Scene RMSE: ", tbl, value=T))
   #rmse = as.numeric(unlist(strsplit(rmseline, " "))[3])
-  runit = as.numeric(rmse > 0.75 & dt == "L1T")
+  runit = as.numeric(rmse > 0.5 & dt == "L1T")
   if(runit == 1){
     #read in the fix image
     fiximg = raster(fixfile, band=3) #load the fix image
