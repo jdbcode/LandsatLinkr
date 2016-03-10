@@ -100,8 +100,10 @@ mssunpackr = function(file, proj, overwrite=F){
     unlink(tempdir, recursive=T, force=T) #delete the temp directory
     return(1)
   } else {
-
-    delete_files(file,1)
+    l1goutdir = dirname(sub("targz","l1g_images",file))
+    dir.create(l1goutdir, recursive=T, showWarnings=F) #make a new output directory
+    file.rename(file, file.path(l1goutdir,basename(file)))
+    #delete_files(file,1)
     unlink(c(tempdir), recursive=T, force=T)
     return(0)
   }
