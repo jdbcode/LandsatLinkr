@@ -148,8 +148,10 @@ llr_time_machine = function(imgdir,outdir,coordfile){
   #read the csv plot file
   plots = read.csv(coordfile) #plot#,x,y
   
+  colnames(plots) = tolower(colnames(plots))
+  
   #create the javascript file path
-  jsfile = file.path(outdir,"LLRtimeMachine.js")
+  jsfile = file.path(outdir,"LLR-TimeMachine.js")
   
   #make sure output dirs exist/created
   dir.create(outdir, recursive=T, showWarnings = F)
@@ -197,7 +199,7 @@ llr_time_machine = function(imgdir,outdir,coordfile){
     #check to make sure the point is not outside the image
     x = plots$x[i]
     y = plots$y[i]
-    plot = plots$plot[i]
+    plot = plots$plotid[i]
     bad = 0
     if(x < ext[1]){
       print(paste("x coordinate for plot:",plot,"is outside the image to the west"))
