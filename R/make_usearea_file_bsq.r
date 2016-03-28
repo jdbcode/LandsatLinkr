@@ -29,6 +29,9 @@ make_usearea_file_bsq = function(infile, projref){
   writeGDAL(r, tempout, drivername = "GTiff", type = "Byte", options="INTERLEAVE=BAND")
   
   outfile = paste(substr(infile,1,(nchar(infile)-3)),"bsq",sep="")
+  oldfiles = list.files(dirname(outfile),basename(outfile),full.names=T)
+  oldhdr = sub("bsq","hdr",outfile)
+  unlink(c(oldfiles,oldhdr))
   
   s_srs = projection(raster(tempout))
   t_srs = set_projection(projref)
