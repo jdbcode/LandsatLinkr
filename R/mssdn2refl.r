@@ -10,7 +10,7 @@
 mssdn2refl = function(file, overwrite=F){
   
   check = file_check(file,"reflectance.tif",overwrite)
-  print(check)
+  #print(check)
   if(check == 0){return(0)}
   
   #link to the equations to convert DN to TOA and TOA to SR
