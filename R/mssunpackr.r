@@ -12,7 +12,7 @@
 mssunpackr = function(file, proj, overwrite=F){
   
   check = file_check(file,"archv.tif",overwrite)
-  print(check)
+  #print(check)
   if(check == 0){return(0)}
   
   randomstring = paste(sample(c(0:9, letters, LETTERS), 6, replace=TRUE),collapse="")
