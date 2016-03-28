@@ -22,7 +22,7 @@ msscvm = function(file, demfile, topoprep, test=F, overwrite=F){
 #   test=F
   
   check = file_check(file,"cloudmask.tif",overwrite)
-  print(check)
+  #print(check)
   if(check == 0){return(0)}
   
   ref = raster(file)
