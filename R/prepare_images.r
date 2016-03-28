@@ -86,10 +86,10 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
     print("Running msscvm")
     #prepare the topo layers required by msscvm
     newdem = prepare_topo(imgdir, demfile)
-    
     print("...Making masks")
+    files = list.files(imgdir, pattern="reflectance", full.names=T, recursive=T)
     t = proc.time()
-    for(i in 1:length(files)){msscvm(files[i], newdem, topoprep=T, test=F, overwrite=overwrite)} #demfile
+    for(i in 1:length(files)){msscvm(files[i], newdem, topoprep=T, test=F, overwrite=overwrite)}
     print(proc.time()-t)
   }
   
