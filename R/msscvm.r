@@ -16,10 +16,11 @@
 msscvm = function(file, demfile, topoprep, test=F, overwrite=F){
   #msscvm
   #get the metadata
-#   file="E:/llr_test/mixed/mss/wrs1/036032/images/1973/LM10360321973191_reflectance.tif"
-#   demfile="E:/llr_test/mixed/mss/wrs1/036032/topo/wrs1_036032_60m_dem.tif"
-#   topoprep = T
-#   test=F
+  
+   #file="E:/llr_chlor_projects/test/mss/wrs1/041029/images/1976/LM10410291976181_reflectance.tif"
+   #demfile="E:/llr_chlor_projects/test/mss/wrs1/041029/topo/wrs1_041029_60m_dem.tif"
+   #topoprep = T
+   #test=F
   
   check = file_check(file,"cloudmask.tif",overwrite)
   #print(check)
