@@ -44,7 +44,7 @@ prepare_topo = function(imgdir, demfile){
   print("...Making sure DEM is large enough")
   print("......Getting MSS image extents")
   for(i in 1:length(files)){ 
-    print(i)
+    #print(i)
     img = raster(files[i])
     ext = extent(img)
     extholder[i,1] = ext@xmin
