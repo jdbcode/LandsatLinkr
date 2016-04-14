@@ -3,6 +3,7 @@
 export(cal_mss_tc_aggregate_model)
 export(cal_oli_tc_aggregate_model)
 export(calibrate_and_composite)
+export(change_extension)
 export(delete_files)
 export(eudist)
 export(file_check)
