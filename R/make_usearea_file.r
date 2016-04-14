@@ -28,7 +28,7 @@ make_usearea_file = function(dir, outfile, xmx, xmn, ymx, ymn){
   
   #write out as a .bsq too so that it can be used in the LLR-LT program
   print("Making a copy of use-area file as .bsq for optional use in LandTrendr")
-  bsqoutfile = sub(".tif", ".bsq", outfile)
+  bsqoutfile = change_extension("tif", "bsq", outfile)
   gdal_translate(src_dataset=outfile, dst_dataset=bsqoutfile, of="ENVI", a_nodata="none")
   
 }
