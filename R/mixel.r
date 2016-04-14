@@ -42,6 +42,7 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
   }
   
   mixel_mask = function(imgfile, refimg, index){ #search,
+    print(paste("...cloud masking:",basename(imgfile)))
     if(index == "tca" | index == "tcb"){band=1}
     if(index == "tcg"){band=2}
     if(index == "tcw"){band=3}
@@ -50,8 +51,6 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
     if(sensor == "LM"){maskbit = "_cloudmask_30m.tif"} else {maskbit = "_cloudmask.tif"}
     
     maskfile = file.path(dirname(imgfile), paste(substr(basename(imgfile),1,16),maskbit,sep=""))
-    print(basename(maskfile))
-    print(file.exists(maskfile))
     img = raster(imgfile, band=band)
     mask = raster(maskfile)
     
@@ -64,9 +63,17 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
     mask = crop(mask, overlap)
     img = crop(img, overlap)
     
-    bads = which(values(mask) == 0)
-    img[bads] = NA
+    NAvalue(mask) = 0
+    img = img*mask
     return(img)
+  }
+  
+  change_envi_to_bsq = function(file){
+    envifilename = sub("bsq","envi",file)
+    envixmlfile = paste(envifilename,".aux.xml",sep="")
+    bsqxmlfile = sub("envi","bsq",envixmlfile)
+    file.rename(envifilename,file)
+    file.rename(envixmlfile,bsqxmlfile)
   }
   
   mixel_composite = function(outdir, files, runname, index, doyears, order, useareafile, overlap, offset, adj=NULL, offsetrun){
@@ -91,7 +98,12 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
     
     #for all the unique year make a composite
     for(i in 1:length(uni)){
-      ptm <- proc.time()
+      #check if file exists - if it does don't do it
+      newbase = paste(uni[i],"_",runname,"_",index,"_composite.bsq", sep="")
+      outimgfile = file.path(outdir,newbase)
+      if(file.exists(outimgfile)){next}
+      
+      ptm = proc.time()
       if(is.na(uni[i] == T)){next}
       print(paste("working on year:", uni[i]))
       
@@ -139,11 +151,8 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
       }
       
       len = length(these)
-      print(paste("using:",overlap))
-      print("merging files:")
-      
       for(m in 1:len){
-        print(basename(imgorder[m]))
+        #print(basename(imgorder[m]))
         if(m == 1){mergeit = "r1"} else {mergeit = paste(mergeit,",r",m, sep="")}
         #run the image prep function on-the-fly
         dothis = paste("r",m,"=mixel_mask(imgorder[",m,"], refimg, index)", sep="") 
@@ -158,11 +167,12 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
       }
       
       #run the merge function
+      
+      print(paste("...merging files using ", overlap, ":",sep=""))
+      for(h in 1:len){print(paste("......",basename(imgorder[h]),sep=""))}
       if(len == 1){newimg = r1} else {eval(parse(text=mergeit))} #only run merge it if there are multiple files to merge
       
       #name the new file
-      newbase = paste(uni[i],"_",runname,"_",index,"_composite.bsq", sep="")
-      outimgfile = file.path(outdir,newbase)  
       outtxtfile = sub("composite.bsq", "composite_img_list.csv", outimgfile)
       imgorder = data.frame(imgorder)
       colnames(imgorder) = "File"
@@ -180,34 +190,27 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
       #write out the new image
       projection(newimg) = set_projection(files[1])
       writeRaster(newimg, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
-      envifilename = sub("bsq","envi",outimgfile)
-      envixmlfile = paste(envifilename,".aux.xml",sep="")
-      bsqxmlfile = sub("envi","bsq",envixmlfile)
-      file.rename(envifilename,outimgfile)
-      file.rename(envixmlfile,bsqxmlfile)
-      
+      change_envi_to_bsq(outimgfile)
+    
       #clean the temp directory      
       tempdir = dirname(rasterTmpFile())
-      #print(paste("this is the tempdir:",tempdir))      
       tempfiles = list.files(tempdir,full.names=T)
-      #print(paste("there are:",length(tempfiles),"files found"))
       unlink(tempfiles)
       tempfiles = list.files(tempdir,full.names=T)
-      #print(paste("after attempting to delete them, there are:",length(tempfiles),"files"))
       print(proc.time()-ptm) 
     }
   }
   
-  pixel_level_offset = function(sensor, dep_files, ref_files){ 
+  
+  pixel_level_offset = function(sensor, dep_files, ref_files, run_info){ 
     #start offset finding procedure
-    
     if(sensor == "mss"){offsetdir = file.path(outdir,"mss_offset");deprunname="lm"; refrunname="lt"; meandiffilebname = "mss_mean_dif.bsq"}
     if(sensor == "oli"){offsetdir = file.path(outdir,"oli_offset");deprunname="lc"; refrunname="le"; meandiffilebname = "oli_mean_dif.bsq"}
     dir.create(offsetdir, recursive=T, showWarnings=F)
     #composite mss calibration images
-    mixel_composite(offsetdir, dep_files, runname=deprunname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=T)
+    mixel_composite(offsetdir, dep_files, runname=deprunname,index=run_info$index, doyears=run_info$doyears, order=run_info$order, useareafile=run_info$useareafile, overlap=run_info$overlap, offsetrun=T)
     #composite tm calibration images
-    mixel_composite(offsetdir, ref_files, runname=refrunname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=T)
+    mixel_composite(offsetdir, ref_files, runname=refrunname,index=run_info$index, doyears=run_info$doyears, order=run_info$order, useareafile=run_info$useareafile, overlap=run_info$overlap, offsetrun=T)
     
     #find the composite images, check and sort them
     offsetfiles = list.files(offsetdir, ".bsq$", full.names=T)
@@ -235,32 +238,66 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
     projection(meandiforig) = set_projection(files[1])
     meandiffile = file.path(offsetdir,meandiffilebname)
     writeRaster(meandiforig, meandiffile, format="ENVI", datatype = "INT2S",overwrite=T)
-    envifilename = sub("bsq","envi",meandiffile)
-    envixmlfile = paste(envifilename,".aux.xml",sep="")
-    bsqxmlfile = sub("envi","bsq",envixmlfile)
-    file.rename(envifilename,meandiffile)
-    file.rename(envixmlfile,bsqxmlfile)
-    
-    meandif=0 #memory
-    
-    #     #adjust the dependent composites to reflect the offset
-    #     for(i in 1:length(depoffsetfiles)){
-    #       print(paste("adjusting dependent file:", depoffsetfiles[i]))
-    #       r = raster(depoffsetfiles[i]) + meandiforig #make the adjustment
-    #       
-    #       #write out the file
-    #       projection(r) = set_projection(files[1])
-    #       outimgfile = sub("composite.bsq","composite_adj.bsq",depoffsetfiles[i])
-    #       writeRaster(r, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
-    #       envifilename = sub("bsq","envi",outimgfile)
-    #       envixmlfile = paste(envifilename,".aux.xml",sep="")
-    #       bsqxmlfile = sub("envi","bsq",envixmlfile)
-    #       file.rename(envifilename,outimgfile)
-    #       file.rename(envixmlfile,bsqxmlfile)
-    #     }
+    change_envi_to_bsq(meandiffile)
+
     return(meandiffile)
   }
   
+  find_files = function(dir, search){
+    if(length(which(is.na(dir) == T)) > 0){return(vector())} else{
+      imgdir = file.path(dir,"images")
+      files = vector()
+      for(i in 1:length(imgdir)){
+        print(paste("finding files in:",imgdir[i]))
+        files = c(files,list.files(imgdir[i], search, recursive=T, full.names=T))
+        
+      }
+      if(length(files)==0){stop(
+          paste("There were no tasselled cap files found in this directory: ",imgdir[i],".
+          Make sure that you provided the correct scene head directory path and that all processing
+          steps up to compositing have been completed. MSS directories should contain
+          files with the extension 'tc_30m.tif' and 'tca_30m.tif', and TM/ETM+ and OLI 'tc.tif' and 'tca.tif'.
+          A valid scene head directory path should look like this mock example: 'C:/mock/landsat/wrs2/045030'.
+          The program will then append 'images' to the path and search recursively in that directory. If
+          you wish to continue without this directory, re-run the compositing call and don't add this directory.",sep="")
+        )
+      } else{
+        return(files)
+      }
+    }
+  }
+  
+  combine_overlapping_senors = function(ref_files, dep_files){
+    thesetm = which(basename(ref_files) %in% basename(dep_files))
+    ref_files_sort = sort(ref_files[thesetm])
+    thesemss = which(basename(dep_files) %in% basename(ref_files))
+    dep_files_sort = sort(dep_files[thesemss])
+    len = length(dep_files_sort)
+    if(len > 0){
+      for(i in 1:len){
+        print(paste("...",i,"/",len,sep=""))
+        mssr= raster(dep_files_sort[i])
+        mssrnas = which(values(mssr)==0)
+        mssr[mssrnas] = NA
+        tmr= raster(ref_files_sort[i])
+        tmrnas = which(values(tmr)==0)
+        tmr[tmrnas] = NA
+        newimg = mosaic(mssr,tmr, fun="mean", na.rm=T)
+        combnas = c(mssrnas, tmrnas)
+        newimg[combnas] = 0
+        projection(newimg) = set_projection(files[1])
+        
+        outimgfile = file.path(outdir,basename(dep_files_sort[i]))
+        writeRaster(newimg, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
+        change_envi_to_bsq(outimgfile)
+      }
+    }
+  }
+  
+  
+  #########################################################################
+  #########################################################################
+  #########################################################################
   print(paste("working on index:",index))
   
   #create some search terms depending on index
@@ -269,36 +306,16 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
   if(index == "tcg"){msssearch="tc_30m.tif$"; tmsearch="tc.tif$"; olisearch="tc.tif$"}
   if(index == "tcw"){msssearch="tc_30m.tif$"; tmsearch="tc.tif$"; olisearch="tc.tif$"}
   
-  #add "images" to scene id to ensure we only get matches from the "images" directory
-  msswrs1imgdir = file.path(msswrs1dir,"images")
-  msswrs2imgdir = file.path(msswrs2dir,"images")
-  tmwrs2imgdir = file.path(tmwrs2dir,"images")
-  oliwrs2imgdir = file.path(oliwrs2dir,"images")
-  
-  #find all the files from all the given directories
-  for(i in 1:length(msswrs1dir)){
-    if(i == 1){msswrs1files = list.files(msswrs1imgdir[i], msssearch, recursive=T, full.names=T)} else {
-      msswrs1files = c(msswrs1files,list.files(msswrs1imgdir[i], msssearch, recursive=T, full.names=T))
-    }
-  }
-  for(i in 1:length(msswrs2dir)){
-    if(i == 1){msswrs2files = list.files(msswrs2imgdir[i], msssearch, recursive=T, full.names=T)} else {
-      msswrs2files = c(msswrs2files,list.files(msswrs2imgdir[i], msssearch, recursive=T, full.names=T))
-    }
-  }  
-  for(i in 1:length(tmwrs2dir)){
-    if(i == 1){tmwrs2files = list.files(tmwrs2imgdir[i], tmsearch, recursive=T, full.names=T)} else {
-      tmwrs2files = c(tmwrs2files, list.files(tmwrs2imgdir[i], tmsearch, recursive=T, full.names=T))
-    }
-  }
-  for(i in 1:length(oliwrs2dir)){
-    if(i == 1){oliwrs2files = list.files(oliwrs2imgdir[i], tmsearch, recursive=T, full.names=T)} else {
-      oliwrs2files = c(oliwrs2files, list.files(oliwrs2imgdir[i], tmsearch, recursive=T, full.names=T))
-    }
-  }
+  #find the files
+  msswrs1files = find_files(msswrs1dir, msssearch)
+  msswrs2files = find_files(msswrs2dir, msssearch)
+  tmwrs2files = find_files(tmwrs2dir, tmsearch)
+  oliwrs2files = find_files(oliwrs2dir, olisearch)
   
   #put all the files together in a vector and check to make sure the files intersect the useareafile, if not they will be excluded
   files = c(msswrs1files,msswrs2files,tmwrs2files,oliwrs2files)
+  
+  #find files that intersect the usearea file
   files = mixel_find(files, useareafile)
   if(length(files)==0){stop("There were no files in the given directories that intersect the provided 'usearea file'.
                             Make sure that you provided the correct file, checked that it actually overlaps the scenes you 
@@ -334,109 +351,84 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
   olidir = file.path(outdir,"oli")
   tmdir = file.path(outdir,"tm")
   
+  
+  run_info = list(index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap)
+  
+  #if there are no overlapping mss/tm or oli/etm, then run the mixel compositing on all files - no pixel level adjustments needed
   if(sum(length(overlapmssfiles),length(overlapolifiles)) == 0){ #if there are no overlapping MSS to TM and ETM+ to OLI then just composite without making pixel level offset adjustment
     dir.create(outdir, recursive=T, showWarnings=F)
     mixel_composite(outdir, files, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
-  }
-  if(length(overlapmssfiles) != 0){
-    #get the MSS to TM mean pixel-level offset
-    offsetfile = pixel_level_offset("mss", overlapmssfiles, overlaptmfiles)
-    
-    #make final mss composites
-    print("compositing MSS data using offset adjustment")
-    dir.create(mssdir, recursive=T, showWarnings=F)
-    mixel_composite(mssdir, mssfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=offsetfile, offsetrun=F)
-  }
-  if(length(overlapolifiles) != 0){
-    #get the OLI to ETM+ mean pixel-level offset
-    offsetfile = pixel_level_offset("oli", overlapolifiles, overlapetmfiles)
-    
-    #make final mss composites
-    print("compositing OLI data using offset adjustment")
-    dir.create(olidir, recursive=T, showWarnings=F)
-    mixel_composite(olidir, olifiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=offsetfile, offsetrun=F)
-  }
-  if(length(tmetmfiles) != 0){
-    #make final mss composites
-    print("compositing TM and ETM+ data")
-    dir.create(tmdir, recursive=T, showWarnings=F)
-    mixel_composite(tmdir, tmetmfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
-  }
-  if(length(mssfiles) != 0 & length(overlapmssfiles) == 0){
-    #make final mss composites
-    print("compositing MSS data")
-    dir.create(mssdir, recursive=T, showWarnings=F)
-    mixel_composite(mssdir, mssfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
-  }
-  if(length(olifiles) != 0 & length(overlapolifiles) == 0){
-    #make final mss composites
-    print("compositing OLI data")
-    dir.create(olidir, recursive=T, showWarnings=F)
-    mixel_composite(olidir, olifiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
+  } else{ #if there are overlapping mss/tm or oli/etm, then need to do pixel level adjustments where needed
+    #deal with mss/tm overlap
+    if(length(overlapmssfiles) != 0){
+      #get the MSS to TM mean pixel-level offset
+      offsetfile = pixel_level_offset("mss", overlapmssfiles, overlaptmfiles, run_info)
+      
+      #make final mss composites
+      print("compositing MSS data using offset adjustment")
+      dir.create(mssdir, recursive=T, showWarnings=F)
+      mixel_composite(mssdir, mssfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=offsetfile, offsetrun=F)
+    }
+    #deal with oli/etm overlap
+    if(length(overlapolifiles) != 0){
+      #get the OLI to ETM+ mean pixel-level offset
+      offsetfile = pixel_level_offset("oli", overlapolifiles, overlapetmfiles, run_info)
+      
+      #make final mss composites
+      print("compositing OLI data using offset adjustment")
+      dir.create(olidir, recursive=T, showWarnings=F)
+      mixel_composite(olidir, olifiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, adj=offsetfile, offsetrun=F)
+    }
+    #process all tm/etm files if they exist - checks to see if they were created in the offset calc steps above
+    if(length(tmetmfiles) != 0){
+      #make final mss composites
+      print("compositing TM and ETM+ data")
+      dir.create(tmdir, recursive=T, showWarnings=F)
+      
+      #check for existing composites in mss offset dir
+      offsetfiles = list.files(file.path(outdir,"mss_offset"),paste("_lt_",index,"_composite",sep=""),full.names=T,recursive=T)
+      if(length(offsetfiles) > 0){
+        newfiles = file.path(tmdir,sub("_lt_",paste("_",runname,"_",sep=""),basename(offsetfiles)))
+        file.copy(offsetfiles,newfiles)
+      }
+      
+      #check for existing composites in oli offset dir
+      offsetfiles = list.files(file.path(outdir,"oli_offset"),paste("_le_",index,"_composite",sep=""),full.names=T,recursive=T)
+      if(length(offsetfiles) > 0){
+        newfiles = file.path(tmdir,sub("_le_",paste("_",runname,"_",sep=""),basename(offsetfiles)))
+        file.copy(offsetfiles,newfiles)
+      }
+      
+      mixel_composite(tmdir, tmetmfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
+    }
+    #if there are MSS files but no overlap with tm data run this
+    if(length(mssfiles) != 0 & length(overlapmssfiles) == 0){
+      #make final mss composites
+      print("compositing MSS data")
+      dir.create(mssdir, recursive=T, showWarnings=F)
+      mixel_composite(mssdir, mssfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
+    }
+    #if there are oli files but no overlap with etm+ data run this
+    if(length(olifiles) != 0 & length(overlapolifiles) == 0){
+      #make final mss composites
+      print("compositing OLI data")
+      dir.create(olidir, recursive=T, showWarnings=F)
+      mixel_composite(olidir, olifiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
+    }
   }
   
-  #deal with the overlapping mss/tm composites
-  print("dealing with any temporally overlapping MSS/TM composites")
-  
-  
+  #deal with the overlapping composites
   msscompfiles = list.files(mssdir, ".bsq$", recursive=T, full.names=T)
   tmcompfiles = list.files(tmdir, ".bsq$", recursive=T, full.names=T)
-  thesetm = which(basename(tmcompfiles) %in% basename(msscompfiles))
-  ref_files = sort(tmcompfiles[thesetm])
-  thesemss = which(basename(msscompfiles) %in% basename(tmcompfiles))
-  dep_files = sort(msscompfiles[thesemss])
-  if(length(dep_files) > 0){
-    for(i in 1:length(dep_files)){
-      mssr= raster(dep_files[i])
-      mssrnas = which(values(mssr)==0)
-      mssr[mssrnas] = NA
-      tmr= raster(ref_files[i])
-      tmrnas = which(values(tmr)==0)
-      tmr[tmrnas] = NA
-      newimg = mosaic(mssr,tmr, fun="mean", na.rm=T)
-      combnas = c(mssrnas, tmrnas)
-      newimg[combnas] = 0
-      projection(newimg) = set_projection(files[1])
-      
-      outimgfile = file.path(outdir,basename(dep_files[i]))
-      writeRaster(newimg, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
-      envifilename = sub("bsq","envi",outimgfile)
-      envixmlfile = paste(envifilename,".aux.xml",sep="")
-      bsqxmlfile = sub("envi","bsq",envixmlfile)
-      file.rename(envifilename,outimgfile)
-      file.rename(envixmlfile,bsqxmlfile)
-    }
-  }
+  olicompfiles = list.files(olidir, ".bsq$", recursive=T, full.names=T)
+  
+  print("dealing with any temporally overlapping MSS/TM composites")
+  combine_overlapping_senors(tmcompfiles, msscompfiles)
   
   print("dealing with any temporally overlapping ETM+/OLI composites")
-  olicompfiles = list.files(olidir, ".bsq$", recursive=T, full.names=T)
-  thesetm = which(basename(tmcompfiles) %in% basename(olicompfiles))
-  ref_files = sort(tmcompfiles[thesetm])
-  theseoli = which(basename(olicompfiles) %in% basename(tmcompfiles))
-  dep_files = sort(olicompfiles[theseoli])
-  if(length(dep_files) > 0){
-    for(i in 1:length(dep_files)){
-      mssr= raster(dep_files[i])
-      mssrnas = which(values(mssr)==0)
-      mssr[mssrnas] = NA
-      tmr= raster(ref_files[i])
-      tmrnas = which(values(tmr)==0)
-      tmr[tmrnas] = NA
-      newimg = mosaic(mssr,tmr, fun="mean", na.rm=T)
-      combnas = c(mssrnas, tmrnas)
-      newimg[combnas] = 0
-      projection(newimg) = set_projection(files[1])
-      
-      outimgfile = file.path(outdir,basename(dep_files[i]))
-      writeRaster(newimg, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
-      envifilename = sub("bsq","envi",outimgfile)
-      envixmlfile = paste(envifilename,".aux.xml",sep="")
-      bsqxmlfile = sub("envi","bsq",envixmlfile)
-      file.rename(envifilename,outimgfile)
-      file.rename(envixmlfile,bsqxmlfile)
-    }
-  }
-    
+  combine_overlapping_senors(tmcompfiles, olicompfiles)
+  
+  
   #rename files
   print("directory and file organization/cleaning")
   imglists = list.files(outdir, paste(runname,"_",index,"_composite_img_list.csv",sep=""), recursive=T, full.names=T)
