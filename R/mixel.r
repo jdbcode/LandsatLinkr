@@ -88,8 +88,7 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
     
     #load in the reference image (usearea file)
     refimg = raster(useareafile)
-    newimgnas = values(refimg) == 0
-    #nas = values(refimg) == 1
+    newimgnas = values(refimg) == 0 #set as 0/1 raster
     
     if(doyears == "all"){uni=yearsort} else {
       theseyears = match(doyears,yearsort)
@@ -180,12 +179,12 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
       
       newimg = round(crop(newimg, refimg))
       newimg = extend(newimg, refimg, value=NA)
-      newimg[newimgnas] = NA
-      if(is.null(adj) == F){newimg = newimg + raster(adj)}
-      if(offsetrun == F){
+      #newimg[newimgnas] = NA
+      #if(is.null(adj) == F){newimg = newimg + raster(adj)}
+      #if(offsetrun == F){
         newimg[newimgnas] = 0
         newimg[is.na(newimg)] = 0
-      }
+      #
       
       #write out the new image
       projection(newimg) = set_projection(files[1])
@@ -295,6 +294,120 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
   }
   
   
+  function(ref_files, dep_files, outdir, sensor, projfile, runname){
+    ref_files = tmcompfiles
+    dep_files = msscompfiles
+    outdir = outdir
+    sensor = "mss"
+    projfile = files[1]
+    runname = runname
+    
+    #find overlapping years
+    theseref = which(basename(ref_files) %in% basename(dep_files))
+    thesedep = which(basename(dep_files) %in% basename(ref_files))
+    lendep = length(thesedep)
+    lenref = length(theseref)
+    if(lenref == 0 | lendep == 0 | lenref != lendep){return()} # get out if there are no matching files - no overlap
+    
+    print(paste("calculating pixel-level offset for: ",sensor," composites",sep=""))
+    
+    #sort the files to make sure they are in the same order
+    ref_files_sort = sort(ref_files[theseref])
+    dep_files_sort = sort(dep_files[thesedep])
+    
+    #find the mean pixel-wise difference between dependent and reference images
+    for(i in 1:lendep){
+      print(paste("...",basename(dep_files_sort[i]),sep=""))
+      refimg = raster(ref_files_sort[i])
+      depimg = raster(dep_files_sort[i])
+      NAvalue(refimg) = 0
+      NAvalue(depimg) = 0
+      
+      
+      dif = refimg - depimg #get the difference 
+      denom = !is.na(dif) #get the cells that are not NA after difference
+      dif[is.na(dif)] = 0 #set the difference NA values to 0
+      
+      #make the sum difference and denominator layers
+      if(i == 1){ #if i is one then start the layers
+        difsum = dif
+        denomsum = denom
+      } else{ #else sum the layers
+        difsum = sum(difsum, dif, na.rm=T)
+        denomsum = sum(denomsum, denom, na.rm=T)
+      }
+    }
+    print("...calculating mean pixel-level offset")
+    meandiforig = round(difsum/denomsum) #mean the mean for the time series
+    meandiforig[is.na(meandiforig)] = 0 #make division by 0 set to 0 instead of NA - there will be no correction for these pixels
+
+    #figure out parts of file names
+    if(sensor == "mss"){offsetdir = file.path(outdir,"mss_offset");deprunname="lm"; refrunname="lt"; meandiffilebname = "mss_mean_dif.bsq"}
+    if(sensor == "oli"){offsetdir = file.path(outdir,"oli_offset");deprunname="lc"; refrunname="le"; meandiffilebname = "oli_mean_dif.bsq"}
+    
+    #write out the mean pixel-wise difference file
+    dir.create(offsetdir, recursive=T, showWarnings=F)
+    projection(meandiforig) = set_projection(projfile)
+    meandiffile = file.path(offsetdir,meandiffilebname)
+    writeRaster(meandiforig, meandiffile, format="ENVI", datatype = "INT2S",overwrite=T)
+    change_envi_to_bsq(meandiffile)
+    
+    #write out the frequency file
+    projection(denomsum) = set_projection(projfile)
+    denomsumfile = file.path(dirname(meandiffile),"overlap_frequency.bsq")
+    writeRaster(denomsum, denomsumfile, format="ENVI", datatype = "INT2S",overwrite=T)
+    change_envi_to_bsq(denomsumfile)
+    
+    #move files around
+    for(i in 1:lendep){
+      from_dep_files = list.files(dirname(dep_files_sort[1]),substr(basename(dep_files_sort[i]),1,4), full.names = T)
+      from_ref_files = list.files(dirname(ref_files_sort[1]),substr(basename(ref_files_sort[i]),1,4), full.names = T)
+      to_dep_files = file.path(offsetdir,sub(paste("_",runname,"_",sep=""),paste("_",deprunname,"_",sep=""),basename(dep_files)))
+      to_ref_files = file.path(offsetdir,sub(paste("_",runname,"_",sep=""),paste("_",refrunname,"_",sep=""),basename(ref_files)))
+      
+      file.copy(from_dep_files, to_dep_files)
+      file.copy(from_ref_files, to_ref_files)
+    }
+    
+    #adjust the dep images
+    for(i in 1:length(dep_files)){
+      i=1
+      img = raster(dep_files[i])
+      length(which(values(is.na(img))==T))
+      
+      
+      img = img + meandiforig #
+      #write out the new image
+      projection(img) = set_projection(projfile)
+      allfiles = list.files(dirname(dep_files[i]),substr(basename(dep_files[i]),1,nchar(basename(dep_files[i]))-4),full.names=T)
+      unlink(allfiles)
+      writeRaster(img, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
+      change_envi_to_bsq(outimgfile)
+    }
+    
+    
+    #meandiforig = newimg + meandiforig
+
+     # newimg[is.na(newimg)] = 0
+    #}
+    
+    #write out the new image
+    #projection(newimg) = set_projection(files[1])
+    #writeRaster(newimg, outimgfile, format="ENVI", datatype = "INT2S",overwrite=T)
+    #change_envi_to_bsq(outimgfile)
+    
+    
+    
+    #return(meandiffile)
+    
+    
+  }
+  
+  
+  
+  
+  
+  
   #########################################################################
   #########################################################################
   #########################################################################
@@ -348,11 +461,31 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
   
   #make composites
   mssdir = file.path(outdir,"mss")
-  olidir = file.path(outdir,"oli")
   tmdir = file.path(outdir,"tm")
-  
+  olidir = file.path(outdir,"oli")
   
   run_info = list(index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap)
+  
+  if(length(mssfiles) != 0){
+    dir.create(mssdir, recursive=T, showWarnings=F)
+    mixel_composite(mssdir, mssfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
+  }
+  if(length(tmetmfiles) != 0){
+    dir.create(tmdir, recursive=T, showWarnings=F)
+    mixel_composite(tmdir, tmetmfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
+  }
+  if(length(olifiles) != 0){
+    dir.create(olidir, recursive=T, showWarnings=F)
+    mixel_composite(olidir, olifiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
+  }
+  
+  #deal with the overlapping composites
+  msscompfiles = list.files(mssdir, ".bsq$", recursive=T, full.names=T)
+  tmcompfiles = list.files(tmdir, ".bsq$", recursive=T, full.names=T)
+  olicompfiles = list.files(olidir, ".bsq$", recursive=T, full.names=T)
+  
+  
+  
   
   #if there are no overlapping mss/tm or oli/etm, then run the mixel compositing on all files - no pixel level adjustments needed
   if(sum(length(overlapmssfiles),length(overlapolifiles)) == 0){ #if there are no overlapping MSS to TM and ETM+ to OLI then just composite without making pixel level offset adjustment
