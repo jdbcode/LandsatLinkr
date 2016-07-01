@@ -18,13 +18,17 @@ delete_files = function(file,reason){
   if(reason == 3){reason = "Poor TC regression"}
   if(reason == 4){reason = "Poor geowarping"}
   if(reason == 5){reason = "Empty band(s)"}
+  if(reason == 6){reason = "MSS year >= 1995: missing band 4"}
   outfile = file.path(dir,"images_deleted",paste(imgid,"_delete_record.csv",sep=""))
-  dir.create(dirname(outfile), recursive=T, showWarnings=F)
+  outdir = dirname(outfile)
+  outdirtargz = file.path(outdir,"targz")
+  dir.create(outdir, recursive=T, showWarnings=F)
+  dir.create(outdirtargz, recursive=T, showWarnings=F)
   write(c(imgid,reason), file=outfile, ncolumns=2, sep=",")
+  targz = grep(".tar.gz", files, value=T)
+  if(length(targz) == 1){
+    newtargz = file.path(outdirtargz, basename(targz))
+    file.rename(targz,newtargz)
+  }
   unlink(files, force=T)
 }
-
-
-
-
-

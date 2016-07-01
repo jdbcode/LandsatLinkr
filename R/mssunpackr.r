@@ -12,8 +12,14 @@
 mssunpackr = function(file, proj, overwrite=F){
   
   check = file_check(file,"archv.tif",overwrite)
-  #print(check)
   if(check == 0){return(0)}
+  
+  filebase = basename(file)
+  year = as.numeric(substr(filebase, 10, 13))
+  if(year >= 1995){
+    delete_files(file, 6)
+    return(0)
+  }
   
   randomstring = paste(sample(c(0:9, letters, LETTERS), 6, replace=TRUE),collapse="")
   tempdir = file.path(dirname(file),randomstring) #temp
@@ -28,9 +34,9 @@ mssunpackr = function(file, proj, overwrite=F){
     tiffiles = allfiles[grep("TIF",allfiles)] #subset the tif image files
     verfile = allfiles[grep("VER.txt",allfiles)]
     otherfiles = allfiles[grep("TIF",allfiles, invert=T)] #subset the other files
-    filebase = basename(tiffiles[1]) #get the basename
+    #filebase = basename(tiffiles[1]) #get the basename
     filedir = dirname(file) #get the directory
-    year = substr(filebase, 10, 13) #get the year
+    #year = substr(filebase, 10, 13) #get the year
     pieces = unlist(strsplit(filedir, "/")) #break up the directory and unlist so the pieces can be called by index
     len = length(pieces)-1 #get the ending index for "scene"
     newpieces = paste(pieces[1:len], collapse = "/") #subset the directory pieces so the last piece is the scene

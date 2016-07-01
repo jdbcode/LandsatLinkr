@@ -14,7 +14,7 @@ tmunpackr = function(file, proj="default", overwrite=F){
   # http://earthexplorer.usgs.gov/ Landsat CDR TM and ETM+ images
   
   check = file_check(file,"ledaps.tif",overwrite)
-  print(check)
+  #print(check)
   if(check == 0){return(0)}
   
   #set new directories
@@ -70,6 +70,7 @@ tmunpackr = function(file, proj="default", overwrite=F){
   if(is.na(check) == T){sn = is.na(sn)} else {sn = !is.na(sn)}
   f = f <= 1
   mask = s*c*f*sn
+  #mask[is.na(mask)] = 0
   mask = setValues(ref,mask)
   mask = as(mask, "SpatialGridDataFrame")        #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
   writeGDAL(mask, tempmask, drivername = "GTiff", type = "Byte", mvFlag = 255, options="INTERLEAVE=BAND")
