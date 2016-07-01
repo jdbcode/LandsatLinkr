@@ -14,6 +14,7 @@
 
 msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstart=c(0,0), fixstart=c(0,0)){
   
+  
   #scale image values to center on mean and 1 unit variance (global mean and variance)
   scaleit = function(matrix){
     stnrd = (matrix - (mean(matrix, na.rm = TRUE)))/(sd(matrix, na.rm = TRUE))
@@ -50,7 +51,7 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
     
     #shift the fiximg if there is an initial offset provided
     shiftit = refstart - fixstart
-    if(sum(shiftit != 0)){fiximg = shift(fiximg, x=shiftit[1], y=shiftit[2])}
+    if(sum(shiftit) != 0){fiximg = shift(fiximg, x=shiftit[1], y=shiftit[2])}
     
     #load the ref image
     refimg = raster(reffile, 3) 
