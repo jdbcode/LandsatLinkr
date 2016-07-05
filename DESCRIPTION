@@ -5,7 +5,9 @@ Date: 2016-04-21
 Authors@R: c(person("Justin", "Braaten", email = "jstnbraaten@gmail.com", role = c("aut", "cre")),
     person("Warren", "Cohen", email = "warren.cohen@oregonstate.edu", role = "aut"),
     person("Zhiqiang", "Yang", email = "zhiqiang.yang@oregonstate.edu", role = "aut"))
-Description: An automated system for processing large volumes of Landsat imagery and building long spectrally consistent chronologies across MSS, TM/ETM+, and OLI sensors
+Description: An automated system for processing large volumes of Landsat imagery
+    and building long spectrally consistent chronologies across MSS, TM/ETM+, and
+    OLI sensors
 Depends:
     raster,
     SDMTools,
@@ -25,3 +27,4 @@ Depends:
 License: GPL-2
 URL: http://landsatlinkr.jdbcode.com/
 LazyData: true
+RoxygenNote: 5.0.1
