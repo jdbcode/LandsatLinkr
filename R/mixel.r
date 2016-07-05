@@ -18,7 +18,7 @@
 
 
 mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean",startday,endday){
-  print("using new version")
+
   mixel_find = function(files, refimg){
     info = matrix(ncol = 4, nrow=length(files))
     print("Getting image extents")
