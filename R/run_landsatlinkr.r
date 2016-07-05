@@ -375,13 +375,9 @@ run_landsatlinkr = function(){
       }
       
       #dates
-      print(">")
-      print(">")
-      print(">")
-      print(">")
-      print("Define a minimum and maximum day-of-year to include in your composites. For more information
-            see the LLR guide page: ")
-      
+      cat("\n\n")
+      print("The following two parameter inputs are the minimum and maximum day-of-year to include in your composites. Example: June 15th through August 31st would be 166 and 243. For more information see the LLR guide page: ")
+      cat("\n")
       correct = "No"
       while(correct == "No"){
         startday = as.numeric(readline("Define a minimum day-of-year to include in the composites: "))
