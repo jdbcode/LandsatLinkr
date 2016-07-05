@@ -6,7 +6,7 @@
 \usage{
 mixel(msswrs1dir, msswrs2dir, tmwrs2dir, oliwrs2dir, index, outdir, runname,
   useareafile, doyears = "all", order = "none", overlap = "mean",
-  startday = 215, endday = 35)
+  startday, endday)
 }
 \arguments{
 \item{msswrs1dir}{character. list of mss wrs1 directory paths}
