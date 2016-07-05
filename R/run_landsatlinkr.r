@@ -374,6 +374,27 @@ run_landsatlinkr = function(){
         make_usearea_file(c(msswrs1dir[1],msswrs2dir[1],tmwrs2dir[1],oliwrs2dir[1]), useareafile, xmx, xmn, ymx, ymn)
       }
       
+      #dates
+      cat("\n\n")
+      print("The following two parameter inputs are the minimum and maximum day-of-year to include in your composites. Example: June 15th through August 31st would be 166 and 243. For more information see the LLR guide page: ")
+      cat("\n")
+      correct = "No"
+      while(correct == "No"){
+        startday = as.numeric(readline("Define a minimum day-of-year to include in the composites: "))
+        print(paste("You have selected:",startday))
+        correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+        if(correct == "Exit"){return("Stopping LLR")}
+      }
+      
+      correct = "No"
+      while(correct == "No"){
+        endday = as.numeric(readline("Define a maximum day-of-year to include in the composites: "))
+        print(paste("You have selected:",endday))
+        correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+        if(correct == "Exit"){return("Stopping LLR")}
+      }
+      
+      #overlap methods
       correct = "No"
       while(correct == "No"){
         choices = c("Mean",
@@ -404,7 +425,7 @@ run_landsatlinkr = function(){
     #################################################################################################################
     #execute the calibrate_and_composite function
     
-    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap=overlap, cores=cores, process=calcomprocess, overwrite=overwrite)  #overlap="mean"
+    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap=overlap, cores=cores, process=calcomprocess, overwrite=overwrite, startday=startday, endday=endday)  #overlap="mean"
   }
   
   #if(sum(process %in% 9 > 0)){

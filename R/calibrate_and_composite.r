@@ -18,7 +18,7 @@
 #' @export
 
 
-calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=2, process, overwrite=F){
+calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean", cores=2, process, overwrite=F ,startday, endday){
   
   #msscal
   if(1 %in% process ==T){
@@ -60,10 +60,10 @@ calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,in
     if(index == "all"){
       index = c("tca", "tcb", "tcg", "tcw")
       outdir = c(file.path(outdir,"tca"),file.path(outdir,"tcb"),file.path(outdir,"tcg"),file.path(outdir,"tcw"))
-      for(i in 1:length(index)){mixel(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index[i],outdir[i],runname,useareafile,doyears="all",order="none",overlap=overlap)} #overlap="mean"
+      for(i in 1:length(index)){mixel(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index[i],outdir[i],runname,useareafile,doyears="all",order="none",overlap=overlap, startday=startday, endday=endday)} #overlap="mean"
     } else {
       outdir = file.path(outdir,index)
-      mixel(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap=overlap) #overlap="mean"
+      mixel(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap=overlap, startday=startday, endday=endday) #overlap="mean"
     }
     print(proc.time()-t)
   }  
