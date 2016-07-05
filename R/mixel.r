@@ -13,16 +13,13 @@
 #' @param overlap character. how to deal with overlapping images. options: "mean"
 #' @import raster
 #' @import gdalUtils
-#' @import ggplot2
 #' @import plyr
 #' @export
 
 
-mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean"){
-
+mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean",startday,endday){
+  print("using new version")
   mixel_find = function(files, refimg){
-    
-    #get the extents of the files
     info = matrix(ncol = 4, nrow=length(files))
     print("Getting image extents")
     for(i in 1:length(files)){ 
@@ -77,99 +74,48 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
     file.rename(envixmlfile,bsqxmlfile)
   }
   
-  mixel_composite = function(outdir, files, runname, index, doyears, order, useareafile, overlap, offset, adj=NULL, offsetrun){
-    
-    #extract some info from the filenames
-    filebase = basename(files)
-    years = substr(filebase, 10, 13)
-    days = substr(filebase, 14,16)
-    sensor = substr(filebase, 1,3)
-    yearsort = sort(unique(years))
-    medday = median(as.numeric(days))
-    
-    if(doyears == "all"){uni=yearsort} else {
-      theseyears = match(doyears,yearsort)
-      uni = yearsort[theseyears]
-    }
+  mixel_composite = function(outdir, imginfosub, runname, index, order, useareafile, overlap){
+
+    #outdir= mssdir 
+    #imginfosub = mssdf
+
+    uniyears = sort(unique(imginfosub$compyear))
     
     #for all the unique year make a composite
-    for(i in 1:length(uni)){
-      #check if file exists - if it does don't do it
-      #newbase = paste(uni[i],"_",runname,"_",index,"_composite.bsq", sep="")
-      #outimgfile = file.path(outdir,newbase)
-      #if(file.exists(outimgfile)){next}
-      
-      if(is.na(uni[i] == T)){next}
-      print(paste("working on year:", uni[i]))
-      
-      these = which(years == uni[i])
-      theseimgs = files[these]
-      thesedays = days[these]
-      thesesensors = sensor[these]
-      meddif = abs(as.numeric(thesedays)-medday)
-      
-      if(order == "none"){imgorder = theseimgs}
-      
-      #day of year order - no sensor consideration
-      if(order == "doy"){
-        difsort = sort(meddif, index.return = T)
-        imgorder = theseimgs[difsort$ix]
-      }
-      
-      #use this section if TM is to always come first in the img merge order
-      if(order == "sensor_and_doy"){
-        #separate the sensors
-        tmid = which(thesesensors == "LT5" | thesesensors == "LT4")
-        etmid = which(thesesensors == "LE7")
-        mssid = which(thesesensors != "LE7" & thesesensors != "LT5" & thesesensors != "LT4")
-        
-        #extract images for each sensor
-        tmimg = theseimgs[tmid]
-        etmimg = theseimgs[etmid]
-        mssimg = theseimgs[mssid]
-        
-        #sort each sensor by image date
-        tmmeddiff = sort(meddif[tmid], index.return = T)
-        etmmeddiff = sort(meddif[etmid], index.return = T)
-        mssmeddiff = sort(meddif[mssid], index.return = T)
-        
-        #reorder the images
-        tmorder = tmimg[tmmeddiff$ix]
-        etmorder = etmimg[etmmeddiff$ix]
-        mssorder = mssimg[mssmeddiff$ix]
-        
-        #out them all together
-        imgorder = c(tmorder, etmorder, mssorder)
-      }
-      
-      len = length(these)
+    for(i in 1:length(uniyears)){
+      print(paste("working on year:", uniyears[i]))
+      these = which(imginfosub$compyear == uniyears[i])
+      theseimgs = imginfosub$file[these]
+
+      if(order == "none"){theseimgs = theseimgs}
+
+      len = length(theseimgs)
+      #mask all the images in a year
       for(m in 1:len){
-        #print(basename(imgorder[m]))
-        if(m == 1){mergeit = "r1"} else {mergeit = paste(mergeit,",r",m, sep="")}
-        #run the image prep function on-the-fly
-        dothis = paste("r",m,"=mixel_mask(imgorder[",m,"], useareafile, index)", sep="") 
+        mergeit = ifelse(m == 1, "r1", paste(mergeit,",r",m, sep=""))
+        dothis = paste("r",m,"=mixel_mask(theseimgs[",m,"], useareafile, index)", sep="") 
         eval(parse(text=dothis))
-        if(m == len){
-          if(overlap == "order"){mergeit = paste("newimg = merge(",mergeit,")", sep="")}
-          else if(overlap == "mean"){mergeit = paste("newimg = mosaic(",mergeit,",fun=mean,na.rm=T)", sep="")}
-          else if(overlap == "median"){mergeit = paste("newimg = mosaic(",mergeit,",fun=median,na.rm=T)", sep="")}
-          else if(overlap == "max"){mergeit = paste("newimg = mosaic(",mergeit,",fun=max,na.rm=T)", sep="")}
-          else if(overlap == "min"){mergeit = paste("newimg = mosaic(",mergeit,",fun=min,na.rm=T)", sep="")}
-        }
       }
+      
+      #select a mosaic method
+      if(overlap == "order"){mergeit = paste("newimg = merge(",mergeit,")", sep="")} else
+      if(overlap == "mean"){mergeit = paste("newimg = mosaic(",mergeit,",fun=mean,na.rm=T)", sep="")} else
+      if(overlap == "median"){mergeit = paste("newimg = mosaic(",mergeit,",fun=median,na.rm=T)", sep="")} else
+      if(overlap == "max"){mergeit = paste("newimg = mosaic(",mergeit,",fun=max,na.rm=T)", sep="")} else
+      if(overlap == "min"){mergeit = paste("newimg = mosaic(",mergeit,",fun=min,na.rm=T)", sep="")}
       
       #run the merge function
       print(paste("...merging files using ", overlap, ":",sep=""))
-      for(h in 1:len){print(paste("......",basename(imgorder[h]),sep=""))}
+      for(h in 1:len){print(paste("......",basename(theseimgs[h]),sep=""))}
       if(len == 1){newimg = r1} else {eval(parse(text=mergeit))} #only run merge it if there are multiple files to merge
       
       #name the new file
-      newbase = paste(uni[i],"_",runname,"_",index,"_composite.bsq", sep="")
+      newbase = paste(uniyears[i],"_",runname,"_",index,"_composite.bsq", sep="")
       outimgfile = file.path(outdir,newbase)
       outtxtfile = sub("composite.bsq", "composite_img_list.csv", outimgfile)
-      imgorder = data.frame(imgorder)
-      colnames(imgorder) = "File"
-      write.csv(imgorder, file=outtxtfile)
+      theseimgs = data.frame(theseimgs)
+      colnames(theseimgs) = "File"
+      write.csv(theseimgs, file=outtxtfile, row.names = F)
       
       #load in the usearea file and crop/extend the new image to it
       refimg = raster(useareafile)
@@ -202,7 +148,7 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
       imgdir = normalizePath(file.path(dir,"images"),winslash="/")
       files = vector()
       for(i in 1:length(imgdir)){
-        print(paste("finding file in: ",imgdir))
+        print(paste("finding files in: ",imgdir))
         files = c(files,list.files(imgdir[i], search, recursive=T, full.names=T))
       }
       if(length(files)==0){stop(
@@ -339,9 +285,23 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
     }
   }
   
+  #check for leap year
+  leapyear = function(year){
+    return(((year %% 4 == 0) & (year %% 100 != 0)) | (year %% 400 == 0))
+  }
   
+  #create decimal year day
+  decyearday = function(year,day){
+    num = ifelse(leapyear(year) == T, 366, 365)
+    return(year+day/num)
+  }
   
- 
+  #create decimal day
+  decday = function(day){
+    num = ifelse(day == 366, 366, 365)
+    return(day/num)
+  }
+
   #########################################################################
   #########################################################################
   #########################################################################
@@ -369,48 +329,61 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
                             specified for compositing, and that the projection is the same as the images.")}
   
   
-  #organize files by sensor
-  sensor = substr(basename(files), 1,2)
-  mssfiles = files[which(sensor == "LM")]
-  tmfiles = files[which(sensor == "LT")]
-  etmfiles = files[which(sensor == "LE")]
-  olifiles = files[which(sensor == "LC")]
-  tmetmfiles = c(tmfiles,etmfiles)
+  #create a table with info on the files
+  imginfo = data.frame(file = as.character(files))
+  imginfo$file = as.character(imginfo$file)
+  bname = basename(imginfo$file)
+  imginfo$year = substr(bname, 10, 13)
+  imginfo$day = substr(bname, 14,16)
+  imginfo$sensor = substr(bname, 1,2)
+  imginfo$compyear = imginfo$decdate = NA
+  for(i in 1:nrow(imginfo)){imginfo$decdate[i] = decyearday(as.numeric(imginfo$year[i]),as.numeric(imginfo$day[i]))}
   
-  #find overlapping MSS and TM
-  mssyears = substr(basename(mssfiles), 10, 13)
-  tmyears = substr(basename(tmfiles), 10, 13)
-  thesetm = which(tmyears %in% mssyears)
-  overlaptmfiles = tmfiles[thesetm]
-  thesemss = which(mssyears %in% tmyears)
-  overlapmssfiles = mssfiles[thesemss]
+  #figure out the dec year day range that is good
+  uniyears = as.numeric(sort(unique(imginfo$year)))
   
-  #find overlapping ETM+ and OLI
-  oliyears = substr(basename(olifiles), 10, 13)
-  etmyears = substr(basename(etmfiles), 10, 13)
-  theseetm = which(etmyears %in% oliyears)
-  overlapetmfiles = etmfiles[theseetm]
-  theseoli = which(oliyears %in% etmyears)
-  overlapolifiles = olifiles[theseoli]
+  if(doyears != "all"){uniyears = uniyears[match(doyears,uniyears)]}
+
+  decstart = decday(startday)
+  decend = decday(endday)
+  dif = ifelse(decstart > decend, (1-decstart)+decend, decend - decstart)
+  start = uniyears+decstart
+  end = start+dif
+  yearsdf = data.frame(uniyears,start,end)
+  
+  #figure out which images are in the composite date range, get rif of ones that aren't
+  for(i in 1:nrow(yearsdf)){
+    these = which(imginfo$decdate >= yearsdf$start[i] & imginfo$decdate <= yearsdf$end[i])
+    imginfo$compyear[these] = yearsdf$uniyears[i]
+  }
+  imginfo = na.omit(imginfo)
+  if(nrow(imginfo)==0){stop("There were no files in the given directories that intersect the provided start and end year-of-day bounds.
+                            Make sure that you provided the correct limits and check that there are actually image files that intersect 
+                            the specified date range.")}
+  
   
   #make composites
   mssdir = file.path(outdir,"mss")
   tmdir = file.path(outdir,"tm")
   olidir = file.path(outdir,"oli")
   
-
+  #pull out files by sensor
+  mssdf = imginfo[imginfo$sensor == "LM",]
+  tmetmdf = imginfo[imginfo$sensor == "LT" | imginfo$sensor == "LE",]
+  olidf = imginfo[imginfo$sensor == "LC",]
+  
   #create annual composites for all sensors
-  if(length(mssfiles) != 0){
+  if(nrow(mssdf) != 0){
     dir.create(mssdir, recursive=T, showWarnings=F)
-    mixel_composite(mssdir, mssfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
+    mixel_composite(mssdir, mssdf, runname=runname,index=index, order=order, useareafile=useareafile, overlap=overlap)
   }
-  if(length(tmetmfiles) != 0){
+  if(nrow(tmetmdf) != 0){
     dir.create(tmdir, recursive=T, showWarnings=F)
-    mixel_composite(tmdir, tmetmfiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
+    mixel_composite(tmdir, tmetmdf, runname=runname,index=index, order=order, useareafile=useareafile, overlap=overlap)
   }
-  if(length(olifiles) != 0){
+  if(nrow(olidf) != 0){
     dir.create(olidir, recursive=T, showWarnings=F)
-    mixel_composite(olidir, olifiles, runname=runname,index=index, doyears=doyears, order=order, useareafile=useareafile, overlap=overlap, offsetrun=F)
+    mixel_composite(olidir, olidf, runname=runname,index=index, order=order, useareafile=useareafile, overlap=overlap)
   }
   
   #deal with the overlapping composites
@@ -437,32 +410,32 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
   for(i in 1:length(uniimglistyears)){
     outname = file.path(outdir,paste(uniimglistyears[i],"_",runname,"_",index,"_composite_img_list.csv", sep=""))
     theseones = which(imglistyears %in% uniimglistyears[i])
-    if(length(theseones) == 1){file.rename(imglists[i],outname)}
+    if(length(theseones) == 1){file.rename(imglists[i], outname)}
     if(length(theseones) == 2){
       data1 = read.csv(imglists[theseones[1]])
       data2 = read.csv(imglists[theseones[2]])
       mergedlists = as.data.frame(rbind(data1,data2)$File)
       colnames(mergedlists) = "File"
-      write.csv(mergedlists,outname)
+      write.csv(mergedlists, outname, row.names = F)
     }
   }
   
-  msstmolifiles = c(msscompfiles,tmcompfiles,olicompfiles)
-  finalfiles = file.path(outdir,basename(msstmolifiles))
-  
+  #move files
+  msstmolifiles = c(msscompfiles, tmcompfiles, olicompfiles)
+  finalfiles = file.path(outdir, basename(msstmolifiles))
   for(i in 1:length(finalfiles)){
     check = file.exists(finalfiles[i])
     if(check == F){
-      year = substr(basename(finalfiles[i]),1,4)
-      files = list.files(dirname(msstmolifiles[i]),year,full.names=T)
-      file.rename(files,file.path(outdir,basename(files)))
+      year = substr(basename(finalfiles[i]), 1, 4)
+      files = list.files(dirname(msstmolifiles[i]), year, full.names=T)
+      file.rename(files, file.path(outdir, basename(files)))
     }
   }
   
   #clean up
   unlink(c(mssdir,tmdir,olidir), recursive=T)
   
-  
+  #make the final stack
   print("making final annual composite stack")
   bname = paste(runname,"_",index,"_composite_stack.bsq", sep="")
   bands = sort(list.files(outdir, "composite.bsq$", full.names=T))
