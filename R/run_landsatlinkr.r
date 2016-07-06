@@ -376,22 +376,22 @@ run_landsatlinkr = function(){
       
       #dates
       cat("\n\n")
-      print("The following two parameter inputs are the minimum and maximum day-of-year to include in your composites. Example: June 15th through August 31st would be 166 and 243. For more information see the LLR guide page: ")
-      cat("\n")
+      cat("The following two parameter inputs are the minimum and maximum day-of-year to include in your composites.\nExample: June 15th through August 31st would be 166 and 243.\nFor more information see the LLR guide page: http://landsatlinkr.jdbcode.com/guide.html#doy")
+      cat("\n\n")
       correct = "No"
       while(correct == "No"){
         startday = as.numeric(readline("Define a minimum day-of-year to include in the composites: "))
-        print(paste("You have selected:",startday))
+        cat("You have selected:",startday,"\n")
         correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-        if(correct == "Exit"){return("Stopping LLR")}
+        if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
       }
       
       correct = "No"
       while(correct == "No"){
         endday = as.numeric(readline("Define a maximum day-of-year to include in the composites: "))
-        print(paste("You have selected:",endday))
+        cat("You have selected:",endday,"\n")
         correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-        if(correct == "Exit"){return("Stopping LLR")}
+        if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
       }
       
       #overlap methods
