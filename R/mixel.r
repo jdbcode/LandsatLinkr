@@ -267,7 +267,8 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
       print(paste("......",basename(dep_files[i]),sep=""))
       img = raster(dep_files[i])
       NAvalue(img) = 0
-
+      
+      meandiforig = raster(meandiffile) #need to load this each time because delete_temp_files() gets called at the end of each loop - if this file is big it is held in the temp directory and will be deleted
       img = img + meandiforig
       img[is.na(img)] = 0
       
