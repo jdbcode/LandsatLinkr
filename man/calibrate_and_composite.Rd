@@ -6,7 +6,8 @@
 \usage{
 calibrate_and_composite(msswrs1dir, msswrs2dir, tmwrs2dir, oliwrs2dir, index,
   outdir, runname, useareafile, doyears = "all", order = "none",
-  overlap = "mean", cores = 2, process, overwrite = F, startday, endday)
+  overlap = "mean", cores = 2, process, overwrite = F, startday, endday,
+  yearadj)
 }
 \arguments{
 \item{msswrs1dir}{character. mss wrs1 directory path}

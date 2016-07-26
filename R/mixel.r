@@ -17,7 +17,7 @@
 #' @export
 
 
-mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean",startday,endday){
+mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname,useareafile,doyears="all",order="none",overlap="mean",startday,endday,yearadj=0){
 
   mixel_find = function(files, refimg){
     info = matrix(ncol = 4, nrow=length(files))
@@ -74,7 +74,7 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
     file.rename(envixmlfile,bsqxmlfile)
   }
   
-  mixel_composite = function(outdir, imginfosub, runname, index, order, useareafile, overlap){
+  mixel_composite = function(outdir, imginfosub, runname, index, order, useareafile, overlap, yearadj){
 
     #outdir= mssdir 
     #imginfosub = mssdf
@@ -110,7 +110,8 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
       if(len == 1){newimg = r1} else {eval(parse(text=mergeit))} #only run merge it if there are multiple files to merge
       
       #name the new file
-      newbase = paste(uniyears[i],"_",runname,"_",index,"_composite.bsq", sep="")
+      yearlabel = as.character(as.numeric(uniyears[i])+yearadj)
+      newbase = paste(yearlabel,"_",runname,"_",index,"_composite.bsq", sep="")
       outimgfile = file.path(outdir,newbase)
       outtxtfile = sub("composite.bsq", "composite_img_list.csv", outimgfile)
       theseimgs = data.frame(theseimgs)
@@ -341,7 +342,8 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
   for(i in 1:nrow(imginfo)){imginfo$decdate[i] = decyearday(as.numeric(imginfo$year[i]),as.numeric(imginfo$day[i]))}
   
   #figure out the dec year day range that is good
-  uniyears = as.numeric(sort(unique(imginfo$year)))
+  #uniyears = as.numeric(sort(unique(imginfo$year)))
+  uniyears = 1972:as.numeric(format(Sys.Date(),'%Y'))
   
   if(doyears != "all"){uniyears = uniyears[match(doyears,uniyears)]}
 
@@ -376,15 +378,15 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
   #create annual composites for all sensors
   if(nrow(mssdf) != 0){
     dir.create(mssdir, recursive=T, showWarnings=F)
-    mixel_composite(mssdir, mssdf, runname=runname,index=index, order=order, useareafile=useareafile, overlap=overlap)
+    mixel_composite(mssdir, mssdf, runname=runname,index=index, order=order, useareafile=useareafile, overlap=overlap, yearadj=yearadj)
   }
   if(nrow(tmetmdf) != 0){
     dir.create(tmdir, recursive=T, showWarnings=F)
-    mixel_composite(tmdir, tmetmdf, runname=runname,index=index, order=order, useareafile=useareafile, overlap=overlap)
+    mixel_composite(tmdir, tmetmdf, runname=runname,index=index, order=order, useareafile=useareafile, overlap=overlap, yearadj=yearadj)
   }
   if(nrow(olidf) != 0){
     dir.create(olidir, recursive=T, showWarnings=F)
-    mixel_composite(olidir, olidf, runname=runname,index=index, order=order, useareafile=useareafile, overlap=overlap)
+    mixel_composite(olidir, olidf, runname=runname,index=index, order=order, useareafile=useareafile, overlap=overlap, yearadj=yearadj)
   }
   
   #deal with the overlapping composites

@@ -394,6 +394,19 @@ run_landsatlinkr = function(){
         if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
       }
       
+      #figure out how to name the files
+      if((endday-startday) < 0){
+        cat("\n")
+        correct = "No"
+        while(correct == "No"){
+          yearadj = select.list(c("Pre","Post"), title = "Your date range crosses the year divide, would you like to label the annual composite files with the pre- or post- divide year?")
+          cat("You have selected:",yearadj,"\n")
+          correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
+          if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
+        }
+        yearadj = ifelse(yearadj == "Post", 1, 0)
+      }
+      
       #overlap methods
       correct = "No"
       while(correct == "No"){
@@ -425,7 +438,7 @@ run_landsatlinkr = function(){
     #################################################################################################################
     #execute the calibrate_and_composite function
     
-    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap=overlap, cores=cores, process=calcomprocess, overwrite=overwrite, startday=startday, endday=endday)  #overlap="mean"
+    calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap=overlap, cores=cores, process=calcomprocess, overwrite=overwrite, startday=startday, endday=endday, yearadj=yearadj)  #overlap="mean"
   }
   
   #if(sum(process %in% 9 > 0)){
