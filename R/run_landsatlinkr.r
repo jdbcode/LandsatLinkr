@@ -394,17 +394,19 @@ run_landsatlinkr = function(){
         if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
       }
       
+      
       #figure out how to name the files
+      yearadj = 0
       if((endday-startday) < 0){
         cat("\n")
         correct = "No"
         while(correct == "No"){
-          yearadj = select.list(c("Pre","Post"), title = "Your date range crosses the year divide, would you like to label the annual composite files with the pre- or post- divide year?")
-          cat("You have selected:",yearadj,"\n")
+          yearadjanswer = select.list(c("Pre","Post"), title = "Your date range crosses the year divide, would you like to label the annual composite files with the pre- or post- divide year?")
+          cat("You have selected:",yearadjanswer,"\n")
           correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
           if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
+          if(yearadjanswer == "Post"){yearadj = 1}
         }
-        yearadj = ifelse(yearadj == "Post", 1, 0)
       }
       
       #overlap methods
