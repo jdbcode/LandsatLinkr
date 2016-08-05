@@ -2,7 +2,6 @@
 #'
 #' Create an aggregate oli TC model with diagnostic figures
 #' @param dirname character. the directory to the calibration folder
-#' @import ggplot2
 #' @export
 
 

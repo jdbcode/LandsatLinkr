@@ -13,17 +13,10 @@ Depends:
     SDMTools,
     doParallel,
     foreach,
-    ggplot2,
-    MASS,
-    gridExtra,
-    zoo,
-    segmented,
     plyr,
-    ecp,
     gdalUtils,
     rgdal,
-    igraph,
-    hexbin
+    igraph
 License: GPL-2
 URL: http://landsatlinkr.jdbcode.com/
 LazyData: true

@@ -4,8 +4,6 @@
 #' @param msswrs2dir character. MSS WRS-2 scene directory path
 #' @param tmwrs2dir character. TM WRS-2 scene directory path
 #' @import raster
-#' @import ggplot2
-#' @import gridExtra
 #' @export
 
 
