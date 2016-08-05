@@ -20,6 +20,36 @@ msscal_single = function(mss_file, tm_file){
     return(int)
   }
   
+  predict_mss_index = function(tbl, outsampfile){  
+    #create a multivariable linear model
+    model = rlm(refsamp ~ b1samp + b2samp + b3samp + b4samp, data=tbl) #tbl replaced final 1/22/2016
+    
+    tbl$singlepred = round(predict(model))
+    write.csv(tbl, outsampfile, row.names=F)
+    
+    #plot the regression
+    r = cor(tbl$refsamp, tbl$singlepred)
+    coef = rlm(tbl$refsamp ~ tbl$singlepred)
+    
+    pngout = sub("samp.csv", "plot.png",outsampfile)
+    png(pngout,width=700, height=700)
+    title = paste(tbl$index[1],"linear regression: slope =",paste(signif(coef$coefficients[2], digits=3),",",sep=""),
+                  "y Intercept =",paste(round(coef$coefficients[1], digits=3),",",sep=""),
+                  "r =",signif(r, digits=3))
+    plot(x=tbl$singlepred,y=tbl$refsamp, #tbl replaced final 1/22/2016
+         main=title,
+         xlab=paste(tbl$mss_img[1],tbl$index[1]),
+         ylab=paste(tbl$ref_img[1],tbl$index[1]))   
+    abline(coef = coef$coefficients, col="red")  
+    dev.off()
+    
+    coef_tbl = data.frame(rbind(model$coefficients))
+    cnames = c("yint","b1c","b2c","b3c","b4c")
+    colnames(coef_tbl) = cnames
+    tbls = list(coef_tbl,tbl)
+    return(tbls)
+  }
+  
   #write_coef = function(mss_file, ref_file, index, coef,r){
   #  info = data.frame(mss_file = basename(mss_file),
   #                    ref_file = basename(ref_file),
@@ -139,8 +169,6 @@ msscal_single = function(mss_file, tm_file){
   #if(unib1samp < 15 | unib2samp < 15 | unib3samp < 15 | unib4samp < 15 ){return()}
   if(unib1samp < 15 | unib2samp < 15 | unib3samp < 15 | unib4samp < 15 |
      unitcbsamp < 15 | unitcgsamp < 15 | unitcwsamp < 15 | unitcasamp < 15){return()}
-  
-  print("Made it here!")
   
   #samplen = length(samp)
   
