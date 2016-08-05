@@ -20,31 +20,24 @@ prepare_topo = function(imgdir, demfile){
   dir.create(topodir, showWarnings=F)
   info = get_metadata(examplefile)
   template = raster(examplefile)
-  #reso = xres(template)
   demname = paste(info$wrstype,"_",info$ppprrr,"_60m","_dem.tif",sep="")
   newdem = file.path(topodir,demname)
   tempdem = sub("dem.tif","temp_dem.tif",newdem)
   newslope = file.path(topodir,sub("dem","slope",demname))
   newasp = file.path(topodir,sub("dem","aspect",demname))
   newill = file.path(topodir,sub("dem","illumination",demname))
-  #extname = paste(info$wrstype,"_",info$ppprrr,"_mss_image_set_union_extent.csv",sep="")
-  #extfile = file.path(topodir,extname)
   s_srs = projection(raster(demfile)) #template
   t_srs = set_projection(examplefile)
   
-  #havedem = file.exists(newdem)
   demfiles = list.files(topodir,"dem",full.names=T)
-  #if(havedem == T & overwrite == T | havedem == F){
   unlink(demfiles)
   gdalwarp(srcfile=demfile,dstfile=tempdem,
            s_srs=s_srs,t_srs=t_srs, tr=c(60,60), dstnodata=-32768, ot="Int16") #should nodata be set here???
-  #}
   
   extholder = matrix(ncol = 4, nrow=length(files))
   print("...Making sure DEM is large enough")
   print("......Getting MSS image extents")
   for(i in 1:length(files)){ 
-    #print(i)
     img = raster(files[i])
     ext = extent(img)
     extholder[i,1] = ext@xmin
@@ -89,28 +82,22 @@ prepare_topo = function(imgdir, demfile){
   dem = raster(newdem)
   
   #making slope
-  #haveslope = file.exists(newslope)
   slopefiles = list.files(topodir,"slope",full.names=T)
-  #if(haveslope == T & overwrite == T | haveslope == F){
   unlink(slopefiles)
   print("...Preparing Slope")
   img = terrain(dem, opt="slope")
   projection(img) = set_projection(examplefile)
   img = as(img, "SpatialGridDataFrame")
   writeGDAL(img, newslope, drivername = "GTiff", type = "Float32", options="INTERLEAVE=BAND") #, mvFlag = -32768
-  #}
   
   #making slope aspect
-  #haveasp = file.exists(newasp)
   aspfiles = list.files(topodir,"aspect",full.names=T)
-  #if(haveasp == T & overwrite == T | haveasp == F){
   unlink(aspfiles)
   print("...Preparing Aspect")
   img = terrain(dem, opt="aspect")
   projection(img) = set_projection(examplefile)
   img = as(img, "SpatialGridDataFrame")
   writeGDAL(img, newasp, drivername = "GTiff", type = "Float32", options="INTERLEAVE=BAND") #, mvFlag = -32768  
-  #}
   
   return(newdem)
 }

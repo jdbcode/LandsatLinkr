@@ -12,7 +12,6 @@ msscost = function(file, overwrite=F){
   #http://landsathandbook.gsfc.nasa.gov/data_prod/prog_sect11_3.html
   
   check = file_check(file,"dos_sr.tif",overwrite)
-  #print(check)
   if(check == 0){return(0)}
   
   refl = function(file, band, gain, bias, sunzenith, d, esun, dov){

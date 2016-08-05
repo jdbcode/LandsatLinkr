@@ -10,7 +10,6 @@
 mssdn2refl = function(file, overwrite=F){
   
   check = file_check(file,"reflectance.tif",overwrite)
-  #print(check)
   if(check == 0){return(0)}
   
   #link to the equations to convert DN to TOA and TOA to SR
@@ -39,7 +38,6 @@ mssdn2refl = function(file, overwrite=F){
   if(info$sensor == "LANDSAT_5"){esun = c(1824,1570,1249,853.4)}
   
   #define the earth sun distance 
-  #d = 1.01497  #Earth-Sun Distance in Astronomical Units at DOY 213
   doy = as.numeric(substr(basename(file),14,16))
   d = eudist(doy)
   sunzenith = info$sunzen/57.2958 

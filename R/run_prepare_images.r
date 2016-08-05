@@ -27,11 +27,6 @@ run_prepare_images = function(){
   reso = 60 #set default - not used now that we are running MSS at 60 and TM at 30
   proj = "albers" #set default
   if(sum(process %in% c(1,6)) > 0){
-#     choices = c("30 meter", "60 meter")
-#     selection = select.list(choices, title = "Select a pixel resolution to use")
-#     if(selection == "30 meter"){reso = 30}
-#     if(selection == "60 meter"){reso = 60}
-    
     choices = c("NAD83 UTM Default", "USGS North American Albers")
     selection = select.list(choices, title = "Select a map projection to use")
     if(selection == "NAD83 UTM Default"){proj = "default"}

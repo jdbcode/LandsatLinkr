@@ -49,24 +49,6 @@ olical_single = function(oli_file, tm_file, overwrite=F){
     return(tbls)
   }
 
-#   sample_it = function(img, bins, n){
-#     
-#     mi = min(img, na.rm=T)
-#     ma = max(img, na.rm=T)
-#     
-#     step = (ma - mi)/bins
-#     breaks = seq(mi,ma,step)
-#     
-#     min_samp = array(n, bins)
-#     for(i in 1:(length(breaks)-1)){
-#       these = which(img > breaks[i] & img <= breaks[i+1])
-#       if(i == 1){samp = sample(these, size=min(min_samp[i],length(these)))} else {
-#         samp = c(samp, sample(these, size=min(min_samp[i],length(these))))
-#       } 
-#     }
-#     return(samp)
-#   }
-  
   #define the filenames
   oli_sr_file = oli_file
   oli_mask_file = sub("l8sr.tif", "cloudmask.tif", oli_sr_file)
@@ -137,10 +119,6 @@ olical_single = function(oli_file, tm_file, overwrite=F){
   goods = which(dif == 1)
   if(length(goods) < 20000){return(0)}
   
-  #stratified sample
-  #refpix = as.matrix(ref_tca_img)[goods]
-  #samp = sample_it(refpix, bins=20, n=1000)
-  
   #random sample
   samp = sample(1:length(goods), 20000)
   samp = goods[samp]
@@ -180,15 +158,10 @@ olical_single = function(oli_file, tm_file, overwrite=F){
   tcw_tbl = data.frame(olibname,refbname,"tcw",sampxy,tcsamp[,3],olisamp)
   tca_tbl = data.frame(olibname,refabname,"tca",sampxy,tcasamp,olisamp)
   
-  
   tcb_tbl = tcb_tbl[complete.cases(tcb_tbl),]
   tcg_tbl = tcg_tbl[complete.cases(tcg_tbl),]
   tcw_tbl = tcw_tbl[complete.cases(tcw_tbl),]
   tca_tbl = tca_tbl[complete.cases(tca_tbl),]
-  
-  ##############take this out################
-  #print(all.equal(nrow(tcb_tbl),nrow(tcg_tbl),nrow(tcw_tbl)))
-  ###########################################
   
   cnames = c("oli_img","ref_img","index","x","y","refsamp","b2samp","b3samp","b4samp","b5samp","b6samp","b7samp") 
   colnames(tcb_tbl) = cnames
@@ -225,43 +198,6 @@ olical_single = function(oli_file, tm_file, overwrite=F){
   asamp = model[[2]]
   ar = cor(asamp$refsamp, asamp$singlepred)
   
-  #TCA
-  #singlepred = atan(gsamp$singlepred/bsamp$singlepred) * (180/pi) * 100
-  #refsamp = atan(gsamp$refsamp/bsamp$refsamp) * (180/pi) * 100
-  #tbl = data.frame(oli_img = olibname,
-  #                 ref_img = refbname,
-  #                 index = "tca",
-  #                 x = tcb_tbl$x,
-  #                 y = tcb_tbl$y,
-  #                 refsamp,singlepred)
-  #final = tbl[complete.cases(tbl),]
-  #outsampfile = file.path(outdir,paste(oliimgid,"_tca_cal_samp.csv",sep=""))
-  #write.csv(final, outsampfile, row.names=F)
-  
-  #plot it
-  #r = cor(final$refsamp, final$singlepred)
-  #coef = rlm(final$refsamp ~ final$singlepred)
-
-  #pngout = sub("samp.csv", "plot.png",outsampfile)
-  #png(pngout,width=700, height=700)
-  #title = paste("tca linear regression: slope =",paste(signif(coef$coefficients[2], digits=3),",",sep=""),
-  #              "y Intercept =",paste(round(coef$coefficients[1], digits=3),",",sep=""),
-  #              "r =",signif(r, digits=3))
-  #plot(x=final$singlepred,y=final$refsamp,
-  #     main=title,
-  #     xlab=paste(olibname,"tca"),
-  #     ylab=paste(refbname,"tca"))
-  #abline(coef = coef$coefficients, col="red")  
-  #dev.off()
-  
-  #info = data.frame(oli_file = olibname, ref_file = refbname,
-  #                  index = "tca", yint = as.numeric(coef$coefficients[1]),
-  #                  b1c = as.numeric(coef$coefficients[2]), r=r)
-  
-  #coefoutfile = file.path(outdir,paste(oliimgid,"_tca_cal_coef.csv",sep=""))
-  #write.csv(info, coefoutfile, row.names=F)
-  
-  
   #write out the coef files
   tcbinfo = data.frame(oli_file=olibname, ref_file=refbname, index="tcb", bcoef, r=br)
   tcginfo = data.frame(oli_file=olibname, ref_file=refbname, index="tcg", gcoef, r=gr)
@@ -277,9 +213,4 @@ olical_single = function(oli_file, tm_file, overwrite=F){
   write.csv(tcginfo, tcgcoefoutfile, row.names=F)
   write.csv(tcwinfo, tcwcoefoutfile, row.names=F)
   write.csv(tcainfo, tcacoefoutfile, row.names=F)
-  
-  
-  #outfile = file.path(outdir,paste(oliimgid,"_tc_cal_planes.png",sep=""))
-  #make_tc_planes_comparison(bsamp, gsamp, wsamp, outfile)
-  
 }

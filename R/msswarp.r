@@ -38,10 +38,6 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
   dt = as.character(info$datatype)
   rmsefile = sub("archv.tif","cloud_rmse.csv",fixfile)
   rmse = as.numeric(read.table(rmsefile,sep=",")[3])
-  #verfile = file.path(dirname(fixfile),paste(substr(basename(fixfile),1,16),"_VER.txt",sep=""))
-  #tbl = unlist(read.delim(verfile, header=F))
-  #rmseline = as.character(grep("Scene RMSE: ", tbl, value=T))
-  #rmse = as.numeric(unlist(strsplit(rmseline, " "))[3])
   runit = as.numeric(rmse > 0.5 & dt == "L1T")
   if(runit == 1){
     #read in the fix image
@@ -180,30 +176,7 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       info[point,"fixx"] = xoffsetcoord-(xoffset*2)
       info[point,"fixy"] = yoffsetcoord-(yoffset*2)
       ####
-      
-      
-      #info[point,"fixx"] = xFromCell(ncc, good) #info[point,6] = xFromCell(ncc, good)#+(shiftit[1]*-1) #get the x coord of the highest peak, account for shift, and put in the info table
-      #info[point,"fixy"] = yFromCell(ncc, good) #info[point,7] = yFromCell(ncc, good)#+(shiftit[2]*-1) #get the y coord of the highest peak, account for shift, and put in the info table
-      
-      #   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-      #   #write out image chips for testing
-      #   xdif = (info[point,5]-info[point,1]) + shiftit[1]
-      #   ydif = (info[point,6]-info[point,2]) + shiftit[2]
-      #   fiximg11 = origfiximg
-      #   fiximg11 = shift(fiximg11, x=xdif, y=ydif)
-      #   dir = "K:/scenes/034032/chips/"
-      #   newfile1 = paste(dir,"ref",point,".tif")
-      #   newfile2 = paste(dir,"fix",point,".tif")
-      #   newfile3 = paste(dir,"sim",point,".tif")
-      #   
-      #   ext = make_kernal(info[point,5:6],reso,window)
-      #   fixsub1 = crop(fiximg11, ext)
-      #   values(ncc)[is.na(values(ncc))] = 0
-      #   
-      #   writeRaster(refsub, filename = newfile1)
-      #   writeRaster(fixsub1, filename = newfile2)
-      #   writeRaster(ncc, filename = newfile3)
-      #   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
       
       #get the row and column numbers for the fix image
       origfiximg_x = info[point,"fixx"]-shiftit[1]
@@ -227,17 +200,6 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       
       dist1 = abs(c((rmax - 1), (rmax - length(r)), (cmax - 1), (cmax - length(c))))/(floor(search/2)) 
       dist2 = min(dist1)
-      
-      
-      #calculate japanese industrial standard surface roughness index (not used in filtering 5/21/13)
-      #sortl = sort(ccc)
-      #sorth = sort(ccc, decreasing = T)
-      #high5 = sorth[1:5] 
-      #low5 = sortl[1:5]
-      #jis = (1/5)*(sum(high5-low5))    
-      
-      #calculate a waviness (not used in filtering)
-      #waves = (nwaves(r) + nwaves(c))/(search)
       
       #place filtering values in info table
       info[point,"nmax"] = length(which(ccc == maxmat)) #2 #info[point,10] = length(which(ccc == maxmat)) #2
@@ -317,8 +279,6 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       #get the gcp string made
       fixcol = paste(info[,"fixcol"]) #fix col for tie point
       fixrow = paste(info[,"fixrow"]) #fix row for tie point
-      #refx = paste(info[,"fixx"])  #fix x tie point coord 
-      #refy = paste(info[,"fixy"])  #fix y tie point coord
       refx = paste(info[,"refx"])  #fix x tie point coord 
       refy = paste(info[,"refy"])  #fix y tie point coord
       gcpstr = paste(" -gcp", fixcol, fixrow, refx, refy, collapse="")

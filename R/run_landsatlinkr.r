@@ -25,7 +25,6 @@ run_landsatlinkr = function(){
     if(selection == "Calibrate MSS to TM"){process = 8}
     if(selection == "Calibrate OLI to ETM+"){process = 9}
     if(selection == "Composite imagery"){process = 10}
-    #if(selection == "Fit neat lines"){process = 9}
     
     print(paste("You have selected:",selection))
     correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
@@ -92,13 +91,6 @@ run_landsatlinkr = function(){
       if(correct == "Exit"){return("Stopping LLR")}
     }
     
-    
-    #choices = c("USGS North American Albers", "User-provided projection","Native NAD83 UTM (not recommended!)", )
-    #selection = select.list(choices, title = "Select a map projection to use")
-    #if(selection == "Native NAD83 UTM (not recommended!)"){proj = "default"}
-    #if(selection == "USGS North American Albers"){proj = "albers"}
-    #if(selection == "User-provided"){
-    
     #################################################################################################################
     #define a projection
     
@@ -107,20 +99,9 @@ run_landsatlinkr = function(){
       print("Please define a projection to use for this project")
       print("If you need assistance, see the 'Selecting a geographic projection' section in the user manual")
       print("If you want to exit, press the 'return' key and then select 'Exist'")
-      #choices = c("Manual PROJ.4 definition", "Extract PROJ.4 from a reference raster")
-      #selection = select.list(choices, title = "How do you want to define the projection")
-      #if(selection =="Manual PROJ.4 definition"){
+
       proj = readline("  Provide PROJ.4 string: ") #http://spatialreference.org/
-      #       }
-      #       if(selection == "Extract PROJ.4 from a reference raster"){
-      #         file = choose.files(caption = "Select a raster file to extract projection information from", multi=F)
-      #         proj = gdalsrsinfo(srs_def=file,o="proj4")
-      #         proj = sub("'","",proj)
-      #         proj = sub(" '","",proj)
-      #       }
-      #}
-      #}
-      
+
       print(paste("You have selected:",proj))
       correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
       if(correct == "Exit"){return("Stopping LLR")}
@@ -139,7 +120,6 @@ run_landsatlinkr = function(){
         if(correct == "Exit"){return("Stopping LLR")}
       }
     }
-    #return(list(scenedir, demfile, proj, reso, process,cores))
     prepare_images(scenedir, demfile, proj=proj, process=process,cores=cores, overwrite=overwrite)
   }
   
@@ -296,21 +276,7 @@ run_landsatlinkr = function(){
         if(correct == "Exit"){return("Stopping LLR")}
       }
       
-      #         choices = c("Tasseled cap angle",
-      #                     "Tasseled cap brightness",
-      #                     "Tasseled cap greenness",
-      #                     "Tasseled cap wetness",
-      #                     "All")
-      #         selection = select.list(choices, title = "Select an index to create composites for")
-      #         if(selection == "Tasseled cap angle"){index = "tca"}
-      #         if(selection == "Tasseled cap brightness"){index = "tcb"}
-      #         if(selection == "Tasseled cap greenness"){index = "tcg"}
-      #         if(selection == "Tasseled cap wetness"){index = "tcw"}
-      #         if(selection == "All"){index = "all"}
-      
-      #################################################################################################################
-      #run name
-      
+
       correct = "No"
       while(correct == "No"){
         runname = readline("Provide a unique name for the composite series. ex. project1: ")
@@ -432,20 +398,10 @@ run_landsatlinkr = function(){
       }
       calcomprocess = 3
     }
-    #}
-    #if(sum((process %in% 7) > 0)){process[1] = 1}
-    #if(sum((process %in% 8) > 0)){process[process==8] = 2}
-    #return(msswrs1dir,msswrs2dir,tmwrs2dir,index,outdir,runname,useareafile,cores,process)
     
     #################################################################################################################
     #execute the calibrate_and_composite function
     
     calibrate_and_composite(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index="all",outdir,runname,useareafile,doyears="all",order="none",overlap=overlap, cores=cores, process=calcomprocess, overwrite=overwrite, startday=startday, endday=endday, yearadj=yearadj)  #overlap="mean"
   }
-  
-  #if(sum(process %in% 9 > 0)){
-  #  dir = choose.dir(caption = "Select a composites directory from which to find image composite stacks")
-  #  cores = readline("How many cores to use to process in parallel?: ")
-  #  run_neatline(dir, cores)
-  #}
 }

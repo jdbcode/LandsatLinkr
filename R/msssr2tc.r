@@ -14,8 +14,6 @@ msssr2tc = function(mss_file,bcoef,gcoef,wcoef,mode){
   
   if(mode == "calibrate"){
     dir = substr(dirname(mss_file),1,nchar(dirname(mss_file))-12)
-    #tcname = sub("dos_sr_30m.tif","tc_30m.tif", basename(mss_file))
-    #tcaname = sub("dos_sr_30m.tif","tca_30m.tif", basename(mss_file))
     tcfiledir = file.path(dir,"calibration","aggregate_model_tc_imgs")
     dir.create(tcfiledir, recursive=T, showWarnings=F)
     tcfile = file.path(tcfiledir,sub("dos_sr_30m.tif","tc_30m.tif", basename(mss_file)))
@@ -28,17 +26,12 @@ msssr2tc = function(mss_file,bcoef,gcoef,wcoef,mode){
   
   #read in the dos sr image
   ref = raster(mss_file)
-#   b = brick(mss_file)
-#   img = as.array(b)
   b1=as.matrix(raster(mss_file,1))
   b2=as.matrix(raster(mss_file,2))
   b3=as.matrix(raster(mss_file,3))
   b4=as.matrix(raster(mss_file,4))
   
-  #transform to tcb and tcg
-  #bright = round((((img[,,1]*bcoef[2])+(img[,,2]*bcoef[3])+(img[,,3]*bcoef[4])+(img[,,4]*bcoef[5])) + bcoef[1]))
-  #green  = round((((img[,,1]*gcoef[2])+(img[,,2]*gcoef[3])+(img[,,3]*gcoef[4])+(img[,,4]*gcoef[5])) + gcoef[1]))
-  
+  #transform to tc
   tcb = round((((b1*bcoef[2])+(b2*bcoef[3])+(b3*bcoef[4])+(b4*bcoef[5])) + bcoef[1]))
   tcg  = round((((b1*gcoef[2])+(b2*gcoef[3])+(b3*gcoef[4])+(b4*gcoef[5])) + gcoef[1]))
   tcw = round((((b1*wcoef[2])+(b2*wcoef[3])+(b3*wcoef[4])+(b4*wcoef[5])) + wcoef[1]))
@@ -57,23 +50,6 @@ msssr2tc = function(mss_file,bcoef,gcoef,wcoef,mode){
   writeGDAL(tca, tcafile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
   
   tca=0 #recover some memory
-  
-  #transform to tca and write out
-#   tca = atan(green/bright) * (180/pi) * 100 #need to multiply by (180/pi) to get degrees because atan() returns radians, 100 is a scalar to preserve two decimal places
-#   tca = setValues(ref,tca)
-#   projection(tca) = set_projection(mss_file)
-#   tca = as(tca, "SpatialGridDataFrame")
-#   writeGDAL(tca, tcafile, drivername = "GTiff", type = "Int16", mvFlag = -32768, options="INTERLEAVE=BAND")
-  
-#  tca=0 
-  
-  #set tcb and tcg to raster 
-#   bright = setValues(ref,bright)
-#   green = setValues(ref,green)
-#   wet = setValues(ref,wet)
-  #transform to tcw
-  
-
 
   #stack tc and write out
   tc = stack(tcb,tcg,tcw)

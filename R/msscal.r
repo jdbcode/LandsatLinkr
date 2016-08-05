@@ -44,7 +44,7 @@ msscal = function(msswrs1dir, msswrs2dir, tmwrs2dir, cores=2){
     if(checks[3]==1){print("...tcg")}
     if(checks[4]==1){print("...tcw")}
   }
-  #cores=1
+
   if(check != 4){
     print("...single image pair modeling")
     if(cores==2){

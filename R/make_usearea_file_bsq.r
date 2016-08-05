@@ -9,9 +9,6 @@
 #' @export
 
 make_usearea_file_bsq = function(infile, projref){
-  
-  #infile = "E:/llr_chlor_projects/test/useareafiles/useareafile.tif"
-  #projref = "E:/llr_chlor_projects/test/mss/wrs1/041029/images/1976/LM10410291976181_archv.tif"
   print("Making a copy of use-area file as .bsq for optional use in LandTrendr")
   
   tempout = paste(infile,"_temp.tif",sep="")

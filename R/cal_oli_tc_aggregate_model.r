@@ -131,9 +131,7 @@ cal_oli_tc_aggregate_model = function(dir, overwrite=F){
     tbl$comppreddif = tbl$refsamp - tbl$comppred
     tblcoef = model$coefficients
     r = cor(tbl$refsamp,tbl$comppred)
-    #if(index == "tca"){coef = data.frame(index=index,yint=tblcoef[1],b1c=tblcoef[2],r=r)} else {
-      coef = data.frame(index=index,yint=tblcoef[1],b2c=tblcoef[2],b3c=tblcoef[3],b4c=tblcoef[4],b5c=tblcoef[5],b6c=tblcoef[6],b7c=tblcoef[7],r=r)
-      #}
+    coef = data.frame(index=index,yint=tblcoef[1],b2c=tblcoef[2],b3c=tblcoef[3],b4c=tblcoef[4],b5c=tblcoef[5],b6c=tblcoef[6],b7c=tblcoef[7],r=r)
     
     coeftbl = do.call("rbind", lapply(coef_files, read.csv, header = TRUE))
     outfile = file.path(outdir,paste(index,"_cal_combined_coef.csv",sep=""))
@@ -216,18 +214,6 @@ cal_oli_tc_aggregate_model = function(dir, overwrite=F){
   gtbl = aggregate_cal_diag(tcgsamps, tcgcoef, "tcg", outdir)
   wtbl = aggregate_cal_diag(tcwsamps, tcwcoef, "tcw", outdir)
   atbl = aggregate_cal_diag(tcasamps, tcacoef, "tca", outdir)
-  
-  #tcasamps = do.call("rbind", lapply(tcasamps, read.csv, header = TRUE))
-  #comppred = atan(gtbl$comppred/btbl$comppred) * (180/pi) * 100
-  #tcasamps = data.frame(tcasamps,comppred)
-  #atbl = aggregate_cal_diag(tcasamps, tcacoef, "tca", outdir)
-  
-  #create plane plots
-#   tcb_samp_file = file.path(outdir,"tcb_cal_aggregate_sample.csv")
-#   tcg_samp_file = file.path(outdir,"tcg_cal_aggregate_sample.csv")
-#   tcw_samp_file = file.path(outdir,"tcw_cal_aggregate_sample.csv")
-#   outfile = file.path(outdir,"aggregate_cal_tc_planes_comparison.png") 
-#   make_tc_planes_comparison(tcb_samp_file, tcg_samp_file, tcw_samp_file, outfile)
   
   return(1)
 }
