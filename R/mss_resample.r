@@ -5,7 +5,7 @@
 #' @import gdalUtils
 #' @export
 
-resample = function(file, overwrite=F){
+mss_resample = function(file, overwrite=F){
   type = c(length(grep("dos_sr", file)), length(grep("cloudmask", file)))
   
   if(type[1] == 1){
