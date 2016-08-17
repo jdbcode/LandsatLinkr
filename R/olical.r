@@ -22,7 +22,7 @@ olical = function(oliwrs2dir, tmwrs2dir, cores=2, overwrite=overwrite){
   #get overlapping oli/etm+ years
   oliuni = unique(oliyears)
   notintm = oliuni %in% tmyears
-  if(sum(notintm) < 2){stop("There are not at least three years of overlaping images between OLI and ETM+")}
+  if(sum(notintm) < 2){stop("There is not at least one year of overlapping images between OLI and ETM+ to calibrate on")}
   theseoli = which(oliyears %in% tmyears == T)
   olifilessub = olifiles[theseoli]
   olibase = olibase[theseoli]
