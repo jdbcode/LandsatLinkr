@@ -34,9 +34,9 @@ calibrate_and_composite = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,in
       print("...in parallel")
       cl = makeCluster(cores)
       registerDoParallel(cl)
-      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% resample(files[i], overwrite=F) #hardwired to not overwrite
+      o = foreach(i=1:length(files), .combine="c",.packages="LandsatLinkr") %dopar% mss_resample(files[i], overwrite=F) #hardwired to not overwrite
       stopCluster(cl)
-    } else {for(i in 1:length(files)){o = resample(files[i], overwrite=F)}} #hardwired to not overwrite
+    } else {for(i in 1:length(files)){o = mss_resample(files[i], overwrite=F)}} #hardwired to not overwrite
     
     
     print("Running msscal")
