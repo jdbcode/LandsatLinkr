@@ -1,0 +1,67 @@
+
+
+run_landsatlinkr
+	prepare_images
+		mssunpackr
+			file_check
+			delete_files
+			trim_na_rowcol
+		msswarp
+			delete_files
+		mssdn2refl
+			file_check
+			get_metadata
+			eudist
+			set_projection
+		msscost
+			file_check
+			get_metadata
+			eudist
+			set_projection		
+		prepare_topo
+			get_metadata
+			set_projection
+		msscvm
+			file_check
+			get_metadata
+			set_projection		
+		tmunpackr
+			file_check
+			trim_na_rowcol
+			set_projection
+		oliunpackr
+			file_check
+			trim_na_rowcol			
+	make_usearea_file_bsq
+		set_projection
+	make_usearea_file
+		change_extension		
+	calibrate_and_composite
+		mss_resample
+			file_check
+		msscal
+			msscal_single
+			cal_mss_tc_aggregate_model
+			msssr2tc
+				???why no "file_check"???
+				matrix_to_raster
+				set_projection
+		olical
+			olical_single
+			cal_oli_tc_aggregate_model
+			olisr2tc
+				file_check
+				matrix_to_raster
+				set_projection
+		mixel
+			change_extension
+
+
+
+
+
+
+
+			
+		
+		
