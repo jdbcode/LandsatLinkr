@@ -29,9 +29,8 @@ olical = function(oliwrs2dir, tmwrs2dir, cores=2, overwrite=overwrite){
   oliyears = oliyears[theseoli]
   oliyearday = as.numeric(substr(olibase, 10, 16))
   
-  len = length(olifilessub)
   match = data.frame(oli=olifilessub, etm=NA, stringsAsFactors=FALSE)
-  for(i in 1:len){
+  for(i in 1:length(olifilessub)){
     closest = order(abs(oliyearday[i]-tmyearday))[1]
     match$etm[i] = tmfiles[closest]
   }
@@ -42,9 +41,9 @@ olical = function(oliwrs2dir, tmwrs2dir, cores=2, overwrite=overwrite){
     cl = makeCluster(cores)
     registerDoParallel(cl)
     cfun <- function(a, b) NULL
-    o = foreach(i=1:len, .combine="cfun",.packages="LandsatLinkr") %dopar% olical_single(match$oli[i], match$etm[i], overwrite=overwrite) #
+    o = foreach(i=1:length(olifilessub), .combine="cfun",.packages="LandsatLinkr") %dopar% olical_single(match$oli[i], match$etm[i], overwrite=overwrite) #
     stopCluster(cl)
-  } else {for(i in 1:len){olical_single(match$oli[i], match$etm[i], overwrite=overwrite)}}
+  } else {for(i in 1:length(olifilessub)){olical_single(match$oli[i], match$etm[i], overwrite=overwrite)}}
   
   #do aggregated modeling
   caldir = file.path(oliwrs2dir,"calibration")
@@ -58,5 +57,5 @@ olical = function(oliwrs2dir, tmwrs2dir, cores=2, overwrite=overwrite){
   wcoef = as.numeric(read.csv(file.path(calagdir,"tcw_cal_aggregate_coef.csv"))[1,3:8])
   
   print("...applying model to all oli images")
-  for(i in 1:len){olisr2tc(olifiles[i],bcoef,gcoef,wcoef,"apply",overwrite=overwrite)}
+  for(i in 1:length(olifiles)){olisr2tc(olifiles[i],bcoef,gcoef,wcoef,"apply",overwrite=overwrite)}
 }
