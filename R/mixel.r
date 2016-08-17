@@ -413,14 +413,15 @@ mixel = function(msswrs1dir,msswrs2dir,tmwrs2dir,oliwrs2dir,index,outdir,runname
   for(i in 1:length(uniimglistyears)){
     outname = file.path(outdir,paste(uniimglistyears[i],"_",runname,"_",index,"_composite_img_list.csv", sep=""))
     theseones = which(imglistyears %in% uniimglistyears[i])
-    if(length(theseones) == 1){file.rename(imglists[i], outname)}
-    if(length(theseones) == 2){
-      data1 = read.csv(imglists[theseones[1]])
-      data2 = read.csv(imglists[theseones[2]])
-      mergedlists = as.data.frame(rbind(data1,data2)$File)
-      colnames(mergedlists) = "File"
-      write.csv(mergedlists, outname, row.names = F)
+    for(l in 1:length(theseones)){
+      if(l == 1){
+        alllimglist = read.csv(imglists[theseones[l]], stringsAsFactors=F)$File
+      } else{
+        alllimglist = c(alllimglist, read.csv(imglists[theseones[l]], stringsAsFactors=F)$File)
+      }
     }
+    alllimglist = data.frame(File = alllimglist)
+    write.csv(alllimglist, outname, row.names = F)
   }
   
   #move files
