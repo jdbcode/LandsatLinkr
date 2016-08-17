@@ -4,6 +4,7 @@
 #' @param oliwrs2dir character. oli WRS-2 scene directory path
 #' @param tmwrs2dir character. TM WRS-2 scene directory path
 #' @import raster
+#' @import MASS
 #' @export
 
 
