@@ -1,7 +1,7 @@
 Package: LandsatLinkr
 Title: Tools to spectrally link Landsat data
-Version: 0.3.6
-Date: 2016-08-04
+Version: 0.4.0
+Date: 2016-08-17
 Authors@R: c(person("Justin", "Braaten", email = "jstnbraaten@gmail.com", role = c("aut", "cre")),
     person("Warren", "Cohen", email = "warren.cohen@oregonstate.edu", role = "aut"),
     person("Zhiqiang", "Yang", email = "zhiqiang.yang@oregonstate.edu", role = "aut"))
@@ -16,7 +16,8 @@ Depends:
     plyr,
     gdalUtils,
     rgdal,
-    igraph
+    igraph,
+    MASS
 License: GPL-2
 URL: http://landsatlinkr.jdbcode.com/
 LazyData: true
