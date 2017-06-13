@@ -19,24 +19,85 @@ tmunpackr = function(file, proj="default", overwrite=F){
   #set new directories
   randomstring = paste(sample(c(0:9, letters, LETTERS), 6, replace=TRUE),collapse="")
   tempdir = file.path(dirname(file),randomstring) #temp
-  year = substr(basename(file),10,13)
   
-  pieces = unlist(strsplit(dirname(file), "/")) #break up the directory and unlist so the pieces can be called by index
-  len = length(pieces)-1 #get the ending index for "scene"
-  newpieces = paste(pieces[1:len], collapse = "/") #subset the directory pieces so the last piece is the scene
-  outdir = file.path(newpieces, "images", year)
-  dir.create(tempdir, recursive=T, showWarnings=F)
-  dir.create(outdir, recursive=T, showWarnings=F)
+  targzbname = basename(file)
   
-  #decompress the image and get/set files names
-  untar(file, exdir=tempdir, tar="internal") #decompress the file
-  files = list.files(tempdir, full.names=T)
-  bands = grep("band", files, value=T)
-  shadow = grep("cloud_shadow_qa.tif", files, value=T) #0 okay, 255 bad
-  cloud = grep("sr_cloud_qa.tif", files, value=T) #0 okay, 255 bad
-  snow = grep("sr_snow_qa.tif", files, value=T) #0 okay, 255 bad
-  fmask = grep("cfmask.tif", files, value=T) # <= 1 okay background 255
-  outbase = substr(basename(file),1,16) 
+  if(nchar(targzbname) == 46){
+    year = substr(targzbname,11,14)
+    
+    pieces = unlist(strsplit(dirname(file), "/")) #break up the directory and unlist so the pieces can be called by index
+    len = length(pieces)-1 #get the ending index for "scene"
+    newpieces = paste(pieces[1:len], collapse = "/") #subset the directory pieces so the last piece is the scene
+    outdir = file.path(newpieces, "images", year)
+    dir.create(tempdir, recursive=T, showWarnings=F)
+    dir.create(outdir, recursive=T, showWarnings=F)
+    
+    #decompress the image and get/set files names
+    untar(file, exdir=tempdir, tar="internal") #decompress the file
+    files = list.files(tempdir, full.names=T)
+    bands = sort(grep("sr_band", files, value=T))
+    
+    pixelqafile = grep("pixel_qa.tif", files, value=T)
+    pixelqar = getValues(raster(pixelqafile))
+    pixelqar = pixelqar == 66 | pixelqar == 130 | pixelqar == 68 | pixelqar == 132 
+    
+    srcloudqafile = grep("sr_cloud_qa.tif", files, value=T)
+    srcloudqar = getValues(raster(srcloudqafile))
+    srcloudqar = srcloudqar == 0 | srcloudqar == 1 | srcloudqar == 32
+    
+    mask = pixelqar*srcloudqar
+    pixelqar = srcloudqar = 0 #clear memory
+    
+    # make the basename for final output files
+    mtlfile = grep("MTL.txt", files, value=T)
+    tbl = unlist(read.delim(mtlfile, header=F, skipNul=T))
+    string = as.character(grep("LANDSAT_SCENE_ID = ", tbl, value=T))
+    pieces = unlist(strsplit(string, " "))
+    sceneid = pieces[length(pieces)]
+    outbase = substr(sceneid,1,16)
+    
+  } else{
+    outbase = substr(targzbname,1,16)
+    year = substr(targzbname,10,13)
+    
+    pieces = unlist(strsplit(dirname(file), "/")) #break up the directory and unlist so the pieces can be called by index
+    len = length(pieces)-1 #get the ending index for "scene"
+    newpieces = paste(pieces[1:len], collapse = "/") #subset the directory pieces so the last piece is the scene
+    outdir = file.path(newpieces, "images", year)
+    dir.create(tempdir, recursive=T, showWarnings=F)
+    dir.create(outdir, recursive=T, showWarnings=F)
+    
+    #decompress the image and get/set files names
+    untar(file, exdir=tempdir, tar="internal") #decompress the file
+    files = list.files(tempdir, full.names=T)
+    bands = sort(grep("band", files, value=T))
+    shadow = grep("cloud_shadow_qa.tif", files, value=T) #0 okay, 255 bad
+    cloud = grep("sr_cloud_qa.tif", files, value=T) #0 okay, 255 bad
+    snow = grep("sr_snow_qa.tif", files, value=T) #0 okay, 255 bad
+    fmask = grep("cfmask.tif", files, value=T) # <= 1 okay background 255
+
+    #make a composite cloudmask
+    s = as.matrix(raster(shadow))
+    c = as.matrix(raster(cloud))
+    sn = as.matrix(raster(snow))
+    f = as.matrix(raster(fmask))
+    
+    check = s[1,1] # if is.na(check) == T new else old
+    if(is.na(check) == T){s = is.na(s)} else {s = !is.na(s)}
+    check = c[1,1] # if is.na(check) == T new else old
+    if(is.na(check) == T){c = is.na(c)} else {c = !is.na(c)}
+    check = sn[1,1] # if is.na(check) == T new else old
+    if(is.na(check) == T){sn = is.na(sn)} else {sn = !is.na(sn)}
+    f = f <= 1
+    mask = s*c*f*sn
+    s=c=sn=f=0
+  }
+  
+  #mask = setValues(ref,mask)
+  #plot(mask)
+  #writeRaster(mask, "D:/work/proj/llr_dev/collection1/tm/wrs2/032033/test.tif")
+  
+  # create outfile paths
   tempstack = file.path(tempdir,paste(outbase,"_tempstack.tif",sep=""))
   tempvrt = sub("tempstack.tif", "tempstack.vrt", tempstack)
   tempmask = sub("tempstack", "tempmask", tempstack)
@@ -48,32 +109,20 @@ tmunpackr = function(file, proj="default", overwrite=F){
   tcafile = file.path(outdir,paste(outbase,"_tca.tif", sep=""))
   outprojfile = file.path(outdir,paste(outbase,"_proj.txt", sep=""))
   
-  ref = raster(bands[1]) #set a reference raster for setting values and getting projection
+  # set a reference raster for setting values and getting projection
+  ref = raster(bands[1]) 
   origproj = projection(ref)
   
   #stack the image bands and write out
   gdalbuildvrt(gdalfile=bands, output.vrt = tempvrt, separate=T) #, tr=c(reso,reso)
   gdal_translate(src_dataset=tempvrt, dst_dataset=tempstack, of = "GTiff", co="INTERLEAVE=BAND")
   
-  #make a composite cloudmask
-  s = as.matrix(raster(shadow))
-  c = as.matrix(raster(cloud))
-  sn = as.matrix(raster(snow))
-  f = as.matrix(raster(fmask))
-  
-  check = s[1,1] # if is.na(check) == T new else old
-  if(is.na(check) == T){s = is.na(s)} else {s = !is.na(s)}
-  check = c[1,1] # if is.na(check) == T new else old
-  if(is.na(check) == T){c = is.na(c)} else {c = !is.na(c)}
-  check = sn[1,1] # if is.na(check) == T new else old
-  if(is.na(check) == T){sn = is.na(sn)} else {sn = !is.na(sn)}
-  f = f <= 1
-  mask = s*c*f*sn
+  # write the mask out
   mask = setValues(ref,mask)
   mask = as(mask, "SpatialGridDataFrame")        #convert the raster to SGHF so it can be written using GDAL (faster than writing it with the raster package)
   writeGDAL(mask, tempmask, drivername = "GTiff", type = "Byte", mvFlag = 255, options="INTERLEAVE=BAND")
-  
-  s=c=sn=f=mask=0 #clear the memory
+
+  mask=0 #clear the memory
   
   #reproject the image #need to add in writing proj file for default
   if(proj == "default"){proj = origproj}
@@ -89,13 +138,10 @@ tmunpackr = function(file, proj="default", overwrite=F){
            r="mode", srcnodata=255, dstnodata=255, multi=T,
            tr=c(30,30), co="INTERLEAVE=BAND")
   
-  
-  
   #trim the na rows and cols
   trim_na_rowcol(projstack, finalstack, projmask, finalmask)
   
   #tasseled cap
-  ref = raster(finalstack, 1)
   b1 = as.matrix(raster(finalstack, 1))
   b2 = as.matrix(raster(finalstack, 2))
   b3 = as.matrix(raster(finalstack, 3))
@@ -106,7 +152,6 @@ tmunpackr = function(file, proj="default", overwrite=F){
   bcoef = c(0.2043, 0.4158, 0.5524, 0.5741, 0.3124, 0.2303)
   gcoef = c(-0.1603, -0.2819, -0.4934, 0.7940, -0.0002, -0.1446)
   wcoef = c(0.0315, 0.2021, 0.3102, 0.1594,-0.6806, -0.6109)
-  
   
   bright = (b1*bcoef[1])+(b2*bcoef[2])+(b3*bcoef[3])+(b4*bcoef[4])+(b5*bcoef[5])+(b6*bcoef[6])
   green = (b1*gcoef[1])+(b2*gcoef[2])+(b3*gcoef[3])+(b4*gcoef[4])+(b5*gcoef[5])+(b6*gcoef[6])
