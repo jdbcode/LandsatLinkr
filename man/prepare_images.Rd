@@ -19,4 +19,3 @@ prepare_images(scenedir, demfile = NULL, proj = "default",
 \description{
 Prepare image MSS and TM images for calibration/compositing
 }
-

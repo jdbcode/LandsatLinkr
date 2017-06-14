@@ -22,4 +22,3 @@ make_usearea_file(dir, outfile, xmx, xmn, ymx, ymn)
 \description{
 Make a usearea file for image compositing
 }
-

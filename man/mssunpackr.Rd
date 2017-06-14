@@ -16,4 +16,3 @@ mssunpackr(file, proj, overwrite = F)
 \description{
 Decompresses, stacks, and optionally reprojects LPGS MSS images recieved from USGS EROS as .tar.gz files
 }
-

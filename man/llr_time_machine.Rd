@@ -16,4 +16,3 @@ llr_time_machine(imgdir, outdir, coordfile)
 \description{
 Decompresses, stacks, and optionally reprojects LPGS MSS images recieved from USGS EROS as .tar.gz files
 }
-

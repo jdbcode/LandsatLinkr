@@ -16,4 +16,3 @@ olical(oliwrs2dir, tmwrs2dir, cores = 2, overwrite = overwrite)
 \description{
 Calibrate OLI images to TM images using linear regression
 }
-

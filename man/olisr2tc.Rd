@@ -20,4 +20,3 @@ olisr2tc(oli_file, bcoef, gcoef, wcoef, mode, overwrite = F)
 \description{
 Create oli TC from surface reflectance and modeled coefficients
 }
-

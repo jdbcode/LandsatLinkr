@@ -16,4 +16,3 @@ oliunpackr(file, proj = "default", overwrite = F)
 \description{
 Decompress, stack, and reproject OLI SR images
 }
-

@@ -14,4 +14,3 @@ make_usearea_file_bsq(infile, projref)
 \description{
 Make a usearea file in ENVI (bsq) format
 }
-

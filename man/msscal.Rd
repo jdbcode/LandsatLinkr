@@ -18,4 +18,3 @@ msscal(msswrs1dir, msswrs2dir, tmwrs2dir, cores = 2)
 \description{
 Calibrate MSS images to TM images using linear regression
 }
-

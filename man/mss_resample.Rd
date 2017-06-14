@@ -12,4 +12,3 @@ mss_resample(file, overwrite = F)
 \description{
 Resamples MSS dos_sr and cloudmask images to 30m
 }
-

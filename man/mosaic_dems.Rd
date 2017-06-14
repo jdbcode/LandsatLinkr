@@ -12,4 +12,3 @@ mosaic_dems(dir, proj)
 \description{
 Create a DEM mosaic from a direcory of DEM's
 }
-

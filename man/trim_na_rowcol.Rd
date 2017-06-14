@@ -18,4 +18,3 @@ trim_na_rowcol(imgfile, outimg, maskfile, outmask)
 \description{
 Trim NA rows and columns from an image
 }
-

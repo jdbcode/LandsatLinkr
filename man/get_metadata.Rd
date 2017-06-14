@@ -15,4 +15,3 @@ Dataframe with pertinent image information
 \description{
 Uses the image file name to find the corresponding *MTL.txt image metadata file provided with LPSG Landsat images and returns a dataframe with pertinent image information
 }
-

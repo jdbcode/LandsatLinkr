@@ -12,4 +12,3 @@ set_projection(file)
 \description{
 Set the projection of a raster from the corresponding *proj.txt file. This solves a problem with incorrect projection parameters for albers when read by 'raster'
 }
-

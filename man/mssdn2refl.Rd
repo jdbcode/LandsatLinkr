@@ -12,4 +12,3 @@ mssdn2refl(file, overwrite = F)
 \description{
 Convert DN values to toa reflectance
 }
-

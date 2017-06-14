@@ -32,4 +32,3 @@ mixel(msswrs1dir, msswrs2dir, tmwrs2dir, oliwrs2dir, index, outdir, runname,
 \description{
 Composite images
 }
-

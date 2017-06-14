@@ -16,4 +16,3 @@ file_check(file, output, overwrite)
 \description{
 Handles file existence checking and overwriting
 }
-

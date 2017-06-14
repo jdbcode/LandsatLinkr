@@ -16,4 +16,3 @@ tmunpackr(file, proj = "default", overwrite = F)
 \description{
 Decompress, stack, and reproject TM/ETM+ SR images
 }
-

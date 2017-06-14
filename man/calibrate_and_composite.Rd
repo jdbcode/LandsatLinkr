@@ -37,4 +37,3 @@ calibrate_and_composite(msswrs1dir, msswrs2dir, tmwrs2dir, oliwrs2dir, index,
 \description{
 Calibrate MSS imagery to TM and make cloud-free composites
 }
-

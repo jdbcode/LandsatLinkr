@@ -14,4 +14,3 @@ matrix_to_raster(rfile, rmatrix)
 \description{
 Converts a matrix to a raster file
 }
-

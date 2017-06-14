@@ -21,4 +21,4 @@ Depends:
 License: GPL-2
 URL: http://landsatlinkr.jdbcode.com/
 LazyData: true
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

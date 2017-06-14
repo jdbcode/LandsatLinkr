@@ -25,4 +25,3 @@ msswarp(reffile, fixfile, window = 275, search = 27, sample = 1000,
 \description{
 Spatially warp an MSS image to match the spatial properties of a reference image
 }
-

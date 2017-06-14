@@ -14,4 +14,3 @@ msscal_single(mss_file, tm_file)
 \description{
 Calibrate MSS images to TM images using linear regression
 }
-

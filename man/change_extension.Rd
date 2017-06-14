@@ -16,4 +16,3 @@ change_extension(old, new, file)
 \description{
 Changes a file's extension
 }
-

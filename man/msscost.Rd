@@ -12,4 +12,3 @@ msscost(file, overwrite = F)
 \description{
 Convert DN values to surface reflectance using the COST model with dark object subtraction
 }
-

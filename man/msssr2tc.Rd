@@ -20,4 +20,3 @@ msssr2tc(mss_file, bcoef, gcoef, wcoef, mode)
 \description{
 Create MSS TC from surface reflectance and modeled coefficients
 }
-

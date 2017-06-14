@@ -14,4 +14,3 @@ prepare_topo(imgdir, demfile)
 \description{
 Prepare topographic layers: elevation, slope, aspect for use in MSS cloud masking
 }
-

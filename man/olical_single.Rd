@@ -14,4 +14,3 @@ olical_single(oli_file, tm_file, overwrite = F)
 \description{
 Calibrate oli images to TM images using linear regression
 }
-

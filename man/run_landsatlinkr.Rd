@@ -9,4 +9,3 @@ run_landsatlinkr()
 \description{
 GUI for running LandsatLinkr
 }
-

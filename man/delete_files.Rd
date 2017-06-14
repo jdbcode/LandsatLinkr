@@ -14,4 +14,3 @@ delete_files(file, reason)
 \description{
 Delete all files associated with a particular image ID
 }
-

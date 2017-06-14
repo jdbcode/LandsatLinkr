@@ -12,4 +12,3 @@ cal_oli_tc_aggregate_model(dir, overwrite = F)
 \description{
 Create an aggregate oli TC model with diagnostic figures
 }
-

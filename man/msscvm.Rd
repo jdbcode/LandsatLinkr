@@ -21,4 +21,3 @@ A binary raster with the same dimensions as the MSS image where pixels with valu
 \description{
 Takes in any numeric value and squares it.
 }
-
