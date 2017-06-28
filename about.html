@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>About - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="cache-control" content="no-cache" />
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li class="active"><a href="about.html">About</a></li>
+				<li><a href="process.html">Process</a></li>
+				<li><a href="outputs.html">Outputs</a></li>
+				<li><a href="guide.html">Guide</a></li>
+				<li><a href="download.html">Download</a></li>
+				<li><a href="visualization.html">Visualization</a></li>
+				<li><a href="examples.html">Examples</a></li>
+				<li><a href="contact.html">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container">
+			<div class="row top_margin">
+				<div class="col-md-9">
+					<p>
+						LandsatLinkr (LLR) is an automated Landsat image processing system designed to spatially and spectrally 
+						link MSS, TM, ETM+, and OLI images through time. It easily and efficiently processes hundreds of 
+						images to produce annual cloud-free image composites from which to build 42+ year spectral 
+						chronologies. The resulting spectrally consistent composite images can be used individually 
+						as inputs to mapping or modeling projects, to investigate simple image-to-image change, or as 
+						inputs to complex change detection algorithms such as LandTrendr.
+					</p>
+					<p>
+						LandsatLinkr is written in the R programming language and distributed as an R package for 
+						straightforward and convenient installation. The system features an interactive interface for 
+						simple operation with no R experience needed. It is relatively fast and provides an option to 
+						run the system in parallel using 2 cores to reduce standard processing time by half.
+					</p>
+					<p>
+						It was developed for landscape change research as a way to easily incorporate the entire Landsat 
+						archive into spatially and spectrally consistent 42+ year time-series 
+						stacks. As such, it is constantly changing to meet new needs and is not considered end-point software. 
+						However, the outputs are generically useful to almost anyone interested in working with Landsat time 
+						series data, so we provide it freely, encourage its use, and welcome feedback.
+					</p>
+					<p>
+						Basically, LLR takes hundreds of images downloaded from USGS servers and completes the following 
+						procedures with one command.
+					</p>
+					<ol>
+						<li>decompresses</li>
+						<li>resamples</li>
+						<li>reprojects</li>
+						<li>stacks</li>
+						<li>creates cloud masks</li>
+						<li>improves georegistration accuracy</li>
+						<li>applies atmospheric correction and data transformations</li>
+						<li>spectrally calibrates MSS data to TM data</li>
+						<li>spectrally calibrates OLI data to ETM+ data</li>
+						<li>creates annual cloud-free image composites and stacks</li>
+					</ol>
+					<p> <!-- class="bottom_margin"-->
+						Each step produces outputs which are independently useful, so even if you only need a couple of 
+						images processed to surface reflectance, for example, and don't care about annual composites or 
+						time-series stacks, LLR is still relevant.
+					</p>
+					
+					<p>
+						LLR composite image data can be viewed using the <a href="visualization.html">LLR-TimeMachine</a> application, an interactive spectral 
+						chronology visualization and exploration tool.
+					</p>
+					<p>
+						We also provide code (<a href="https://github.com/jdbcode/LLR-LandTrendr" target="_blank">LLR-LandTrendr</a>) to easily run the LLR composite imagery through the LandTrendr algorithm.
+					</p>
+					
+					<hr style="margin-top:15px">
+					<p>
+						LandsatLinkr was developed by the <a href="http://larse.forestry.oregonstate.edu/">Laboratory for Applications of Remote Sensing in 
+						Ecology</a> at Oregon State University, Department of Forest Ecosystems and Society with 
+						funding from USDA Forest Service and USGS.
+					</p>
+					<p class="bottom_margin">
+						Principle author and maintainer: <a href="http://larse.forestry.oregonstate.edu/justin-braaten-0" target="_blank">Justin Braaten</a><br>
+						Contributing authors: 
+							<a href="http://larse.forestry.oregonstate.edu/warren-cohen-larse-director" target="_blank">Warren Cohen</a>, 
+							<a href="http://larse.forestry.oregonstate.edu/zhiqiang-yang" target="_blank">Zhiqiang Yang</a>, and 
+							<a href="http://larse.forestry.oregonstate.edu/erik-haunreiter" target="_blank">Erik Haunreiter</a><br>
+						Beta testers: 
+							Shannon Savage, 
+							<a href="https://www.researchgate.net/profile/Jody_Vogeler" target="_blank">Jody Vogeler</a>, 
+							<a href="https://www.researchgate.net/profile/Kevin_Buffington" target="_blank">Kevin Buffington</a>, 
+							Kelly Hopping,
+							and Brian Woodward<br>						
+						GitHub: <a href="https://github.com/jdbcode/LandsatLinkr" target="_blank">https://github.com/jdbcode/LandsatLinkr</a>
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

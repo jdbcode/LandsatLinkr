@@ -1,0 +1,101 @@
+/*style for LandsatLinkr webpages*/
+
+/*navigation bar colors*/
+.navbar{
+	background-color: white;
+	background: white;
+}
+
+/*padding to set the space between process buttons and the describing text*/
+.button_descrip{padding-left:30px;}
+
+/*sets the height for the process table to add a little space*/
+.process_tr{height: 50px;}
+
+/*puts a little space at the end of pages*/
+.bottom_margin{margin-bottom: 40px;}
+
+/*adds some space between the navbar and the page content*/
+.top_margin{margin-top:100px;}
+
+/*ensure that the code lines for downloading LLR don't wrap*/
+.pre{overflow-x:scroll;}
+
+/*add a little space between images*/
+.img_space{
+	margin-top:50px;
+	margin-bottom:30px;
+}
+
+.fig_space{
+	margin-top:30px;
+	margin-bottom:30px;
+}
+
+/*lowers the LLR description on the home page for aesthetic*/
+#opening_descrip{margin-top:40px;}
+
+/*lowers the bottom image div on the home page for aesthetic*/
+#home_foot_img{margin-top:80px;}
+
+
+.guide_link{
+    padding-top: 60px;
+    margin-top: -60px;
+}
+
+.fixed {
+    position: fixed;
+}
+
+#sidenav{
+	overflow-y:scroll;
+	height:690px
+}
+
+/* all links */
+.bs-docs-sidebar .nav>li>a {
+    color: #9999;
+    border-left: 2px solid transparent;
+    padding: 1px 20px;  /*4 20*/
+    font-size: 14px;
+    font-weight: 800;
+}
+
+/* nested links */
+.bs-docs-sidebar .nav .nav>li>a {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 35px;
+    font-size: 12px;
+	font-weight: 600;
+}
+
+/* nested links */
+.bs-docs-sidebar .nav .nav .nav>li>a {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 45px;
+    font-size: 10px;
+	font-weight: 400;
+}
+
+.guide_page_bottom{margin-bottom: 1000px;}
+
+/*make the scrollbar disappear if less window is less than 1000px*/
+@media screen and (max-width: 1000px){
+  .bs-docs-sidebar{visibility: hidden;}
+}
+
+#doytbl {
+	cursor:default;
+	font-size:11px;
+}
+#doytbl td{
+	height:10px;
+	padding:1px 1px 1px 5px;
+}
+#doytbl th{
+	height:10px;
+	padding:1px 1px 1px 5px;
+}

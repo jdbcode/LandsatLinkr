@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>MSSwarp - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="cache-control" content="no-cache" />
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li><a href="about.html">About</a></li>
+				<li class="active"><a href="process.html">Process</a></li>
+				<li><a href="outputs.html">Outputs</a></li>
+				<li><a href="guide.html">Guide</a></li>
+				<li><a href="download.html">Download</a></li>
+				<li><a href="examples.html">Examples</a></li>
+				<li><a href="#">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container">
+			<div class="row top_margin">
+				<div class="col-md-9">
+					<h3>MSSwarp</h3>
+					<p>
+						MSSwarp automatically checks georegistration accuracy of MSS images and attempts to 
+						improve images with poor positional RMSE (Figure 1). It looks at image metadata on 
+						georegistration found in the *VER.txt file accompanying each MSS LPGS image to determine 
+						georegistration accuracy. If the overall scene RMSE is > 0.75, the image is selected for 
+						improvement. An image-to-image tie-point search and warping procedure based on Kennedy & 
+						Cohen (2003) is conducted. More specifically, a geometric reference image is selected automatically 
+						by identifying an MSS image with the lowest percent cloud cover and lowest scene RMSE. The 
+						procedure then creates a series of spatially corresponding image subsets for both the 
+						geometric reference image and the image being adjusted (Figure 2). For each image subset, 
+						the dependent image chip is offset from its original position and slide over the reference 
+						image chip in single pixel increments. At each adjusted position the cross correlation 
+						coefficient for the overlapping area of the image subsets are calculated (Figure 3). The 
+						correlation coefficient matrices are evaluated as surfaces where the best matching position 
+						between reference and depended image subsets is the apex of a cone representing radially 
+						increasing correlation (Figure 4). The cross correlation surfaces are filtered for noise 
+						and prominence of the apex to ensure proper fitting. Further, the x and y coordinates of 
+						acceptable surfaces are evaluated for their individual contribution to overall RMSE of all 
+						position offsets. Points that disproportionately contribute to overall error are removed. 
+						This process iterates until either no points exceed the threshold for acceptable error 
+						contribution or until the minimum number of points for the warp model is reached. The 
+						remaining points are used in a 2nd order polynomial function (gdalwarp; see System 
+						requirements section) to spatially warp the dependent image to more closely align with 
+						reference image.
+					</p>
+					<hr>
+					<img class="img-responsive" src="imgs/misregistration.gif">
+					<p>
+						Figure 1. Example of an image with poor georegistration accuracy. Note the offset between 
+						the two images, as most evident in the position of the large lake on the western side of 
+						the two images. USGS L1T images go through a georegistration process that does a good job 
+						of registering images, but high cloud cover, loss or ephemeris data, and poor position recording 
+						can decrease position accuracy. The example here is from an L1G  image showing an extreme 
+						offset for demonstration purposes. Generally, L1T images have a mean RMSE of only half a pixel 
+						(30 meters). Above 3/4 of a pixel, MSSwarp is applied to improve positional accuracy.
+					</p>
+					<hr>
+					<img class="img-responsive" src="imgs/geowarp_sample.png">
+					<p>
+						Figure 2. Representation of MSSwarp image sampling and image subsets. Note the spatial 
+						difference between the reference and fix image subset for the same geographic center. 
+						MSSwarp attempts to automatically determine the x and y coordinate offsets and spatially 
+						shift/warp the fix image to align with the reference image.
+					</p>
+					<hr>
+					<img class="img-responsive" src="imgs/itpfchips.gif">
+					<p>
+						Figure 3. Example of the MSSwarp moving window cross correlation analysis for determining 
+						the x and y offset between the reference and fix image subset  surrounding a sample point. 
+						For each position of the fix image chip the cross correlation between the overlapping area 
+						of the reference chip and the fix image chip is assigned to the focal pixel in the correlation 
+						result chip. 
+					</p>
+					<hr>
+					<img class="img-responsive" src="imgs/geowarp_ccc.png">
+					<p>
+						Figure 4. Example cross correlation coefficient surfaces from the MSSwarp moving window analysis. 
+						The x-y position of the cone apex represents the x-y offset needed to align a given fix image 
+						subset to its reference subset, with the center of the matrix equal to 0, 0. Note the filtering 
+						decision on whether to use the point in the warping equation or not; only prominent, well defined 
+						peaks are included in the warp model.
+					</p>
+					<hr>
+					<p class="bottom_margin">
+						Kennedy, R. E., & Cohen, W. B. (2003). Automated designation of tie-points for image-to-image 
+						coregistration. International Journal of Remote Sensing, 24(17), 3467-3490.
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

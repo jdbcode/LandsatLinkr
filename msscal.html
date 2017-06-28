@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>MSScal - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="cache-control" content="no-cache"/>
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>	
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li><a href="about.html">About</a></li>
+				<li class="active"><a href="process.html">Process</a></li>
+				<li><a href="outputs.html">Outputs</a></li>
+				<li><a href="guide.html">Guide</a></li>
+				<li><a href="download.html">Download</a></li>
+				<li><a href="examples.html">Examples</a></li>
+				<li><a href="#">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container">
+			<div class="row top_margin">
+				<div class="col-md-9">
+					<h3>MSScal</h3>
+					<p>
+						MSScal calibrates MSS images to TM images through modeling of TM spectral indices 
+						from the 4 MSS bands. A set of coincident images are used to define the model (Landsat 
+						satellites 4 and 5 carried both MSS and TM sensors collecting images simultaneously). 
+						MSScal identified MSS/TM image pairs from directories provided by the user. A spatially 
+						coincident sample of pixel values are drawn from each image pair and placed in a large 
+						database (Figure 1). A separate database is created for each TM tasseled cap index 
+						(brightness, greenness, wetness, and angle). The MSS sample includes values from all 4 bands 
+						and the TM sample values represent a single spectral index. Multiple linear regression is 
+						applied to predict the TM/ETM+ spectral index from the four MSS bands. Since the model 
+						incorporates variance introduced by multiple individual MSS/TM relationships, it represents 
+						a mean model which can be applied to all MSS images in an LLR project (Figure 2). To 
+						showcase the results of the calibration, three figures are provided. Figure 3 shows a visual 
+						comparison of standard tasseled cap planes for MSS (top row) and TM (bottom row) for a sample 
+						of pixel values from a coincident image pair. The shape and density of the scatter plots are 
+						very similar, particularly for tasseled cap brightness and greenness, with some disparity for 
+						wetness. In a similar example, Figure 4 shows an MSS/TM image pair as tasseled cap brightness, 
+						greenness, wetness displayed to the red, green, and blue color guns with the same scaling. 
+						Notice the close similarity in visual appearance. Finally, Figure 5 displays a time series 
+						of calibrated pixel values at a given coordinate for all images included for an example LLR 
+						project. Note the smooth blended transition between sensors at their overlap. 
+					</p>
+					<img class="img-responsive img_space" src="imgs/msscal_model_concept.png">
+					<p>
+						Figure 1. Conceptual depiction of LLR calibration model development. MSS and TM coincident 
+						image pairs are used to develop an 'aggregated model' to predict TM indices from MSS bands. 
+						Each image pair provides a subset of data from which to develop the model. Combining information 
+						on the relationship between each image pair provides a mean model with which to apply to all MSS 
+						images in LLR project.
+					</p>
+					<hr>
+					<img class="img-responsive img_space" src="imgs/actaul_msscal_model.png">
+					<p>
+						Figure 2. Example of actual models from Nine MSS/TM image pairs showing the data cloud and linear 
+						relationship for each individual image pair along with the aggregated model regression line 
+						(black dashed line). The aggregated model represents the mean relationship between MSS and TM and 
+						is applied to all MSS images.    
+					</p>
+					<hr>
+					<img class="img-responsive img_space" src="imgs/composite_cal_tc_planes_comparison.png">
+					<p>
+						Figure 3. Comparison of the standard Tasseled cap planes for MSS (top row) and TM (bottom row) 
+						for coincident images. 
+					</p>
+					<hr>
+					<img class="img-responsive img_space" src="imgs/LM40340321989186_tc.png">
+					<p>
+						Figure 4. Example of MSS (left) and TM (right) tasseled cap indices brightness, greenness, wetness 
+						displayed with red, green, and blue color guns for a standardized scale. Note the close similarity 
+						between the two coincident image displays.
+					</p>
+					<hr>
+					<img class="img-responsive img_space" src="imgs/time_series_points.png">
+					<p>
+						Figure 5. Calibrated pixel values at a given coordinate for all images included in this example 
+						LLR project. Note the smooth blended transition between sensors at their overlap.  
+					</p>
+					<p>
+					This method of spectral harmonization is based on the following manuscript:
+					</p>
+					<p class="bottom_margin">
+						<a href="http://larse.forestry.oregonstate.edu/sites/larse/files/pub_pdfs/Pflugmacher_etal_2012.pdf" target="_blank">
+							Pflugmacher, D., Cohen, W. B., & E. Kennedy, R. (2012). Using Landsat-derived disturbance history (1972-2010) to 
+							predict current forest structure. Remote Sensing of Environment, 122, 146-165.
+						</a>
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

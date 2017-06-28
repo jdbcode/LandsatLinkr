@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>Download - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="cache-control" content="no-cache" />
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li><a href="about.html">About</a></li>
+				<li><a href="process.html">Process</a></li>
+				<li><a href="outputs.html">Outputs</a></li>
+				<li><a href="guide.html">Guide</a></li>
+				<li class="active"><a href="download.html">Download</a></li>
+				<li><a href="visualization.html">Visualization</a></li>
+				<li><a href="examples.html">Examples</a></li>
+				<li><a href="contact.html">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container">
+			<div class="row top_margin">
+				<div class="col-md-9">
+					<p>
+						LandsatLinkr is installed by downloading the R package from GitHub and running the 
+						<code>install.packages()</code> function in the R console command line. Copy the three lines of 
+						code from the version release below and paste them into the R command line and press 
+						enter. The first line downloads the LandsatLinkr package from GitHub, the second 
+						installs it, and the third installs the dependent packages from CRAN. Once LLR and 
+						its dependencies have been installed, simply type <code>library(LandsatLinkr)</code> each time 
+						you start a new R session to activate it.  For more details on installing, running, 
+						processing procedures, and outputs please visit the <a href="guide.html" target="_blank">Guide</a> page. 
+					</p>
+					<h4>Beta testing is ongoing - please <a href="contact.html" target="_blank">email</a> me with any errors or questions.</h4>
+					<hr>
+
+                    <h3>Version 0.4.2 (beta) 6/26/17</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.4.2-beta/LandsatLinkr_0.4.2.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","plyr","gdalUtils","rgdal","igraph","MASS"))</pre>
+					<p>
+                        Previously you needed to have at least two years of intersection between OLI and ETM+ for OLI to be harmonized to ETM+, now you only need one year. However, it is recommended that you included as many years of overlap between ETM+ and OLI as possible for better harmonization.
+					</p>
+                    
+                    
+                    <h3>Version 0.4.1 (beta) 6/13/17</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.4.1-beta/LandsatLinkr_0.4.1.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","plyr","gdalUtils","rgdal","igraph","MASS"))</pre>
+					<p>
+                        This version makes LLR compatible with the new Landsat Collection 1 data. File name differences between Pre-Collection 1 and Collection 1 were causing the program to break. This version now distinguishes between the two data versions and handles them appropriately. It is recommended that you do not mix the data types for surface reflectance TM/ETM+ and OLI. MSS data still only exists as Pre-Collection 1, so continue to use it. As always, please let me know if you run into any bugs or outputs do not seem correct.
+					</p>
+                    
+                    
+					<h3>Version 0.4.0 (beta) 8/17/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.4.0-beta/LandsatLinkr_0.4.0.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","plyr","gdalUtils","rgdal","igraph","MASS"))</pre>
+					<p>
+						This version is mostly housekeeping. It removes a bunch of loose-end functions and reduces the package dependency list. 
+						There are a couple of bug fixes too. The most notable is that previously, during OLI calibration to ETM+, if there 
+						was not a coincident instance of a year between OLI and ETM+, then for that year no OLI-to-ETM+ calibrated image would 
+						be created. This has been fixed. There is also now a <a href="https://github.com/jdbcode/LandsatLinkr/blob/master/LandsatLinkr_function_map.txt" target="_blank">function map</a> 
+						to make altering forks easier. Please let me know if you hit any bugs!
+					</p>
+					
+					
+					<h3>Version 0.3.6 (beta) 8/4/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.3.6-beta/LandsatLinkr_0.3.6.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This version fixes a bug related to defining a day-of-year range to include in annual image compositing and how to deal with labeling the files 
+						if the date range crosses the year divide. A variable involved in these matters was not being defined by default, so in some cases an undefined 
+						parameter was passed to the mixel compositing function causing it to throw an error.
+					</p>
+					
+					
+					
+					<h3>Version 0.3.5 (beta) 7/26/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.3.5-beta/LandsatLinkr_0.3.5.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This release fixes a bug that occurs when compositing images across the year divide where there are no image dates from the first year in an annual 
+						set (no 2009 dates in the 2009-2010 set, for example) - it would not create a composite in this case. It also adds the ability to define how to label 
+						the annual composites when crossing the year divide - either pre- or post- divide year. Previously, it was hardwired to label with the pre-divide year.
+					</p>
+					
+					
+					<h3>Version 0.3.4 (beta) 7/7/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.3.4-beta/LandsatLinkr_0.3.4.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This version hopefully fixes a bug in the mixel compositing procedure where a temporary file is inadvertently deleted before the program 
+						is finished using it. This version reloads the file from its "permanent" location instead of the temporary R raster package location. 
+						Please email me if you get an error similar to the following when running the compositing step after loading this version of the code.
+					</p>
+					
+<pre>[1] "...calculating mean pixel-level offset"
+[1] "...adjusting images by mean pixel-level offset:"
+[1] "......2013_project1_tca_composite.bsq"
+[1] "......2014_project1_tca_composite.bsq"
+Error in file(fn, "rb") : cannot open the connection
+In addition: Warning messages:
+1: In create2GDAL(dataset = dataset, drivername = drivername, type = type,  :
+  mvFlag=NA unsuitable for type Byte
+2: In file(fn, "rb") :
+  cannot open file 'C:\Users\***\AppData\Local\Temp\Rtmpymihj4\raster\r_tmp_2016-07-07_011312_7288_93312.gri': No such file or directory</pre>					
+					<hr>
+					
+					
+					
+					<h3>Version 0.3.3 (beta) 7/6/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.3.3-beta/LandsatLinkr_0.3.3.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This version adds two parameters to the compositing step that control the range of dates to include in annual composites. When asked by the
+						<code>run_landsatlinkr()</code> function, you must supply a start day-of-year and end day-of-year. This allows for finer control over what dates
+						are included in composites and allows users working in the southern hemisphere to make composites that bridge the year divide in their growing 
+						season. For more information on defining these parameters please see the <a href="guide.html#doy">Define a range of dates to include in your composites</a>
+						section of the user guide.
+					</p>					
+					<hr>
+					
+										
+					<h3>Version 0.3.2 (beta) 4/21/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.3.2-beta/LandsatLinkr_0.3.2.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This version fixes a bug in file extension swapping, where if the characters "tif" were present in a file path before the file extension, 
+						the program would swap the first match for "bsq", which causes problems with file writing. This version also has a major overhaul to the 
+						"mixel" cloud-free annual composting function. The re-write gets rid of redundant image processing, which speeds up completion time, and 
+						it was re-organized to be more flexible to future changes in allowing different time periods to be composited. 
+					</p>					
+					<hr>
+					
+
+					<h3>Version 0.3.1 (beta) 3/28/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.3.1-beta/LandsatLinkr_0.3.1.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This version fixes a problem that was occurring in the "make_usearea_file_bsq" function where indexing of a matrix was 
+						not coded correctly. Also, topographic layer preparation for the MSS cloud masking procedure was moved to its own 
+						function (prepare_topo) and a potential problem with defining the source projection for topographic files was fixed.
+					</p>					
+					<hr>
+					
+					<h3>Version 0.3.0 (beta) 3/16/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.3.0-beta/LandsatLinkr_0.3.0.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This version includes a new function (llr_time_machine) that will produce spectral chronology visualization data to be read by the LLR-TimeMachine application.
+						See the <a href="visualization.html">Visualization</a> page for more details about LLR-TimeMachine and producing the data.
+					</p>					
+					<hr>				
+					
+									
+					<h3>Version 0.2.14 (beta) 3/14/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.14-beta/LandsatLinkr_0.2.14.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This version fixes (hopefully) a bug that occurs in the "trim_na_rowcol" function called from the "mssunpackr" function. It 
+						removes rows and columns from MSS image edges that are all NA values. It reduces file size and processing time. If any 
+						edge did not have all NA values, it would not produce the image file. It does now - more rigorous testing ongoing.
+					</p>					
+					<hr>
+					
+					
+					<h3>Version 0.2.13 (beta) 3/10/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.13-beta/LandsatLinkr_0.2.13.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This version update does not delete MSS L1G tar.gz files. Instead, it moves them to a separate folder. It still does not process them.
+					</p>					
+					<hr>
+
+
+					
+					<h3>Version 0.2.12 (beta) 3/8/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.12-beta/LandsatLinkr_0.2.12.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This version will attempt to improve MSS image georegistration if image RMSE is > 0.5 pixels. Previously the threshold was 0.75 pixels.
+					</p>					
+					<hr>
+					
+					
+					
+					<h3>Version 0.2.11 (beta) 2/15/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.11-beta/LandsatLinkr_0.2.11.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This version fixes an error in the "mixel" annual compositing function where if only compositing a single sensor's 
+						data it would not create an output directory and crash when trying to write to it. This update also allows 
+						for more options in the mosaicking method. Previously, only the mean of overlapping annual pixel was calculated, 
+						now you can select: mean, median, min, or max. It also now creates a .bsq (ENVI format) copy the use-area file 
+						so it can be used in the LandTrendr change detection algorithm. Please see the 
+						<a href="https://github.com/jdbcode/LLR-LandTrendr" target="_blank">LLR-LandTrend</a> github page for more information about applying
+						the LandTrendr spectral-temporal fitting and change detection algorithm to LLR annual composites.					
+					</p>					
+					<hr>
+					
+					
+					
+					<h3>Version 0.2.10 (beta) 1/28/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.10-beta/LandsatLinkr_0.2.10.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						Fixes an error printing problem that occurs when the DEM used in the MSS cloud masking function is too small. 
+					</p>					
+					<hr>
+					
+					
+					<h3>Version 0.2.9 (beta) 1/28/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.9-beta/LandsatLinkr_0.2.9.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						Corrections to the MSSwarp function and changed the warping polynomial order from 1 to 2. 
+					</p>					
+					<hr>		
+
+					<h3>Version 0.2.8 (beta) 1/26/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.8-beta/LandsatLinkr_0.2.8.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This update fixes a mistake in the msswarp function. This function tries to improve the georegistration accuracy 
+						of Landsat MSS images that have a scene average positional RMSE >= 0.75. This is the case for usually only a few 
+						images per scene. Previously the wrong row and column were identified for tie points in the image being fixed. 
+						The effect is minimal - it has probably not been improving the RMSE, but also not making it much worse than it was. 
+					</p>					
+					<hr>
+
+		
+					<h3>Version 0.2.7 (beta) 1/25/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.7-beta/LandsatLinkr_0.2.7.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This version update affects MSS to TM and OLI to ETM+ spectral calibration. During this process coincident (MSS to TM) and 
+						near-coincident (OLI to ETM+) image pairs are used to develop a linear model to predict spectral indices. Samples from multiple 
+						pairs are used to develop the model. We have noticed that some single image pair models have low correlation. These pairs (r < 0.8) 
+						are now removed from the aggregated model. This improves the fit of the final model applied to all MSS and OLI images. The reason 
+						for low correlation between some image pairs is due to high cloud cover, which can reduce the diversity and range of values in 
+						the model, bad cloud masks, and radiometric scan issues (some MSS images).
+					</p>					
+					<hr>
+					
+					
+					
+					<h3>Version 0.2.6 (beta) 1/14/16</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.6-beta/LandsatLinkr_0.2.6.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						Prior to MSS cloud mask creation, a DEM is prepared. This version update now checks the DEM extent against the MSS image set union 
+						to make sure there is full overlap. It also crops the DEM, slope, and aspect files to the MSS image set union. Previously, no check 
+						for full overlap was made and the DEM, slope, and aspect files were only cropped on the fly in memory during cloud mask production. 
+						On-the-fly cropping in memory is still done on a per image basis (required since each MSS image has a different extent), but pre-cropping 
+						the topogrpahic files to the MSS image set union relieves exceeding memory limitations when working with extremely large topographic files.
+					</p>					
+					<hr>
+					
+					
+					<h3>Version 0.2.5 (beta) 12/16/15</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.5-beta/LandsatLinkr_0.2.5.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						Changes in this version allow more flexibility in the compositing step. Previously, you needed to include MSS, TM/ETM+, 
+						and OLI data when compositing. It will now run regardless of what sensors are included.
+					</p>					
+					<hr>					
+					
+					
+										
+					<h3>Version 0.2.4 (beta) 12/15/15</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.4-beta/LandsatLinkr_0.2.4.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						MSS resampling from 60m to 30m pixel resolution is now done using cubic convolution. Previously it was nearest neighbor. 
+						The change helps with visual representation when comparing MSS to TM/ETM+ and OLI for the tasseled cap indices.
+					</p>					
+					<hr>					
+					
+					
+					<h3>Version 0.2.3 (beta) 12/11/15</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.3-beta/LandsatLinkr_0.2.3.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						tar.gz image decompression is now done internally using the R decompression utility for consistency across systems.
+						Might help with errors regarding file decompression during image unpacking steps.
+					</p>					
+					<hr>
+										
+					<h3>Version 0.2.2 (beta) 10/21/15</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.2-beta/LandsatLinkr_0.2.2.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This release corrects a problem in file path generation of the topographic layers that get created prior to MSS cloud masking. If "dem" was
+						anywhere in the file path string of the project directory the topographic layers could not be written. Problem solved!
+					</p>					
+					<hr>
+					
+					<h3>Version 0.2.1 (beta) 9/17/15</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.1-beta/LandsatLinkr_0.2.1.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+						This release corrects the dark object subtraction calculation in the MSScost function. It has no effect on MSS tasseled cap modeling or 
+						composite imagery and only a minor effect on the MSS *dos_sr.tif and *dos_sr_30m.tif files.
+					</p>					
+					<hr>
+					
+					<h3>Version 0.2.0 (beta) 8/19/15</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.2.0-beta/LandsatLinkr_0.2.0.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL)
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p class="bottom_margin">
+						This release has some major changes. The biggest change is that LLR will now process Landsat 8 OLI imagery. This includes unpacking, stacking, 
+						reprojecting, and cloud mask derivation. It also calibrates the imagery to ETM+ tassaled cap transformations for cross sensor trend and change analysis.
+						This addition means that images from MSS, TM, ETM+, and OLI can be combined into a spectrally normalized 43+ year chronology of tasseled cap brightness,
+						greenness, and wetness. Additionally this version has an enhanced user interface that verifies your processing selection. Also, LLR now checks to see
+						if files have already been processed, if so, it will give you the option to overwrite them or not. In the past it simply overwrote them or crashed if a
+						file existed. This change eliminates extra processing time when rerunning a procedure and avoids unnecessary crashing because of file locks. This version
+						Also allows the user to define their own projection. In the past the projection was only North American Albers. The downside is that you have to
+						provide a PROJ.4 string defining the projection when running certain processes (the program will prompt you for it when it needs it). This is not 
+						really a big deal though, there are good instructions figuring out what the PROJ.4 definition is for the projection you wish to use in the <a href="guide.html" target="_blank">
+						Guide</a>.
+					</p>
+
+					
+<!--					<h3>Version 0.1.13 (beta) 5/15/15</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.1.13-beta/LandsatLinkr_0.1.13.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL)
+install.packages(c("raster","SDMTools","doParallel","foreach","ggplot2","MASS","gridExtra","zoo","segmented","plyr","ecp","gdalUtils","rgdal","igraph","hexbin"))</pre>
+					<p>
+					User guide is in progress... attached is a working draft.
+					</p>
+					<a href="imgs/landsatlinkr_user_guide 0.1.6a.pdf" class="btn btn-default" target="LLR user guide" role="button">LLR User Guide 0.1.6a</a>				
+					<hr>
+-->
+
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

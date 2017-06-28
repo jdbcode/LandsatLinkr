@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>Visualization - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="cache-control" content="no-cache" />
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li><a href="about.html">About</a></li>
+				<li><a href="process.html">Process</a></li>
+				<li><a href="outputs.html">Outputs</a></li>
+				<li><a href="guide.html">Guide</a></li>
+				<li><a href="download.html">Download</a></li>
+				<li class="active"><a href="visualization.html">Visualization</a></li>
+				<li><a href="examples.html">Examples</a></li>
+				<li><a href="contact.html">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container">
+			<div class="row top_margin bottom_margin">
+				<div class="col-md-9">
+					<button id="previewBtn" class="btn btn-default btn-block" width="100%">Show LLR-TimeMachine Interface Example</button>
+					<img id="preview" src="imgs/llr-timemachine-demo-large_compressed.png" style="display:none; max-width:100%; max-height:100%;">
+					<h3>About LLR-TimeMachine</h3>
+					<p>LLR-TimeMachine is a spectral chronology visualization tool for LLR outputs.</p>
+					<p>
+						It allows you to view the spectral history of selected pixels as a time series plot and a series of image subsets
+						for the 127 x 127 pixel area surrounding each selected pixel. It provides a time lapse video of the image subset series and 
+						a Google Earth representation of the area surrounding the plot. It is web-based, using JavaScript, HTML, and CSS. It relies on several
+						JavaScript packages that are accessed from online sources, therefore, you must be connected to the internet to use the application.
+					</p>
+					<p>
+						The application is interactive. You can zoom the image subsets, change spectral indices, zoom the time series plot Y axis, change the
+						size of the image subsets, and add time series segments to help interpret the spectral history.
+					</p>
+					<hr>
+					<h3>LLR-TimeMachine demonstration</a></h3>
+					<p>
+						Click this <a href="timeMachine/LLR-TimeMachine-v0.1.1.html" target="_blank">link</a> to load a demo version of the application. When the page
+						loads, click the plot ID numbers in the <em>Plots</em> section of the interface (upper-left) to load example data.
+					</p>
+					<hr>
+					<h3>Download LLR-TimeMachine</h3>
+					<p>
+						Click on a version link and download the HTML file to your computer. Copy/paste or move the downloaded file to any LLR-TimeMachine
+						data directory and open it from that location to load the application - it hitches up to data in that folder. More details on 
+						how to setup and run LLR-TimeMachine are included in the walkthrough below. Check back periodically to see if there are updates and bug fixes.
+						If there is an update from the version you have, simply download the new version and replace your old version with the new one in your
+						LLR-TimeMachine data directories.
+					</p>
+					<div style="height:200px; overflow-y:scroll; border:1px solid #afafaf; border-radius: 4px; padding:4px">				
+						<div>
+							<h4>Version 0.1.1 (beta) 7/21/16</h4>					
+							<p><a href="timeMachine/LLR-TimeMachine-v0.1.1.html" download>LLR-TimeMachine-v0.1.1.html</a></p>
+							<p>
+								This version fixes a major oversight that prevented the HTML document from finding the <em>LLR-TimeMachine.js</em> file.
+								The result was a broken app. It should be working now. Please <a href="contact.html">contact</a> me if it is not. 
+							</p>
+						</div>
+						<hr>						
+						<div>
+							<h4>Version 0.1.0 (beta) 3/15/16</h4>					
+							<p><a href="timeMachine/LLR-TimeMachine-v0.1.0.html" download>LLR-TimeMachine-v0.1.0.html</a></p>
+							<p>This is the first release of LLR-TimeMachine</p>
+						</div>
+					</div>
+					<p style="margin-top:15px">
+						It has been tested using Firefox, Google Chrome, Opera, and Internet Explorer. Application appearance varies slightly among the browsers. We recommend
+						Firefox, Google Chrome, or Opera. It was designed and tested most comprehensively using Firefox. We have noticed a small problem with the
+						spectral segmentation line when using Google Chrome, we are working on it - not a serious problem, it still works in Chrome.
+					</p>
+					<hr>
+					
+					
+					<h3>Instructions for setting up LLR-TimeMachine</h3>
+					
+					<h4>Outline</h4>
+					<ol>
+						<li>
+							Complete all of the steps to produce LandsatLinkr annual composites 
+						</li>
+						<li>
+							Make a comma delimited file including plot number and x-y coordinates of the pixels you want to view with LLR-TimeMachine
+						</li>
+						<li>
+							Run the <code>llr_time_machine</code> R script to creates the LLR-TimeMachine data.
+						</li>
+						<li>
+							Move or copy/paste the LLR-TimeMachine HTML file into the LLR-TimeMachine data folder
+						</li>
+						<li>
+							Open the LLR-TimeMachine HTML file
+						</li>
+						<li>
+							Use the "Help" button in the LLR-TimeMachine application to find out about the functionality
+						</li>
+					</ol>
+					
+					<h4>Walkthrough</h4>
+					<p>
+						<strong>1.</strong> Use the <a href="http://landsatlinkr.jdbcode.com/guide.html#running_landsatlinkr">Guide</a> to get through running all the 
+						LandsatLinkr steps. You need to complete image preparation through compositing
+					</p>
+					
+					<p>
+						<strong>2.</strong> You need to make a comma delimited file that contains the plot number and x-y coordinates for 
+						a series of pixels you want to view in LLR-TimeMachine. They are used to extract the data from the LLR annual composite images
+						and populate some fields in the application
+					</p>
+					
+					<p>Create the <em>plots</em> file in a text editor like Notepad++ or in Microsoft Excel. In a text editor the format would be:</p>
+<pre>
+plotID,x,y
+1,-1177707,2527795
+2,-1176447,2536015
+3,-1168707,2529235				
+</pre>
+
+					<p>...and in Excel:</p>
+
+					<table class="table table-bordered">
+						<tr>
+							<td>plotID</td>
+							<td>x</td>
+							<td>y</td>
+						</tr>
+						<tr>
+							<td>1</td>
+							<td>-1176447</td>
+							<td>2536015</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>-1177707</td>
+							<td>2527795</td>
+						</tr>
+						<tr>
+							<td>3</td>
+							<td>-1168707</td>
+							<td>2529235</td>
+						</tr>
+
+					</table>
+					
+					<p>
+						Enter as many coordinates as you like. Keep in mind that the coordinates must be in the same projection as the image data
+						and that the points fall within the bounds of the composite imagery you are creating LLR-TimeMachine data for. Coordinates can be retrieved
+						from any GIS that the composite image data is loaded into. Save the file to your computer as a .csv file. You might create a directory on your
+						system called "llr_timemachine" and write the file to this location with a name that is unique to a project you are working on. Something like:
+<pre>"C:/mock/llr_timemachine/project_1/project_1_plots.csv"</pre>
+						The full directory path to this file will be given as an input to an R function called in the next step, so keep its location in mind.
+					</p>
+					
+					<p>
+						<strong>3.</strong> Create LLR-TimeMachine application data for the points you provided in the <em>plots</em> file in step 2. To do this you
+						will call the <code>llr_time_machine</code> function from the <code>LandsatLinkr</code> package in R. This function is only included in LandsatLinkr version 
+						>= 0.3.0, so <a href="download.html">download</a> new code if you have an older version.
+						Here is the function call and the parameter definitions:
+					</p>
+<pre>
+llr_time_machine(imgdir, outdir, coordfile)
+</pre>
+					<p>where,</p>
+					<p>
+						<code>imgdir</code> equals a character string for the full directory path to you LLR composites output folder that correspond to the coordinates you 
+						entered in the <em>plots</em> file in step 2. This directory was specified when you ran the "Compositing" step of LLR.
+						It is important that this directory contain folders titled: "tca", "tcb", "tcg", "tcw", which indicates composite imagery was created for all 
+						tasselled cap spectral indices. The program will not run if these outputs do not exist - the LLR-TimeMachine application requires them.
+					</p>
+					<p>
+						<code>outdir</code> equals a character string for the full directory path to the location you want your LLR-TimeMachine data written to.
+						For the above example project <em>plots</em> file specified in step 2, I would set it as:
+					</p>
+<pre>"C:/mock/llr_timemachine/project_1"</pre>
+					
+					<p>
+						<code>coordfile</code> equals a character string for the full file path to the <em>plots</em> file you created in step 2. As in:
+					</p>
+<pre>"C:/mock/llr_timemachine/project_1/project_1_plots.csv"</pre>
+					<p style="margin-top:20px;">
+						Putting it all together, the full call, including loading the <em>LandsatLinkr</em> library would look something like:
+					</p>
+<pre>
+library(LandsatLinkr)
+llr_time_machine(imgdir="C:/mock/llr_composites/project_1", outdir="C:/mock/llr_timemachine/project_1", coordfile="C:/mock/llr_timemachine/project_1/project_1_plots.csv")
+</pre>
+			
+					
+					<p>
+						After the function completes its process it will have placed a JavaScript file in the outputs directory titled <em>LLRtimeMachine.js</em> and created a 
+						sub-directory called <em>imgs</em>, where it has created a series of PNG image files, one for each plot in the <em>plots</em> list. The directory structure looks like this:
+					</p>
+<pre>
+<span class="glyphicon glyphicon-folder-open"></span> project_1
+   <span class="glyphicon glyphicon-folder-open"></span> imgs
+      <span class="glyphicon glyphicon-file"></span> plot_1_chipstrip.png
+      <span class="glyphicon glyphicon-file"></span> plot_2_chipstrip.png
+      <span class="glyphicon glyphicon-file"></span> plot_3_chipstrip.png
+      <span class="glyphicon glyphicon-file"></span> ...
+   <span class="glyphicon glyphicon-file"></span> LLR-TimeMachine.js
+</pre>	
+				
+				
+				
+					<p>
+						<strong>4.</strong> Get the LLR-TimeMachine HTML file into the data folder. This file is the file you downloaded from the <em>Download</em> section above.
+						Get this file into LLR-TimeMachine output folder at the same level as the <em>LLRtimeMachine.js</em> file just previously described. The LLR-TimeMachine HTML file
+						will hitch up to the LLRtimeMachine.js file and the PNG files in the <em>imgs</em> directory. Your LLR-TimeMachine directory structure should now look like this:
+					</p>
+<pre>
+<span class="glyphicon glyphicon-folder-open"></span> project_1
+   <span class="glyphicon glyphicon-folder-open"></span> imgs
+      <span class="glyphicon glyphicon-file"></span> plot_1_chipstrip.png
+      <span class="glyphicon glyphicon-file"></span> plot_2_chipstrip.png
+      <span class="glyphicon glyphicon-file"></span> plot_3_chipstrip.png
+      <span class="glyphicon glyphicon-file"></span> ...
+   <span class="glyphicon glyphicon-file"></span> LLR-TimeMachine.js
+   <span class="glyphicon glyphicon-file"></span> LLR-TimeMachine-v0.1.0.html
+</pre>				
+				
+					<p>
+						<strong>5.</strong> Open the LLR-TimeMachine HTML file. Navigate to the LLR-TimeMachine data directory and open the HTML file. It will open even if 
+						you are not connected to the internet, but the
+						application will not work properly because it relies on some scripts that are hosted on the net, so make sure you are connected. The HTML file will
+						retrieve data from the <em>LLR-TimeMachine.js</em> file and the <em>imgs</em> directory to populate the application.
+					</p>
+					<p>
+						<strong>6.</strong> Once the application has loaded you can find out about its functionality from the <em>Help</em> button on the upper-right part of the
+						interface. A series of plots should have loaded into the <em>Plots</em> section of the interface. Click on these to load the data for each coordinate you
+						provided.
+					</p>				
+				</div>
+			</div>
+		</div>		
+		
+		<script>
+			$("#previewBtn").click(function(){
+				if($("#previewBtn").text() == "Hide LLR-TimeMachine Interface Example"){
+					$("#preview").hide();						
+					$("#previewBtn").text("Show LLR-TimeMachine Interface Example");
+				}else{
+					$("#preview").show();						
+					$("#previewBtn").text("Hide LLR-TimeMachine Interface Example");
+				
+				}
+			})
+		</script>
+	
+	</body>
+</html>

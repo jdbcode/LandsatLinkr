@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>Guide - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="cache-control" content="no-cache" />
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li><a href="about.html">About</a></li>
+				<li><a href="process.html">Process</a></li>
+				<li><a href="outputs.html">Outputs</a></li>
+				<li class="active"><a href="guide.html">Guide</a></li>
+				<li><a href="download.html">Download</a></li>
+				<li><a href="visualization.html">Visualization</a></li>
+				<li><a href="examples.html">Examples</a></li>
+				<li><a href="contact.html">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container top_margin guide_page_bottom">
+			<div class="row">
+				<div class="col-md-9">
+					<div>
+						<h2 class="page-header guide_link" id="introduction">Introduction</h2>
+						<h3 class="guide_link" id="about_landsatlinkr">About LandsatLinkr</h3>
+						<p>
+							LandsatLinkr (LLR) is an automated Landsat image processing system designed to spatially and spectrally
+							link MSS, TM, ETM+, and OLI images through time. It efficiently processes hundreds of images to produce annual
+							cloud-free image composites from which to build 42+ year spectral chronologies 
+							<a href="#spectralchronologyimg">(Figure 1)</a>. The resulting
+							spectrally consistent composite images can be used individually as inputs to mapping or modeling projects,
+							to investigate simple image-to-image change, or as inputs to complex change detection algorithms such as 
+							<a href="http://landtrendr.forestry.oregonstate.edu/" target="_blank">LandTrendr</a>.
+						</p>
+						<figure class="fig_space">
+							<img class="guide_link img-responsive" id="spectralchronologyimg" src="imgs/guide/spectralchronology.png">
+							<figcaption>
+								Figure 1. Conceptual representation of image stack and spectral profile produced by 
+								LandsatLinkr using imagery from all Landsat sensors.
+							</figcaption>
+						</figure>
+						
+						<p>LLR takes hundreds of images and automatically completes the following steps:</p>
+						<ul>
+							<li>Decompresses</li>
+							<li>Reprojects</li>
+							<li>Stacks image bands</li>
+							<li>Creates cloud masks</li>
+							<li>Improves MSS georegistration accuracy</li>
+							<li>Applies atmospheric correction</li>
+							<li>Resamples MSS images to 30m</li>
+							<li>Spectrally calibrates MSS data to TM data</li>
+							<li>Spectrally calibrates OLI data to ETM+ data</li>
+							<li>Creates annual cloud-free image composites and stacks</li>
+						</ul>
+						<p>
+							Each step produces outputs which are independently useful (following list), so even if you only need a couple 
+							of images processed to surface reflectance and do not care about annual composites or time series stacks, 
+							LLR is still relevant, though the true benefit is in large volume processing.
+						</p>
+						<p><strong>MSS data outputs</strong></p>
+						<ul>
+							<li>4-band DN raster stacks</li>
+							<li>4-band radiance raster stacks</li>
+							<li>4-band atmospherically corrected surface reflectance raster stacks</li>
+							<li>3-band calibrated tasseled cap raster stacks</li>
+							<li>1-band calibrated tasseled cap angle rasters</li>
+							<li>1-band cloud and shadow mask rasters</li>
+						</ul>
+						<p><strong>TM/ETM+ data outputs</strong></p>
+						<ul>
+							<li>6-band atmospherically corrected surface reflectance (LEDAPS) raster stacks</li>
+							<li>3-band tasseled cap raster stacks</li>
+							<li>1-band cloud and shadow mask rasters</li>
+						</ul>
+						<p><strong>OLI image data outputs</strong></p>
+						<ul>
+							<li>7-band atmospherically corrected surface reflectance (L8SR) raster stacks</li>
+							<li>3-band ETM+ -calibrated tasseled cap raster stacks</li>
+							<li>1-band ETM+ -calibrated tasseled cap angle rasters</li>
+							<li>1-band cloud and shadow mask rasters</li>
+						</ul>
+						<p><strong>Composite data outputs</strong></p>
+						<ul>
+							<li>1-band annual tasseled cap brightness rasters</li>
+							<li>1-band annual tasseled cap greenness rasters</li>
+							<li>1-band annual tasseled cap wetness rasters</li>
+							<li>1-band annual tasseled cap angle rasters</li>
+							<li>Multi-band tasseled cap brightness time series raster stack</li>
+							<li>Multi-band tasseled cap greenness time series raster stack</li>
+							<li>Multi-band tasseled cap wetness time series raster stack</li>
+							<li>Multi-band tasseled cap angle time series raster stack</li>
+						</ul>
+						
+						
+						<p>
+							LandsatLinkr is written in the R programming language and distributed as an R package. The system features
+							an interactive interface for simple operation with no R experience needed. It provides an option to run the 
+							system in parallel using 2 cores to reduce standard processing time by half.
+						</p>
+						<p>
+							It was developed for landscape change research as a way to easily incorporate the entire Landsat archive
+							into spatially and spectrally consistent 42+ year time series stacks. As such,
+							it is constantly changing to meet new needs and is not considered end-point software. However, the outputs
+							are generically useful for nearly all applications of Landsat time series data, so we provide it freely, 
+							encourage its use, and welcome any feedback regarding bugs and suggested improvements - see <a href="contact.html">Contact</a> page
+							for email address.
+						</p>
+						<h3 class="guide_link" id="landsatlinkr_workflow">LandsatLinkr workflow</h3>
+						<p>
+							MSS, TM, ETM+, and OLI sensors produce somewhat different data. Though part of the same Landsat family, with similar 
+							mission objectives, technology enhancements over time have led to a divergence in image attributes between 
+							sensors (<a href="#table1">Table 1</a>). LLR bridges the difference between sensors by spatially and spectrally aligning the data 
+							through georegistration improvement, resampling, and spectral index modeling and calibration. The processing 
+							procedures are based on established methods and executed with a high degree of automation and standardization.
+							A brief description of the LLR workflow follows. Step-by-step instructions for setup and executing are presented 
+							in the <a href="#setup">Setup</a> and <a href="#running_landsatlinkr">Running LandsatLinkr</a> sections.
+						</p>
+						
+						<a class="guide_link" id="table1"></a>
+						<table class="table table-striped table-bordered">
+							<caption>Table 1 Select Landsat sensor characteristics. *Scaled from 6-bit to 8-bit. **Resampled from 68 m x 83 m to 60 m.</caption>
+							<thead>
+								<tr>
+									<th>Attribute</th>
+									<th>MSS</th>
+									<th>TM</th>
+									<th>ETM+</th>
+									<th>OLI</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th>Ultra-blue band (micrometers)</th>
+									<td>-</td>
+									<td>-</td>
+									<td>-</td>
+									<td>0.43-0.45</td>
+								</tr>
+								<tr>
+									<th>Blue band (micrometers)</th>	
+									<td>-</td>	
+									<td>0.45-0.52</td> 	
+									<td>0.45-0.52</td> 	
+									<td>0.45-0.51</td> 
+								</tr>
+								<tr>
+									<th>Green band (micrometers)</th>	
+									<td>0.50-0.60</td> 	
+									<td>0.52-0.60</td> 	
+									<td>0.52-0.60</td> 	
+									<td>0.53-0.59</td>
+								</tr>
+								<tr>
+									<th>Red band (micrometers)</th>	
+									<td>0.60-0.70</td> 	
+									<td>0.63-0.69</td> 	
+									<td>0.63-0.69</td>	
+									<td>0.64-0.67</td> 
+								</tr>
+								<tr>
+									<th>NIR band (micrometers)</th>
+									<td>0.70-0.80</td>
+									<td>0.76-0.90</td>	
+									<td>0.77-0.90</td>	
+									<td>0.85-0.88</td>								
+								</tr>
+								<tr>
+									<th>NIR band (continued) (micrometers)</th>
+									<td>0.80-1.10</td>
+									<td></td>	
+									<td></td>	
+									<td></td>								
+								</tr>
+								<tr>
+									<th>SWIR 1 band (micrometers)</th>
+									<td>-</td>
+									<td>1.55-1.75</td> 	
+									<td>1.55-1.75</td> 	
+									<td>1.57-1.65</td>						
+								</tr>
+								<tr>
+									<th>SWIR 2 band (micrometers)</th>	
+									<td>-</td> 	
+									<td>2.08-2.35</td> 	
+									<td>2.09-2.35</td> 	
+									<td>2.11-2.29</td> 							
+								</tr>
+								<tr>
+									<th>Cirrus band (micrometers)</th>	
+									<td>-</td> 	
+									<td>-</td> 	
+									<td>-</td> 	
+									<td>1.36-1.38</td> 							
+								</tr>
+								<tr>
+									<th>Radiometric Resolution (bit)</th> 
+									<td>8*</td> 	
+									<td>8</td> 	
+									<td>8</td> 	
+									<td>12</td> 							
+								</tr>
+								<tr>
+									<th>Spatial resolution (m)</th>
+									<td>60**</td>
+									<td>30</td>
+									<td>30</td>
+									<td>30</td> 							
+								</tr>
+								<tr>
+									<th>Temporal resolution (days)</th> 
+									<td>18  & 16</td> 
+									<td>16</td> 
+									<td>16</td> 
+									<td>16</td> 							
+								</tr>
+								<tr>
+									<th>Years of operation</th>
+									<td>1972-1992</td>
+									<td>1982-2012</td>
+									<td>1999-...</td>	
+									<td>2013-...</td>							
+								</tr>
+							</tbody>
+						</table>
+						<p>LandsatLinkr has six major processing steps (<a href="#landsatlinkrworkflow">Figure 2</a>):</p>
+						<ol>
+							<li>Preparing MSS imagery</li>
+							<li>Preparing TM/ETM+ imagery</li>
+							<li>Preparing OLI imagery</li>
+							<li>Calibrating MSS to TM imagery</li>
+							<li>Calibrating OLI to ETM+ imagery</li>
+							<li>Annual cloud-free image compositing</li>
+						</ol>
+						<p>The external inputs include:</p>
+						<ol>
+							<li>A temporal series of LPGS MSS images for a given Landsat scene</li>
+							<li>An MSS scene-corresponding digital elevation model (DEM)</li>
+							<li>A temporal series of LEDAPS TM/ETM+ images for a given Landsat scene</li>
+							<li>A temporal series of L8SR OLI images for a given Landsat scene</li>
+						</ol>
+						<p>The remaining inputs in steps 4-6 are created internally and accessed automatically</p>
+						
+						<figure class="fig_space">
+							<a class="guide_link" id="landsatlinkrworkflow"></a>
+							<img src="imgs/landsatlinkr_workflow.png" class="img-responsive">
+							<figcaption>Figure 2. LandsatLinkr workflow.</figcaption>
+						</figure>
+						
+						<p><strong>Step 1 - prepare MSS imagery</strong></p>
+						<p>
+							Every LPGS MSS image for a particular Landsat scene (WRS Landsat path/row footprint) is decompressed, stacked, 
+							and reprojected, renamed, and organized into a defined directory structure (<a href="msswarp.html">MSSunpackr</a>). 
+							Georegistration accuracy is assessed from image metadata and enhanced using an image-to-image 
+							tie point search and warp procedure (<a href="msswarp.html">MSSwarp</a>) if scene-level RMSE <= 0.75. All images are then 
+							converted to units of top-of-atmosphere (TOA) reflectance (<a href="mssdn2rad.html">MSSdn2rad</a>) and surface reflectance (<a href="msscost.html">MSScost</a>). 
+							The radiance images along with a scene-corresponding DEM are then used in a cloud masking procedure 
+							(<a href="msscvm.html">MSScvm</a>) to create raster images that identify clear-view and obscured pixels for later use in 
+							cloud-free compositing. Finally, the TOA reflectance images and the cloud masks are resampled to 30m to match the
+							spatial resolution of the TM, ETM+, and OLI data.
+						</p>
+						<p><strong>Step 2 - prepare TM/ETM+ imagery</strong></p>
+						<p>
+							Every LEDAPS TM/ETM+ image for an intersecting MSS scene processed in Step 1 will be decompressed, stacked, 
+							and reprojected. From the surface reflectance image stack, a 3-band 
+							Tasseled Cap transformation raster stack is created. Finally, the included Fmask cloud mask is aggregated 
+							to identify clear-view and obscured pixels with the same designation as the MSS masks created in Step 1.
+							All image data are renamed and organized into a defined directory structure. The <a href="tmunpackr.html">TMunpackr</a> function is 
+							responsible for procedures in Step 2.  
+						</p>
+						<p><strong>Step 3 - prepare OLI imagery</strong></p>
+						<p>
+							Every L8SR OLI image for an intersecting TM/ETM+ scene processed in Step 2 will be decompressed, stacked, 
+							and reprojected. The included Fmask cloud mask is aggregated 
+							to identify clear-view and obscured pixels with the same designation as the MSS masks created in Step 1.
+							All image data are renamed and organized into a defined directory structure. The <a href="oliunpackr.html">OLIunpackr</a> function is 
+							responsible for procedures in Step 3.
+						</p>
+						<p><strong>Step 4 - calibrate MSS to TM</strong></p>
+						<p>
+							The <a href="msscal.html">MSScal</a> function develops models to predict TM spectral indices from MSS surface reflectance bands 
+							based on the relationship between coincident MSS and TM dates for years 1982-1992. Specifically, models are 
+							created for Tasseled Cap Brightness, Greenness, Wetness, and Angle. The models are then applied to all MSS 
+							images in the model reference scene. 
+						</p>
+						<p>
+							Note: steps 1 and 3 are repeated as necessary for all intersecting scenes in a project study area. 
+							This is particularly relevant for including the multiple Landsat 1-3 WRS-1 scenes that intersect 
+							Landsat 4-8 WRS-2 scenes. See section <a href="#setup_processing_directories">Setup processing directories</a> for more details on the World 
+							Reference System version difference and how they affect the LLR process.
+						</p>
+						<p><strong>Step 5 - calibrate OLI to ETM+</strong></p>
+						<p>
+							The <a href="olical.html">OLIcal</a> function (very similar to the MSScal in Step 4) develops models to predict ETM+ spectral indices from OLI surface reflectance bands 
+							based on the relationship between near-date OLI and ETM+ images for the period 2013-present. Specifically, models are 
+							created for Tasseled Cap Brightness, Greenness, Wetness, and Angle. The models are then applied to all OLI 
+							images in the model reference scene.
+						</p>
+						<p><strong>Step 6 - create annual image composites</strong></p>
+						<p>
+							Step 6 produces annual cloud-free image composites for all spatially intersecting images in a 
+							given region of interest. The <a href="mixel.html">miXel</a> function searches provided directories for images to composite 
+							and sorts them into groups by year. For all images in each year group, cloud masks are applied to set 
+							obscured pixels to the background (NA) value and then the year composite is calculated from the per-cell 
+							mean value of overlapping images.
+						</p>
+						<p>
+							Each LLR processing steps is run with a single R function called <code>run_landsatlinkr()</code>.
+							Each step of the process is run independently and must be completed in order. 
+						</p>
+					</div>	
+						 
+					<div>
+						<h2 class="page-header guide_link" id="system_requirements">System requirements</h2>
+						<h3 class="guide_link" id="computer">Computer</h3>
+						<p>LandsatLinkr was developed and tested on computers running Windows 7 64-bit OS with >= 8 GB of RAM.</p>
+						<h3 class="guide_link" id="data_storage">Data storage</h3>
+						<p>2 TB of data storage is recommended for processing a single WRS-2 scene project with ~250 images.</p>
+						<h3 class="guide_link" id="software">Software</h3>
+						<ul>
+							<li>R</li>
+							<li>RStudio</li>
+							<li>GDAL</li>
+						</ul>
+					</div>
+					
+					<div>
+						<h2 class="page-header guide_link" id="setup">Setup</h2>
+						<h3 class="guide_link" id="install_software">Install software</h3>
+						<p>
+							LLR requires R, RStudio, and GDAL programs be installed on your computer. R is a free computer
+							programming language for statistical computing and graphics. RStudio provides a convenient frontend 
+							interface to the R environment. GDAL is a program for reading, writing, and manipulating geospatial data.
+						</p>
+						<p>
+							If you don't already have a current version of these programs you'll need to download and 
+							install them to your computer.  
+						</p>
+						<h4 class="guide_link" id="r">R</h4>
+						<p>Follow the install directions on the <a href="http://www.r-project.org/" target="_blank">R</a> website</p>
+						<h4 class="guide_link" id="rstudio">RStudio</h4>
+						<p>Follow the install directions on the <a href="http://www.rstudio.com/" target="_blank">RStudio</a> website</p>
+						<h4 class="guide_link" id="gdal">GDAL</h4>
+						<p>There are numerous ways you can install GDAL, the following is one example.</p>
+						<ol>
+							<li>Go to <a href="http://www.gisinternals.com/release.php" target="_blank">http://www.gisinternals.com/release.php</a></li>
+							<li>Click on the <em>Downloads</em> link for the version that best matches your system (we use MSVC 2010 - x64)</li>
+							<li>Download the <em>Generic installer for the GDAL core components</em></li>
+							<li>Run the installer</li>
+							<li>Include GDAL in your system's environmental variable <em>PATH</em></li>
+							<ol type="a">
+								<li>Open Windows <em>Control Panel</em> and select <em>System</em></li>
+								<li>Click on <em>Advanced system settings</em></li>
+								<li>Click the <em>Environmental Variables...</em> button</li>
+								<li>Under System variables, scroll down to the <em>Path</em> variable and click on it to highlight it</li>
+								<li>Click the <em>edit</em> button</li>
+								<li>
+									Get your cursor to the end of the line, add a semi-colon (;) and add the path to the GDAL 
+									installation location. Example:  C:\GDAL (this may not actually be the location on your system)  
+								</li>
+							</ol>
+						</ol>
+						<h3 class="guide_link" id="install_landsatlinkr">Install LandsatLinkr</h3>
+						<p>
+							LandsatLinkr is written in the R programming language and its commands are entered and run through 
+							RStudio. R has many user-developed packages to handle most data concerns. LandsatLinkr is one such 
+							package and it relies on several other useful packages that are automatically downloaded and installed 
+							upon running LandsatLinkr. Once R and RStudio are set up you'll need to install the LandsatLinkr package.
+						</p>
+						<p><strong>1.</strong> Open the RStudio program and find the console command prompt.</p>
+						
+						<figure class="fig_space">
+							<img src="imgs/guide/rstudio.png" class="img-responsive guide_link" id="rstudiofig">
+							<figcaption>Figure 3. Example RStutio interface where you'll run LLR from.</figcaption>
+						</figure>
+						
+					    <p>The red circle in <a href="#rstudiofig">Figure 3</a> is where you will be entering function calls and their arguments - example: </p>
+						<p><code>this_function(argument1 = input, argument2 = NULL)</code></p>
+						<p>Upon pressing enter the function will execute - not in this case - this is a mock example.</p>
+						<p>
+							<strong>2.</strong> Install the LandsatLinkr package. To install the package from the <a href="https://github.com/jdbcode/LandsatLinkr" target="_blank">GitHub repository</a>, copy and paste 
+							the following code lines into the RStudio command prompt and press enter. Alternatively, use the lines 
+							provided on the LLR <a href="download.html">download</a> page. Check occasionally for version updates, which include
+							bug fixes and enhancements.  
+						</p>
+						<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.4.2-beta/LandsatLinkr_0.4.2.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","plyr","gdalUtils","rgdal","igraph","MASS"))</pre>
+						<p>
+							<strong>3.</strong> Once the package has been installed it must be loaded into the current R session. Loading the 
+							package allows R to access the installed code. This procedure must be done each time a new session 
+							is started. The first time that the LLR package is loaded it will automatically prompt R to download 
+							and install several dependent packages. To load the LLR package, type or copy the following line into 
+							the command prompt and press enter.
+						</p>
+						<p><code>library(LandsatLinkr)</code></p>
+						<p>LandsatLinkr is now ready to run on your machine.</p>
+					    
+						<h3 class="guide_link" id="setup_processing_directories">Setup processing directories</h3>
+						<p>
+							Keeping data organized with standard directory structures and file naming conventions is important 
+							to automation and data management. Before beginning a project you must create four directories for: 
+						</p>
+						<ol>
+							<li>MSS WRS-1 images</li>
+							<li>MSS WRS-2 images</li>
+							<li>TM/ETM+ WRS-2 images</li>
+							<li>OLI WRS-2 images</li>
+						</ol>
+						<p>
+							The image sensor (MSS, TM/ETM+, and OLI) is an obvious distinction for keeping Landsat data organized (we
+							group TM and ETM+ together because they have nearly identical properties), 
+							but WRS-1 and WRS-2 scene grid designations are equally as important.  WRS refers to the World 
+							Reference System. It is a standard path/row grid that defines the spatial extent of each Landsat 
+							scene footprint on Earth's surface. Unfortunately, the two grid systems do not have the same path/row 
+							alignment or numbering scheme because of differences in satellite obits. This means that including the 
+							full temporal archive for a single WRS-2 scene requires that multiple WRS-1 scenes are processed and 
+							included in calibration and compositing. Landsat 1-3 (MSS only) use WRS-1 and Landsat 4-8 (MSS 4-5, 
+							TM, ETM+, and OLI) use WRS-2. <a href="#wrsexample">Figure 4</a> shows an example of the mismatch in the alignment and path/row 
+							numbering for a single WRS-2 scene of interest. For more information on the World Reference Systems 
+							please visit this <a href="http://landsat.gsfc.nasa.gov/?p=3231" target="_blank">site</a>.
+						</p>
+						<p>
+							Determining which scenes are needed to process a region of interest for the full 42+ year history 
+							is the first step in setting up a processing directory structure. This can be accomplished several 
+							ways. USGS provides ArcGIS shapefiles for both WRS-1 and WRS-2 grids that can be used to identify 
+							which scenes are needed to cover your region of interest. The files can be downloaded 
+							<a href="http://landsat.usgs.gov/worldwide_reference_system_WRS.php" target="_blank">here</a>. 
+							Alternatively, the <a href="http://glcfapp.glcf.umd.edu:8080/esdi/index.jsp" target="_blank">Earth Science Data Viewer</a> provided 
+							by the <a href="http://glcfapp.glcf.umd.edu/aboutUs/" target="_blank">Global Land Cover Facility</a> can also be 
+							used to figure this out using the following steps:
+						</p>
+						<ol>
+							<li>Go to the <a href="http://glcfapp.glcf.umd.edu:8080/esdi/index.jsp" target="_blank">Earth Science Data Viewer</a> page and use <em>Map Search</em> to zoom into your region of interest</li>
+							<li>Click on the <em>Map Layers</em> tab at the top of the viewer and highlight WRS-2 and click <em>Update Map</em> </li>
+							<li>Determine which WRS-2 path/row covers your region of interest</li>
+							<li>
+								Click on the <em>Path/Row</em> tab at the top of the viewer and type in the path and row for the WRS-2 scene 
+								of interest (start and end as the same) and click <em>Update Map</em>
+							</li>
+							<li>
+								Go back to the <em>Map Layers</em> tab and highlight WRS-1 and click <em>Update Map</em> and then note which WRS-1 
+								scenes intersect the outlined WRS-2 scene.
+							</li>
+
+						</ol>
+						<figure class="fig_space">
+							<img class="guide_link img-responsive" id="wrsexample" src="imgs/guide/wrsexample.jpg">
+							<figcaption>
+								Figure 4. Example of disparity between WRS-1 and WRS-2 Landsat scenes. Generally three WRS-1 scenes are needed 
+								to provide full overlap with a WRS-2 scene.
+							</figcaption>
+						</figure>
+						<p>Once you know what scenes you'll need, you can create the LandsatLinkr base directory structure (<a href="#dirstruct">Figure 5</a>).</p>
+						
+						<figure class="fig_space">
+							<img class="guide_link img-responsive" id="dirstruct" src="imgs/guide/dirstruct.png">
+							<figcaption>
+								Figure 5. Example LandsatLinkr base directory structure.
+							</figcaption>
+						</figure>
+						
+						
+						<p>
+							Each scene should have the following directory path that first defines what sensor it comes from, then which WRS 
+							system (1 or 2) the data is from, followed by the 6 digit path/row label, and finally a folder to place the downloaded 
+							images in (targz):
+						</p>
+						<p>&ltdrive&gt&lt...&gt&ltsensor&gt&ltwrs&gt&ltppprrr&gt&lttargz&gt</p>
+						<p>Where:</p>
+						<p>
+							<em>drive</em> = the drive letter for the disk you are writing to<br>
+							<em>...</em> = any other designation you want (optional)<br>
+							<em>sensor</em> = what sensor collected the data (<em>mss</em>, <em>tm</em>, or <em>oli</em> - <em>tm</em> is used for both TM and ETM+)<br>
+							<em>wrs</em> = what WRS grid system delineates the scene ("wrs1" or "wrs2")<br>
+							<em>ppprrr</em> = what is the 6-digit scene path/row code (example: "036034")<br>
+							<em>targz</em> = a folder called <em>targz</em> where the downloaded images are to be placed<br>
+						</p>
+						<p>Example: L:/landsat/mss/wrs1/036032/targz</p>
+						<p>There are four main directories defined by all combinations of sensor and WRS grid type:</p>
+						<p>
+							*/mss/wrs1<br>
+							*/mss/wrs2<br> 
+							*/tm/wrs2<br>
+							*/oli/wrs2<br>
+						</p>
+						<p>Within each of these main directories you may have several scene directories, each with their own targz folder.</p>
+						<p>
+							For all the scenes identified intersecting your region of interest, create directories for them following 
+							the LLR directory structure.
+						</p>
+						<h3 class="guide_link" id="download_landsat_images">Download Landsat images</h3>
+						<p>
+							All images are downloaded from the USGS Earth Explorer website. MSS images should be of the Pre-Collection 1 LPGS product 
+							type and surface reflectance for TM/ETM+ and OLI of the Collection 1 Higher-Level product type. For Landsat MSS 1-3 (WRS-1), MSS 4-5 (WRS-2), TM, ETM+,  
+							and OLI you will select images to include in separate processing orders. You will need an Earth Explorer 
+							user account to download images. You can register for one on the home page, if you don't already have an account. 
+						</p>
+						<p>
+							Currently, LLR is designed to work with summer images (June-Aug. northern hemisphere and Dec.-Feb. in southern hemisphere).
+							Using this short time window during the summer reduces the ephemeral spectral inter- and intra-annual variability due to phenology, 
+							snow cover, and sun angle. We are working on ways to allow more flexibly in date range, but for now it 
+							is advisable to use only data from summer months. Use good judgement for high and low latitude scenes.
+						</p>
+						<!--<p>
+							Note that there are multiple ways to get the image data, the method above is just one example. As long as the MSS 
+							data are LPGS compressed .tar.gz files and the TM/ETM+ images are LEDAPS CDR .tar.gz compressed files then LLR should
+							ingest them just fine.
+						</p>-->
+						
+						<h4 class="guide_link" id="mss_images">MSS images</h4>
+						<ol>
+							<li>
+								At the <a href="http://earthexplorer.usgs.gov/" target="_blank">Earth Explorer homepage</a>, within the <em>Search Criteria</em> tab and under the <em>Data Range</em> tab select 
+								only summer months from the <em>Search months</em> drop down menu.
+							</li>
+							<li>
+								Under the <em>Results Options</em> tab increase the <em>Number of records to return</em> to 1,000 (ensures that 
+								the image list is not truncated) and then press the <em>Data Sets</em> button
+							</li>
+                            <li>Expand the <em>Landsat Archive</em> menu, then the <em>Pre-Collection Level-1</em> menu and check the <em>L1-5 MSS</em> box and click the <em>Additional Criteria</em> tab.
+							<li>
+								Scroll down to the <em>WRS Type</em> menu and select the WRS type that corresponds to the scene you intend to
+								download. <em>WRS for Landsat 1, 2, & 3</em> (WRS-1) or <em>WRS for Landsat 4 & 5</em> (WRS-2).
+							</li>
+							<li>Under the <em>WRS Path</em> and <em>WRS Row</em> fields enter the associated path and row number for the scene of interest.
+							<li>Scroll down to the <em>Data Type Level 1</em> menu and select <em>MSS L1T</em> and then click the <em>Results</em> button
+							<li>
+								For each image in the list that is not completely clouded select either the <em>Add to Bulk Download</em> 
+								button or <em>Add to Cart</em> button and then press the <em>View Item Basket</em>
+							</li>
+							<li>
+								Review your selected images to ensure that you have images for only the intended scene for summer months
+								for years 1972-1982 (WRS-1) or 1982-1992 (WRS-2) (may be some missing years for lack of data) and then press 
+								the <em>Proceed to Checkout</em> button.
+							</li>
+							<li>Press the <em>Submit Order</em> button.
+							<li>
+								You will receive an order confirmation email. If the order includes images added as <em>Bulk Download</em> they are
+								immediately available. Follow the instructions in the email to download them. If there are images that were 
+								added to the cart for processing, then you will be instructed to wait for a second email indicating that processing is complete. 
+							</li>
+						</ol>
+						<p>
+							Repeat these steps for all MSS scenes (WRS-1 and WRS-2), adjusting the WRS type and path/row entries 
+							as needed in steps 4 and 5.
+						</p>
+						<p>
+							Once images have been downloaded move them to the <em>targz</em> folder for the appropriate sensor, WRS type, 
+							and path/row identification.
+						</p>
+						
+						<h4 class="guide_link" id="tm/etm+_images">Downloading TM/ETM+</h4> 
+						<p>Downloading TM/ETM+ images requires the same steps as downloading MSS images, but with a different data set selection.</p>
+						<ol>
+							<li>
+								At the <a href="http://earthexplorer.usgs.gov/" target="_blank">Earth Explorer homepage</a>, within the <em>Search Criteria</em> tab and under the <em>Data Range</em> tab select only summer
+								months from the <em>Search months</em> drop down menu.
+							</li>
+							<li>
+								Under the <em>Results Options</em> tab increase the <em>Number of records to return</em> to 1,000 (ensures that the image list is not
+								truncated) and then press the <em>Data Sets</em> button
+							</li>
+							<li>
+                                Expand the <em>Landsat Archive</em> menu, then the <em>Collection 1 Higher-Level</em> menu and check the <em>L4-5 TM C1 Highler-Level</em> box and click the <em>Additional 
+								Criteria</em> tab.
+							</li>
+							<li>Under the <em>WRS Path</em> and <em>WRS Row</em> fields enter the associated path and row number for the scene of interest.</li>
+							<li>Scroll down to the <em>Data Type Level 1</em> menu and select <em>TM L1T</em> and then click the <em>Results</em> button</li>
+							<li>
+								For each image in the list that is not completely clouded select either the <em>Add to Bulk Download</em> button or <em>Add to
+								Cart</em> button and then press the <em>View Item Basket</em>
+							</li>
+							<li>
+								Review your selected images to ensure that you have images for only the intended scene for summer months for years
+								1982-2011 (TM) or 1999-present (ETM+) (may be some missing years for lack of data) and then press the <em>Proceed to Checkout</em> button.
+							</li>
+							<li>Press the <em>Submit Order</em> button.</li>
+							<li>
+								You will receive an order confirmation email. If the order includes images added as <em>Bulk Download</em> they are immediately
+								available. Follow the instructions in the email to download them. If there are images that were added to the cart for 
+								processing, then you will be instructed to wait for a second email indicating that processing is complete. When processing
+								is complete follow instructions for downloading. If the email does not indicate the option to bulk download the files you 
+								can use a third party downloading utility such as 
+								<a hrerf="https://addons.mozilla.org/en-US/firefox/addon/downthemall/" target="_blank">DownThemAll</a> for the Mozilla Firefox 
+								browser to efficiently retrieve all hyperlinked files on the image download list page.
+							</li>
+						</ol>
+						<p>
+							Repeat these steps to place an order for ETM+ images with exceptions for step 3 and 5 where you will select the ETM+ 
+							sensor options instead of TM. Always make sure to select L1T as the data type (it has been terrain corrected - LLR will
+							not process L1G).
+						</p>
+						<p>
+							Once images have been downloaded move them to the <em>targz</em> folder for the appropriate sensor, WRS type, 
+							and path/row identification.
+						</p>
+						
+						<h4 class="guide_link" id="oli_images">Downloading OLI</h4> 
+						<p>Downloading OLI images requires the same steps as downloading TM/ETM+ images, but with a different data set selection.</p>
+						<p>							
+							Exceptions to the TM/ETM+ download instructions are needed for steps 3 and 5 where you will select the OLI 
+							sensor options instead of TM or ETM+. When choosing options under the <em>Additional Criteria</em> tab, make sure that you only select
+							<em>OLI</em> under the <em>Sensor Identifier</em> list. Always make sure to select L1T as the data type (it has been terrain corrected - LLR will
+							not process L1G).
+						</p>
+
+						<h4 class="guide_link" id="image_information">Image information</h4>
+						<p>
+							Please see the hyperlinked USGS product guides for more information regarding image processing of 
+							<a href="http://landsat.usgs.gov/NewMSSProduct.php" target="_blank">LPGS MSS</a> and 
+							<a href="http://landsat.usgs.gov/CDR_LSR.php" target="_blank">CDR Surface Reflectance</a> TM/ETM+ and OLI data.
+						</p>
+						<p>
+							Downloaded images are named with a unique identity that contains basic information on each image. All components 
+							of the image ID, except for ground station and version, are maintained throughout the production of derived data 
+							in the LLR process (more on this in Outputs section). 
+						</p>
+						<p>Landsat Image Identifier: LXSPPPRRRYYYYDDDGSIVV</p>
+						<p>Where:<p>
+						<p>
+							<ul>
+								<li><em>L</em> = Landsat</li>
+								<li><em>X</em> = Sensor (M = MSS(1-3 WRS-1) & (4-5 WRS-1), T = TM(4-5 WRS-2), E = ETM(7 WRS-2), O = OLI(8 WRS-2))</li>
+								<li><em>S</em> = Satellite</li>
+								<li><em>PPP</em> = WRS Path</li>
+								<li><em>RRR</em> = WRS Row</li>
+								<li><em>YYYY</em> = Year of Acquisition</li>
+								<li><em>DDD</em> = Day of Acquisition Year</li>
+								<li><em>GSI</em> = Ground Station Identifier</li>
+								<li><em>VV</em> = Version</li>
+							</ul>
+						</p>
+						<h3 class="guide_link" id="digital_elevation_model">Digital elevation model</h3>
+						<p>
+							A digital elevation model (DEM) is needed for processing both MSS WRS-1 and MSS WRS-2 scenes. It is used during 
+							the cloud masking procedure to correct for topographic illumination and identifying water. The extent of 
+							the DEM should be larger than its corresponding scene (the LLR program will crop it on-the-fly as needed). 
+							So depending on what DEM product you use, you may 
+							need to mosaic several together. The DEM should be between 30 and 90 meter resolution. When preparing MSS images, LLR will 
+							ask you for its directory location and then it will automatically resample, reproject, and crop it to match a given 
+							scene. A good source for DEMs is the <a href="http://glcf.umd.edu/data/srtm/" target="_blank">Global Landcover Facility site</a>,
+							which distributes <a href="http://srtm.usgs.gov/" target="_blank">SRTM</a> data as Landsat WRS-2 footprints. Use the Filled 
+							Finished-B product at 1 arc second (30 meter) where possible and the Filled
+							Finished-B product at 3 arc seconds (90 meter) elsewhere. You can use other data sources, but SRTM has the 
+							advantage of being a global product with standard processing and void filling. The program-prepared DEM files (reprojected and resampled
+							to match for MSS data)
+							will be written to a new directory called  <em>topo</em> inside of the relevant MSS scene folder.
+						</p>
+						<p>
+							A helper function is provided to make creating DEM mosaics really easy. See the <code>mosaic_dems</code> function in 
+							the <em>LandsatLinkr helper functions</em> section.
+						</p>
+						<p>
+							We recommend that you create one DEM per WRS scene that is included in your project. This includes all WRS-1 and WRS-2
+							scenes in your region of interest.
+						</p>
+						
+						<h3 class="guide_link" id="selecting_a_geographic_projection">Selecting a geographic projection</h3>
+						<p>
+							Projections transform the curved, 3-dimensional shape of the Earth to a flat 2-dimensional surface, 
+							which simplifies its representation for display and computation. Landsat USGS Earth Explorer images are delivered
+							in the Universal Transverse Mercator (UTM) projection (Polar Stereographic projection for scenes with a
+							center latitude greater than or equal to -63.0 degrees) using the World Geodetic System (WGS) 84 datum. 
+							This projection is fairly specific to small geographic regions, with different parameters for each UTM 
+							zone. This is not ideal for LLR projects, since there is high potential for including multiple scenes 
+							that may have different projections, which makes spectral harmonization and mosaicking difficult. 
+						</p>
+						<p>
+							In LLR we have you define the projection that will be applied to all images in the project. Do some 
+							research to figure out what projection is best for your region - what projection are other data you 
+							might be using in? It's important that whatever projection you use preserves area. If you use the image 
+							data to classify land cover and then summarize the area of each class in the image, you want to ensure 
+							that area is equivalent over the entire image. We recommend the Albers Equal Area Conic projection. The
+							parameters can be adjusted to suit local to continental regions. 
+						</p>
+						<p>
+							When you run the LLR unpacking steps you will be prompted to define a projection to use by declaring a 
+							PROJ.4 string. You can find an extensive list of projections at <a href="http://www.spatialreference.org/" target="_blank">
+							www.spatialreference.org</a>. Use the search option to find named projections and regions, or scroll through the lists until you find what you are 
+							looking for. Click on the projection link and then click on the <em>Proj4</em> link. Copy and paste the projection
+							string into a text file and save it for reference and easy access when you begin running LLR.
+						</p>
+						<p><strong>Here are a few PROJ.4 examples:</strong></p>
+						<p>North American Albers Equal Area Conic:</p>
+						<pre>+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs</pre>
+
+						<p>Africa Albers Equal Area Conic:</strong></p>
+						<pre>+proj=aea +lat_1=20 +lat_2=-23 +lat_0=0 +lon_0=25 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs</pre>
+
+						<p>Europe Albers Equal area Conic:</p>
+						<pre>+proj=aea +lat_1=43 +lat_2=62 +lat_0=30 +lon_0=10 +x_0=0 +y_0=0 +ellps=intl +units=m +no_defs</pre>
+
+						<p>China Albers Equal Area Conic:</p>
+						<pre>+proj=aea +lat_1=27 +lat_2=45 +lat_0=35 +lon_0=105 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs</pre> 
+
+						<p>South America Albers Equal Area Conic:</p>
+						<pre>+proj=aea +lat_1=-5 +lat_2=-42 +lat_0=-32 +lon_0=-60 +x_0=0 +y_0=0 +ellps=aust_SA +units=m +no_defs</pre>
+
+						<p>Canada Albers Equal Area Conic:</p>
+						<pre>+proj=aea +lat_1=50 +lat_2=70 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs</pre> 
+
+						<p>NAD83 UTM zone 10N:</p>
+						<pre>+proj=utm +zone=10 +ellps=GRS80 +datum=NAD83 +units=m +no_defs</pre> 
+						<p>
+							<strong>***It is important to use the exact same PROJ.4 projection definition within a project any time you are requested 
+							to define it by LLR.</strong>
+						</p>	
+					</div>
+					
+					<div>
+						<h2 class="page-header guide_link" id="running_landsatlinkr">Running LandsatLinkr</h2>
+						<p>Before running LLR make sure you've done the following:</p>
+						<ul>
+							<li>Downloaded and installed all required software</li>
+							<li>Created LLR directory structures</li>
+							<li>Downloaded the correct image types from Earth Explorer</li>
+							<li>Filled the <em>targz</em> folders within the LLR directory with <em>*.tar.gz</em> images recieved from USGS</li>
+							<li>Created a separate DEM that is greater in extent then each of your MSS path/row scenes</li>
+							<li>Selected a geographic projection and determined its PROJ.4 string definition</li>
+						</ul>
+						
+							With these tasked accomplished, 
+							LLR is ready to run. The following instructions walk through the process of running LLR with instruction descriptions
+							as plain text, R commands to be typed or copied/pasted into the R command prompt displayed as red "code" text, and printouts 
+							from the R council outlined in grey boxes.
+						</p>
+						<p>
+							LLR is run with a single R function <code>run_landsatlinkr</code>. It activates an interactive interface where questions and lists of
+							options will be displayed in the RStudio console. You'll simply type a number to select an option, type and enter brief text, and use Windows 
+							directory pop-ups to select files and folders. Note that after each selection, the LLR interface will verify your selection. Here is an
+							example of a verification:
+						</p>
+						<pre>
+Selection: 1
+[1] "You have selected: Prepare MSS"
+Is that correct? 
+
+1: Yes
+2: No
+3: Exit</pre>
+						<p>
+							If the selection matches your intention, press <code>1</code> for <em>Yes</em>, <code>2</code> for <em>No</em>, or <code>3</code> for <em>Exist</em>.
+							If you select <em>No</em>, the program will allow you to redefine the selection, if <em>Yes</em>, the program will continue, and if
+							<em>No</em>, the program will end.
+						</p>
+						<p>
+							These verifications can be a bit annoying, but it is better than the alternative of accidentally making the wrong selection and having
+							to completely restart the process, or not realize you've made the wrong selection until much processing time as passed. 
+						</p>
+						
+						
+						<h4>
+							***Before running any functions, ensure that LLR is loaded in your current R session. Type the following command 
+							into the console and press enter:
+						</h4>
+						<p><code>library(LandsatLinkr)</code></p>			
+						
+						<h3 class="guide_link" id="running_llr_step_1">Running LLR Step 1 - Prepare MSS images</h3>
+						<p><strong>1. Call the LandsatLinkr program.</strong> Open RStudio and type the following command into the console and press enter.</p>
+						<p><code>run_landsatlinkr()</code></p>
+						<p><strong>2. Select a process to run.</strong> Within the console you will be presented with a list of options for which process to run.</p>
+						<pre>
+Select a process to run 
+
+1: Prepare MSS
+2: Prepare TM/ETM+
+3: Prepare OLI
+4: Calibrate MSS to TM
+5: Calibrate OLI to ETM+
+6: Composite imagery
+
+Selection:</pre>
+					
+						<p>Place your cursor after <var>Selection:</var> and type <code>1</code> and press enter to run Prepare MSS. Verify your selection.</p>
+						
+						
+						<p>
+							<strong>3. Choose how many cores to process imagery with.</strong> Within the console you will be presented with a 
+							choice of processing in parallel with two cores or not.
+						</p>
+						<pre>
+Process in parallel using 2 cores when possible? 
+
+1: Yes
+2: No
+
+Selection:</pre>
+						<p>
+							Place your cursor after <var>Selection:</var> and type <code>1</code> (process in parallel) or 
+							<code>2</code> (do not process in parallel) and press enter to commit the selection. Verify your selection. 
+							<strong>***Note:</strong> processing is limited to a maximum of 2 cores for I/O reasons. 
+						</p>
+						<p>
+							<strong>4. Select whether to overwrite existing files or not.</strong>
+						</p>
+						<pre>
+If files from a process already exist, should they be overwritten? 
+
+1: Yes
+2: No
+
+Selection:</pre>
+						<p>
+							Place your cursor after <var>Selection:</var> and type <code>1</code> (yes, overwrite existing files) or 
+							<code>2</code> (no, do not overwrite existing files) and press enter to commit the selection. Verify your selection. 
+							<strong>***Note:</strong> in general it is best to <strong>NOT overwrite</strong>  existing files unless you want to start over on a project. LLR creates many files 
+							and it can be time consuming if you are processing hundreds of images. If you run into an error during a procedure and choose to overwrite
+							existing files, the entire process for all images will be rerun. If you choose to not overwrite, the program will start where is left off.
+							Therefore, if there is a problem with a single file you can deal with it manually and then restart the process where it left off, which will be much more efficient than
+							reprocessing all images.
+						</p>
+						
+						<a class="guide_link" id="step1.5"></a>
+						<p>
+							<strong>5. Select an MSS scene directory to process imagery from.</strong> A Windows directory browser pop-up will prompt you to 
+							interactively choose a folder. Navigate to an MSS scene directory. Be sure to select the scene head folder 
+							designated by a 6 digit WRS identifier (example: 034032). Verify your selection. <strong>***Note:</strong> the browser pop-up will not always come up as 
+							the active window so the icon must be clicked on in the Windows application menu bar. 
+						</p>
+						
+						
+						<p>
+							<strong>6. Define a projection you want the processed images to be in.</strong> The input is a PROJ.4 string. See the <a href="#selecting_a_geographic_projection">
+							Selecting a geographic projection</a> section for more information and several PROJ.4 definition examples.
+						</p>
+						<pre>
+[1] "Please define a projection to use for this project"
+[1] "If you need assistance, see the 'Selecting a geographic projection' section in the user manual"
+[1] "If you want to exit, press the 'return' key and then select 'Exist'"
+  Provide PROJ.4 string:</pre>
+						<p>
+							Place your cursor after <var>Selection:</var> and enter the PROJ.4 string definition of the projection you wish to use. 
+							Verify your definition. <strong>***Note:</strong> the projection string
+							should not have any quotation marks or empty space leading/following the text. The projection you define here should be the same that you use for all other 
+							images in this project. If you select different projections for different images, the forthcoming spectral harmonization and
+							compositing procedures will not work correctly.
+						</p>
+						
+						
+						<p>
+							<strong>7. Select a scene corresponding DEM.</strong> A Windows directory browser pop-up will prompt you to interactively 
+							choose a file. Navigate to a DEM file that has full overlap (plus some buffer) with the MSS scene you selected
+							in <a href="#step1.5">Step 5</a>. Verify your selection. <strong>***Note:</strong> the browser pop-up will not always come up as the active window so the icon must be clicked 
+							on in the Windows application menu bar.
+						</p>
+						
+						
+						<p>
+							The <code>run_landsatlinkr</code> function will take the information supplied and run through all procedures in <em>Step 1: Prepare
+							MSS</em> described in <a href="#landsatlinkrworkflow">Figure 2</a> for each image in the selected scene directory. Progress will be output to the R console. You can also track progress
+							by monitoring the <em>images</em> subdirectory of the head directory you choose in <a href="#step1.5">Step 5</a> to run the process on.
+						</p>
+						<h4>***Repeat all of these steps for all MSS WRS-1 and/or MSS WRS-2 scenes that intersect your region of interest.</h4>
+						
+						
+						<h3 class="guide_link" id="running_llr_step_2">Running LLR Step 2 - Prepare TM/ETM+ images</h3>
+						<p>
+							Repeat the same steps as <a href="#running_llr_step_1">Running LLR Step 1 - Prepare MSS images</a>, except select <code>2</code> (Prepare TM/ETM+) 
+							when prompted to <em>Select a function to run</em> after calling the <code>run_landsatlinkr</code> function. Be sure to select a TM/ETM+ scene directory 
+							instead of an MSS directory when prompted with the Windows directory browser. Also, you will <strong>NOT</strong> need to select a scene corresponding DEM when preparing 
+							TM/ETM+ files - it is only used when dealing with MSS images while making their cloud and cloud shadow masks.
+						</p>
+						
+						
+						<h3 class="guide_link" id="running_llr_step_3">Running LLR Step 3 - Prepare OLI images</h3>
+						<p>
+							Repeat the same steps as <a href="#running_llr_step_1">Running LLR Step 1 - Prepare MSS images</a>, except select <code>3</code> (Prepare OLI) 
+							when prompted to <em>Select a function to run</em> after calling the <code>run_landsatlinkr</code> function. Be sure to select a OLI scene directory 
+							instead of an MSS directory when prompted with the Windows directory browser. Also, you will <strong>NOT</strong> need to select a scene corresponding DEM when preparing 
+							OLI files - it is only used when dealing with MSS images while making their cloud and cloud shadow masks.
+						</p>
+						
+						
+						<h3 class="guide_link" id="running_llr_step_4">Running LLR Step 4 - MSS to TM calibration</h3>
+						<p><strong>1. Call the LandsatLinkr program.</strong> Open RStudio and type the following command into the console and press enter.</p>
+						<p><code>run_landsatlinkr()</code></p>
+						<p><strong>2. Select a process to run.</strong> Within the console you will be presented with a list of options for which process to run.</p>
+						<pre>
+Select a process to run 
+
+1: Prepare MSS
+2: Prepare TM/ETM+
+3: Prepare OLI
+4: Calibrate MSS to TM
+5: Calibrate OLI to ETM+
+6: Composite imagery
+
+Selection:</pre>
+					
+						<p>Place your cursor after <var>Selection:</var> and type <code>4</code> and press enter to run <em>Calibrate MSS to TM</em>.</p>
+						
+						
+						<p>
+							<strong>3. Choose how many cores to process imagery with.</strong> Within the console you will be presented with a 
+							choice of processing in parallel with two cores or not.
+						</p>
+						<pre>
+Process in parallel using 2 cores when possible? 
+
+1: Yes
+2: No
+
+Selection:</pre>
+						<p>
+							Place your cursor after <var>Selection:</var> and type <code>1</code> (process in parallel) or 
+							<code>2</code> (do not process in parallel) and press enter to commit the selection. Verify your selection. 
+							<strong>***Note:</strong> processing is limited to a maximum of 2 cores for I/O reasons. 
+						</p>
+						<p>
+							<strong>4. Select whether to overwrite existing files or not.</strong>
+						</p>
+						<pre>
+If files from a process already exist, should they be overwritten? 
+
+1: Yes
+2: No
+
+Selection:</pre>
+						<p>
+							Place your cursor after <var>Selection:</var> and type <code>1</code> (yes, overwrite existing files) or 
+							<code>2</code> (no, do not overwrite existing files) and press enter to commit the selection. Verify your selection. 
+							<strong>***Note:</strong> in general it is best to <strong>NOT overwrite</strong>  existing files unless you want to start over on a project. LLR creates many files 
+							and it can be time consuming if you are processing hundreds of images. If you run into an error during a procedure and choose to overwrite
+							existing files, the entire process for all images will be rerun. If you choose to not overwrite, the program will start where is left off.
+							Therefore, if there is a problem with a single file you can deal with it manually and then restart the process where it left off, which will be much more efficient than
+							reprocessing all images.
+						</p>
+						<p>
+							<strong>5. Select an MSS WRS-1 scene directory to be spectrally calibrated to TM imagery.</strong> A message will display in the R console:</p>
+							<pre>
+[1] "Beginning scene selection for MSS to TM calibration"
+[1] "Please see the 'Running LLR Step 3 - MSS to TM calibration' section of the user guide for assistance"
+[1] "-----------------------------------------------------------------------"
+[1] "Select a MSS WRS-1 scene directory."</pre>
+							
+						<p>
+							... and a Windows directory 
+							browser pop-up will prompt you to choose a folder. Navigate to an MSS WRS-1 scene directory. 
+							Be sure to select the scene head folder designated by a 6 digit WRS identifier (example: 034032).  <strong>***Note:</strong> the 
+							browser pop-up will not always come up as the active window so the icon must be clicked on in the Windows 
+							application menu bar.
+						</p>
+						<p>
+							<strong>6. Select an MSS WRS-2 scene directory to be spectrally calibrated to TM imagery.</strong> An additional R printout and 
+							Windows directory browser pop-up will appear asking you to now select an MSS WRS-2 scene directory
+						</p>
+						<pre>
+[1] "Select a MSS WRS-2 scene directory."</pre>
+						<p>
+							Navigate to an MSS WRS-2 scene directory. 
+							Be sure to select the scene head folder designated by a 6 digit WRS identifier (example: 034032). This MSS WRS-2 directory will
+							be the link between MSS and TM. The statistical relationship between this MSS directory and the following TM directory selection will
+							be used to transform both the values of the this MSS WRS-2 directory and the previously selected MSS WRS-1 directory to match TM values. 
+							It is therefore important that the spatial overlap between the previously selected MSS WRS-1 directory and the MSS WRS-2 directory you are now 
+							selecting be substantial. Recall that there is variation in the overlap between the WRS-1 and WRS-2 systems. See section 
+							<a href="#setup_processing_directories">Setup processing directories</a> for a refresher on WRS disparity and how it affects LLR processing.
+							<strong>***Note:</strong> the browser pop-up will not always come up as the active window 
+							so the icon must be clicked on in the Windows application menu bar.
+						</p>
+						<p>
+							<strong>7. Select a TM/ETM+ WRS-2 scene directory to act as the spectral reference for the MSS scenes previously 
+							selected for calibration.</strong> An additional R printout and Windows directory browser pop-up will appear 
+							asking you to now select a TM/ETM+ WRS-2 scene directory.
+						</p>
+						<pre>
+[1] "Select a TM/ETM+ WRS-2 scene directory."</pre>						
+						<p>
+							Navigate to an TM/ETM+ WRS-2 scene directory. 
+							Be sure to select the scene head folder designated by a 6 digit WRS identifier (example: 034032). This TM/ETM+ WRS-2 directory should 
+							be the same WRS-2 path/row as the previously selected MSS WRS-2 directory, as the program will attempt to find coincident images.
+							<strong>***Note:</strong> the browser pop-up will not always come up as the active window so the icon must be clicked on in the Windows application menu bar.
+						</p>
+						<p>A list of your selected directories will be displayed, verify that they are correct.</p>
+
+						
+						<h3 class="guide_link" id="running_llr_step_5">Running LLR Step 5 - OLI to ETM+ calibration</h3>
+						<p>
+							Repeat the same steps as <a href="#running_llr_step_5">Running LLR Step 4 - MSS to TM calibration</a>, except select <code>5</code> (Calibrate OLI to ETM+) 
+							when prompted to "Select a function to run" after calling the <code>run_landsatlinkr</code> function. Be sure to select a WRS-2 OLI scene directory
+							and WRS-2 TM/ETM+ directory that are corresponding, since a statistical relationship will be developed between the two selected directories. In other words
+							both the OLI and the TM/ETM+ directories need to be of the same WRS-2 path/row.
+						</p>
+						
+						
+						<h3 class="guide_link" id="running_llr_step_6">Running LLR Step 6 - Composite imagery</h3>
+						<p><strong>1. Call the LandsatLinkr program.</strong> Open RStudio and type the following command into the console and press enter.</p>
+						<p><code>run_landsatlinkr()</code></p>
+						<p><strong>2. Select a process to run.</strong> Within the console you will be presented with a list of options for which process to run.</p>
+						<pre>
+Select a process to run 
+
+1: Prepare MSS
+2: Prepare TM/ETM+
+3: Prepare OLI
+4: Calibrate MSS to TM
+5: Calibrate OLI to ETM+
+6: Composite imagery
+
+Selection:</pre>
+						<p>
+							Place your cursor after <var>Selection:</var> and type <code>6</code> and press enter to run <em>Composite imagery</em>. Verify your
+							selection.
+						</p>
+						<p>
+							<strong>3. Choose how many cores to process imagery with.</strong> Within the console you will be presented with a 
+							choice of processing in parallel with two cores or not.
+						</p>
+						<pre>
+Process in parallel using 2 cores when possible? 
+
+1: Yes
+2: No
+
+Selection:</pre>
+						<p>
+							Place your cursor after <var>Selection:</var> and type <code>1</code> (process in parallel) or 
+							<code>2</code> (do not process in parallel) and press enter to commit the selection. Verify your selection. 
+							<strong>***Note:</strong> processing is limited to a maximum of 2 cores for I/O reasons. 
+						</p>
+						<p>
+							<strong>4. Select whether to overwrite existing files or not.</strong>
+						</p>
+						<pre>
+If files from a process already exist, should they be overwritten? 
+
+1: Yes
+2: No
+
+Selection:</pre>
+						<p>
+							Place your cursor after <var>Selection:</var> and type <code>1</code> (yes, overwrite existing files) or 
+							<code>2</code> (no, do not overwrite existing files) and press enter to commit the selection. Verify your selection. 
+							<strong>***Note:</strong> in general it is best to <strong>NOT overwrite</strong>  existing files unless you want to start over on a project. LLR creates many files 
+							and it can be time consuming if you are processing hundreds of images. If you run into an error during a procedure and choose to overwrite
+							existing files, the entire process for all images will be rerun. If you choose to not overwrite, the program will start where is left off.
+							Therefore, if there is a problem with a single file you can deal with it manually and then restart the process where it left off, which will be much more efficient than
+							reprocessing all images.
+						</p>
+						<p>
+							<strong>5. Select an MSS WRS-1 scene directory to process imagery from.</strong> A Windows directory browser pop-up will prompt you to 
+							interactively choose a folder. Navigate to an MSS WRS-1 scene directory. Be sure to select the scene head folder 
+							designated by a 6 digit WRS identifier (example: 034032). Verify your selection. <strong>***Note:</strong> the browser pop-up will not always come up as 
+							the active window so the icon must be clicked on in the Windows application menu bar. 
+						</p>
+						<p>Optionally add additional MSS WRS-1 scenes to include in the composite mosaic - repeat Step 5.</p>
+						<p>
+							<strong>6. Select an MSS WRS-2 scene directory to process imagery from.</strong> A Windows directory browser pop-up will prompt you to 
+							interactively choose a folder. Navigate to an MSS WRS-2 scene directory. Be sure to select the scene head folder 
+							designated by a 6 digit WRS identifier (example: 034032). Verify your selection. <strong>***Note:</strong> the browser pop-up will not always come up as 
+							the active window so the icon must be clicked on in the Windows application menu bar. 
+						</p>
+						<p>Optionally add additional MSS WRS-2 scenes to include in the composite mosaic - repeat Step 6.</p>
+						<p>
+							<strong>7. Select a TM/ETM+ scene directory to process imagery from.</strong> A Windows directory browser pop-up will prompt you to 
+							interactively choose a folder. Navigate to a TM/ETM+ scene directory. Be sure to select the scene head folder 
+							designated by a 6 digit WRS identifier (example: 034032). Verify your selection. <strong>***Note:</strong> the browser pop-up will not always come up as 
+							the active window so the icon must be clicked on in the Windows application menu bar. 
+						</p>
+						<p>Optionally add additional TM/ETM+ scenes to include in the composite mosaic - repeat Step 7.</p>
+						<p>
+							<strong>8. Select a OLI scene directory to process imagery from.</strong> A Windows directory browser pop-up will prompt you to 
+							interactively choose a folder. Navigate to an OLI scene directory. Be sure to select the scene head folder 
+							designated by a 6 digit WRS identifier (example: 034032). Verify your selection. <strong>***Note:</strong> the browser pop-up will not always come up as 
+							the active window so the icon must be clicked on in the Windows application menu bar. 
+						</p>
+						<p>Optionally add additional OLI scenes to include in the composite mosaic - repeat Step 8.</p>
+						<p>A list of the directories selected for inclusion in compositing and mosaicing will be listed. Verify the list when prompted.</p>
+						<p>
+							<strong>9. Select an output directory to place composite files.</strong> A Windows directory browser pop-up will prompt you to 
+							interactively choose a folder. Navigate to a directory where you want the output composite files to be placed. 
+							Verify your selection. <strong>***Note:</strong> the browser pop-up will not always come up as 
+							the active window so the icon must be clicked on in the Windows application menu bar. 
+						</p>
+						<p>
+							<strong>10. Provide a unique name for the composite series.</strong> An R console dialog will prompt you to enter a unique name or
+							ID for this composite series. 
+						</p>
+						<pre>Provide a unique name for the composite series. ex. project1:</pre>
+						<p>
+							Place your cursor after the colon in the R command prompt and type a string (no need for quotation marks and leave no leading or trailing spaces). 
+							This can be anything you like, it will be included in the files name of output files to distinguish them from other composites series 
+							you might create. Press enter once you've finished and verify your entry.
+						</p>
+						<p>
+							<strong>11. Define an area to create the composite for.</strong> Think of this as the boundary for your study area or a region of interest (ROI).
+							It can either be a file or you can interactively provide the corner coordinates of a rectangular area containing your region of interest. It
+							tells the compositing procedure what region to create the composite for. If it is defined by a file, the file must be a binary raster with
+							values 0 and 1, where 0 are pixels that should not be included in the composite and pixels with value 1 to be included. It must also be in the same
+							projection as the image data you are compositing and have a 30m pixel resolution. In addition to compositing based on the values of the ROI raster, 
+							the program will also clip
+							the composite to the rectangular extent of the file. 
+						</p>
+						<p>	
+							If you choose to provide coordinates, all pixels within the rectangular region defined by the
+							coordinates will be included in the composites, while areas outside will be excluded. The coordinates <strong>MUST</strong> be in the same
+							projection as the image data. The program will make a raster image based on the coordinates and place it in the output location you defined in
+							Step 9. with the filename as <em>useareafile.tif</em>. This file will be in the same projection as the imagery with a 30m pixel resolution. 
+							The pixel values will all be 1. This file can be used again as a <em>usearea</em> or <em>ROI</em> file.
+						</p>
+						<pre>
+What area do you want to create composites for? 
+
+1: From file
+2: Provide coordinates
+
+Selection:</pre>
+						<p>If you select <em>From file</em> a Windows file browser pop-up will prompt you to 
+							interactively choose a file. Navigate to a file select it and verify your selection. 
+							<strong>***Note:</strong> the browser pop-up will not always come up as 
+							the active window so the icon must be clicked on in the Windows application menu bar.</p>
+						<p>If you select <em>Provide coordinates</em> the following dialog will be displayed in the R console one coordinate at a time.</p>
+						<pre>
+[1] "Please provide min and max xy coordinates (in image set projection units) defining a study area that intersects the image set"
+max x coordinate:
+min x coordinate:
+max y coordinate:
+min y coordinate:</pre>
+						<p>
+							Carefully enter each requested coordinate and verify your entries once they have all be placed. The program will check to make sure that the
+							provided coordinates make a rectangle and ask you to re-enter them if not.
+						</p>
+						<p>
+							Depending on your selection, LLR will either create a usearea file from the coordinates or standardize the provided file. In either case, LLR will
+							ensure the projection of the usearea file is in the same system as the image data, the pixel resolution matches, and will set all values to
+							either 1 or 0. It will also make a copy of the prepared tif format usearea file as a bsq file for optional use in <a href="https://github.com/jdbcode/LLR-LandTrendr">LandTrendr</a>.
+							The prepared files will be written to the original directory if a file was provided, or to the defined output folder if coordinates were provided. 
+						</p>
+						<p id="doy" class="guide_link">
+							<strong>12. Define a range of dates to include in your composites.</strong> These parameters limit what dates are included in annual
+							composites and allow our friends in the southern hemisphere to bridge the year divide for their annual growing season. The range is
+							defined by two separate interface input queries: one for the early date in the range and one for the later date. The dates are
+							in units of day-of-year starting from January 1st (1) to December 31st (365 or 366 (leap year)). Use the following table (<a href="#doytbl">Table 2</a>) to
+							convert day-of-month to day-of-year. Note that leap year is not considered in these parameter inputs, so depending on the year of an image, the
+							day-of-year range you provide could be off by 1 day. 
+						</p>
+						
+						<table id="doytbl" class="table table-hover table-bordered">
+							<caption style="font-size: 12px">Table 2. Non-leap year day-of-year calendar. Use the month (columns) and date (rows) to determine the day of year for a given day of month.</caption>
+							<tr><th></th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th></tr>
+							<tr><th> 1</th> <td>  1</td><td> 32</td><td> 60</td><td> 91</td><td>121</td><td>152</td><td>182</td><td>213</td><td>244</td><td>274</td><td>305</td><td>335</td> </tr>
+							<tr><th> 2</th> <td>  2</td><td> 33</td><td> 61</td><td> 92</td><td>122</td><td>153</td><td>183</td><td>214</td><td>245</td><td>275</td><td>306</td><td>336</td> </tr>
+							<tr><th> 3</th> <td>  3</td><td> 34</td><td> 62</td><td> 93</td><td>123</td><td>154</td><td>184</td><td>215</td><td>246</td><td>276</td><td>307</td><td>337</td> </tr>
+							<tr><th> 4</th> <td>  4</td><td> 35</td><td> 63</td><td> 94</td><td>124</td><td>155</td><td>185</td><td>216</td><td>247</td><td>277</td><td>308</td><td>338</td> </tr>
+							<tr><th> 5</th> <td>  5</td><td> 36</td><td> 64</td><td> 95</td><td>125</td><td>156</td><td>186</td><td>217</td><td>248</td><td>278</td><td>309</td><td>339</td> </tr>
+							<tr><th> 6</th> <td>  6</td><td> 37</td><td> 65</td><td> 96</td><td>126</td><td>157</td><td>187</td><td>218</td><td>249</td><td>279</td><td>310</td><td>340</td> </tr>
+							<tr><th> 7</th> <td>  7</td><td> 38</td><td> 66</td><td> 97</td><td>127</td><td>158</td><td>188</td><td>219</td><td>250</td><td>280</td><td>311</td><td>341</td> </tr>
+							<tr><th> 8</th> <td>  8</td><td> 39</td><td> 67</td><td> 98</td><td>128</td><td>159</td><td>189</td><td>220</td><td>251</td><td>281</td><td>312</td><td>342</td> </tr>
+							<tr><th> 9</th> <td>  9</td><td> 40</td><td> 68</td><td> 99</td><td>129</td><td>160</td><td>190</td><td>221</td><td>252</td><td>282</td><td>313</td><td>343</td> </tr>
+							<tr><th>10</th> <td> 10</td><td> 41</td><td> 69</td><td>100</td><td>130</td><td>161</td><td>191</td><td>222</td><td>253</td><td>283</td><td>314</td><td>344</td> </tr>
+							<tr><th>11</th> <td> 11</td><td> 42</td><td> 70</td><td>101</td><td>131</td><td>162</td><td>192</td><td>223</td><td>254</td><td>284</td><td>315</td><td>345</td> </tr>
+							<tr><th>12</th> <td> 12</td><td> 43</td><td> 71</td><td>102</td><td>132</td><td>163</td><td>193</td><td>224</td><td>255</td><td>285</td><td>316</td><td>346</td> </tr>
+							<tr><th>13</th> <td> 13</td><td> 44</td><td> 72</td><td>103</td><td>133</td><td>164</td><td>194</td><td>225</td><td>256</td><td>286</td><td>317</td><td>347</td> </tr>
+							<tr><th>14</th> <td> 14</td><td> 45</td><td> 73</td><td>104</td><td>134</td><td>165</td><td>195</td><td>226</td><td>257</td><td>287</td><td>318</td><td>348</td> </tr>
+							<tr><th>15</th> <td> 15</td><td> 46</td><td> 74</td><td>105</td><td>135</td><td>166</td><td>196</td><td>227</td><td>258</td><td>288</td><td>319</td><td>349</td> </tr>
+							<tr><th>16</th> <td> 16</td><td> 47</td><td> 75</td><td>106</td><td>136</td><td>167</td><td>197</td><td>228</td><td>259</td><td>289</td><td>320</td><td>350</td> </tr>
+							<tr><th>17</th> <td> 17</td><td> 48</td><td> 76</td><td>107</td><td>137</td><td>168</td><td>198</td><td>229</td><td>260</td><td>290</td><td>321</td><td>351</td> </tr>
+							<tr><th>18</th> <td> 18</td><td> 49</td><td> 77</td><td>108</td><td>138</td><td>169</td><td>199</td><td>230</td><td>261</td><td>291</td><td>322</td><td>352</td> </tr>
+							<tr><th>19</th> <td> 19</td><td> 50</td><td> 78</td><td>109</td><td>139</td><td>170</td><td>200</td><td>231</td><td>262</td><td>292</td><td>323</td><td>353</td> </tr>
+							<tr><th>20</th> <td> 20</td><td> 51</td><td> 79</td><td>110</td><td>140</td><td>171</td><td>201</td><td>232</td><td>263</td><td>293</td><td>324</td><td>354</td> </tr>
+							<tr><th>21</th> <td> 21</td><td> 52</td><td> 80</td><td>111</td><td>141</td><td>172</td><td>202</td><td>233</td><td>264</td><td>294</td><td>325</td><td>355</td> </tr>
+							<tr><th>22</th> <td> 22</td><td> 53</td><td> 81</td><td>112</td><td>142</td><td>173</td><td>203</td><td>234</td><td>265</td><td>295</td><td>326</td><td>356</td> </tr>
+							<tr><th>23</th> <td> 23</td><td> 54</td><td> 82</td><td>113</td><td>143</td><td>174</td><td>204</td><td>235</td><td>266</td><td>296</td><td>327</td><td>357</td> </tr>
+							<tr><th>24</th> <td> 24</td><td> 55</td><td> 83</td><td>114</td><td>144</td><td>175</td><td>205</td><td>236</td><td>267</td><td>297</td><td>328</td><td>358</td> </tr>
+							<tr><th>25</th> <td> 25</td><td> 56</td><td> 84</td><td>115</td><td>145</td><td>176</td><td>206</td><td>237</td><td>268</td><td>298</td><td>329</td><td>359</td> </tr>
+							<tr><th>26</th> <td> 26</td><td> 57</td><td> 85</td><td>116</td><td>146</td><td>177</td><td>207</td><td>238</td><td>269</td><td>299</td><td>330</td><td>360</td> </tr>
+							<tr><th>27</th> <td> 27</td><td> 58</td><td> 86</td><td>117</td><td>147</td><td>178</td><td>208</td><td>239</td><td>270</td><td>300</td><td>331</td><td>361</td> </tr>
+							<tr><th>28</th> <td> 28</td><td> 59</td><td> 87</td><td>118</td><td>148</td><td>179</td><td>209</td><td>240</td><td>271</td><td>301</td><td>332</td><td>362</td> </tr>
+							<tr><th>29</th> <td> 29</td><td>   </td><td> 88</td><td>119</td><td>149</td><td>180</td><td>210</td><td>241</td><td>272</td><td>302</td><td>333</td><td>363</td> </tr>
+							<tr><th>30</th> <td> 30</td><td>   </td><td> 89</td><td>120</td><td>150</td><td>181</td><td>211</td><td>242</td><td>273</td><td>303</td><td>334</td><td>364</td> </tr>
+							<tr><th>31</th> <td> 31</td><td>   </td><td> 90</td><td>   </td><td>151</td><td>   </td><td>212</td><td>243</td><td>   </td><td>304</td><td>   </td><td>365</td> </tr>
+						</table>
+						
+						<p>
+							Select a starting day and an ending day to bound the image dates that will be included in the composites. For example, in western Oregon, USA, forest vegetation is most
+							robust and stable from about June 20 though August 31st. I would therefore use 171 and 243 as the day-of-year range limits for this composite set. Each composite will include only images
+							for those dates in a given year. If you're working across the year divide, as those in the southern hemisphere might be, you would maybe select something like November 20 through January 31, or
+							354 and 31, respectively.
+						</p>
+						<p>The R console will print the following statement:
+<pre>The following two parameter inputs are the minimum and maximum day-of-year to include in your composites.
+Example: June 15th through August 31st would be 166 and 243.
+For more information see the LLR guide page: http://landsatlinkr.jdbcode.com/guide.html#doy</pre>
+						
+						<p>Followed by the input query for the start day of the range, where you will enter the integer day-of-year.</p>
+<pre>Define a minimum day-of-year to include in the composites: </pre>
+						
+						<p>And finally the input query for the end day of the range, where you will enter the integer day-of-year.</p>
+<pre>Define a maximum day-of-year to include in the composites: </pre>
+				
+						<p>
+							Place your cursor after the queries, type the integer value that represents the year-of-day (start or end) and hit enter. 
+						</p>
+						
+						<p>
+							If your date range crosses the year divide, as in the example: minimum day-of-year set as 354 and the maximum day-of-year set as 31, then you will be
+							prompted to define how to label the composite image files. They can either be labeled with the pre- or post- divide year. For example, if you want to
+							include images from December 2009 through January 2010, then the composite can either be label as 2009 (pre) or 2010 (post).
+						</p>
+						<p>In the event that your date range crosses the year divide, here is the interface query to select a file labeling protocol:
+						
+<pre>Your date range crosses the year divide, would you like to label the annual composite files with the pre- or post- divide year? 
+
+1: Pre
+2: Post						
+
+Selection: </pre>						
+				
+						<p>
+							Enter the integer that matches your choice and hit enter. 
+						</p>
+						
+						
+						<p>
+							<strong>13. Choose a method to summarize the value of overlapping pixels in each annual composite.</strong> For overlapping pixels
+							in each annual composite you can summarize them by: mean, maximum, minimum, or median. There is some evidence that median produces
+							cleaner composites when multiple path rows are included in a composite - the seams are less visible, likely because of outlier weight
+							reduction. However, the median calculation takes significantly longer than mean.
+						</p>
+						<p>LLR will print the following:</p>
+<pre>Select a method to summarize the value of overlapping pixels 
+
+1: Mean
+2: Maximum
+3: Minimum
+4: Median *long processing time*
+
+Selection: </pre>
+						<p>
+							Place your cursor after <var>Selection:</var> and type the integer value the represents the method you want to use and then hit enter. 
+						</p>
+						
+						<p>
+							After you provide the compositing method, the miXel compositing and mosaicking process will start. Progress will be displayed in the
+							R console and you can also periodically check the output folder you defined in Step 9 to see which composites have been created. If there are
+							overlapping years between MSS and TM or OLI and ETM+ the miXel program will determine the offset between the overlapping annual time series of these
+							sensors' images and put the results in subfolders called <em>mss_offset</em> and <em>oli_offset</em> with the TC index that is currently
+							being composited and mosaicked. After it has determined the offset it will start to create the final composites and place them in the TC index
+							subdirectories. The miXel procedure will create annual composites for each of the indices: TCA, TCB, TCG, and TCW in succession.
+						</p>
+					</div>
+					
+					<div>
+						<h2 class="page-header guide_link" id="outputs">Outputs</h2>
+						<p>
+							LandsatLinkr produces many new files including directories, raster files, text files, comma delimitated files, and graphic files. 
+							Each adheres to a consistent naming convention and is placed in a defined directory structure.  Image outputs are divided into 
+							three categories: individual, calibration, and composite. The following sections describe the files in each category.
+						</p>
+						<h3 class="guide_link" id="individual_image_outputs">Individual image outputs</h3>
+						<p>
+							During the preparation of MSS, TM/ETM+, and OLI images for a given scene, a new directory called <em>images</em> is created with 
+							subdirectories for each year of imagery (<a href="#mssdir">Figure 6</a>). Additionally for MSS scenes, a <em>topo</em> folder is created that contains
+							the resampled and reprojected DEM file and derived slope and aspect files with properties that correspond to the MSS data.
+						</p>
+						
+						<figure class="fig_space">
+							<img class="guide_link img-responsive" id="mssdir" src="imgs/guide/mssdir.png">
+							<figcaption>
+								Figure 6. Example directory structure for individual files. Note: this example from an MSS directory shows the
+								<em>topo</em> folder, TM and OLI directories will not have this folder since they require no DEM.
+							</figcaption>
+						</figure>
+						
+						<p>
+							Within the individual year folders, a series of image and ancillary files are produced for each date in that year. 
+							Filenames contain the Landsat image ID code and a unique descriptor. Each MSS image has 15 associated files (<a href="#mssfiles">Figure 7</a>), 
+							TM/ETM+ images have 5 (<a href="#tmfiles">Figure 8</a>), as do OLI images (<a href="#olifiles">Figure 9</a>). 
+							<a href="#table2">Table 2</a> (MSS), <a href="#table3">Table 3</a> (TM/ETM+), and <a href="#table4">Table 4</a> (OLI) 
+							describe what each file is and what LLR function (see <a href="#landsatlinkrworkflow">Figure 2</a>) creates it.
+						</p>
+						<figure class="fig_space">
+							<img class="guide_link img-responsive" id="mssfiles" src="imgs/guide/mssfiles.png">
+							<figcaption>
+								Figure 7. Example LLR filenames for an MSS image.
+							</figcaption>
+						</figure>
+						
+						<a class="guide_link" id="table2"></a>
+						<table class="table table-striped table-bordered">
+							<caption>Table 2. Description of MSS files associated with each MSS image.</caption>
+							<thead>
+								<tr>
+									<th>File</th>
+									<th>Description</th>
+									<th>Function</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th>archv.tif</th>
+									<td>4-band MSS DN image</td>
+									<td>MSSunpackr (LPGS L1T MSS image)</td>
+								</tr>
+								<tr>
+									<th>archv_drkobjv.png</th>	
+									<td>Histogram-based dark object selection assessment aid</td>	
+									<td>MSScost</td> 	
+								</tr>
+								<tr>
+									<th>cloud_rmse.csv</th>	
+									<td>Percent cloud cover and georegistration RMSE information</td> 	
+									<td>MSSunpackr</td> 	
+								</tr>
+								<tr>
+									<th>cloudmask.tif</th>	
+									<td>1-band cloud/shadow mask image. 0=clouds/shadow, 1=clear-view</td> 	
+									<td>MSScvm</td> 	
+								</tr>
+								<tr>
+									<th>cloudmask_30m.tif</th>
+									<td>1-band cloud/shadow mask image resampled to 30m</td>
+									<td>MSScal</td>									
+								</tr>
+								<tr>
+									<th>dos_sr.tif</th>
+									<td>4-band MSS surface reflectance image</td>
+									<td>MSScost</td>									
+								</tr>
+								<tr>
+									<th>dos_sr_30m.tif</th>
+									<td>4-band MSS surface reflectance image resampled to 30m</td>
+									<td>MSScal</td> 							
+								</tr>
+								<tr>
+									<th>GCP.txt</th>	
+									<td>Ground control points used in USGS LPGS processing</td> 	
+									<td>MSSunpackr (from LPGS processing)</td> 								
+								</tr>
+								<tr>
+									<th>MTL.txt</th>	
+									<td>Image metadata</td> 	
+									<td>MSSunpackr (from LPGS processing)</td> 								
+								</tr>
+								<tr>
+									<th>proj.txt</th> 
+									<td>PROJ.4 image projection definition</td> 	
+									<td>MSSunpackr</td> 								
+								</tr>
+								<tr>
+									<th>reflectance.tif</th>
+									<td>4-band MSS TOA reflectance image</td>
+									<td>MSSdn2refl</td>							
+								</tr>
+								<tr>
+									<th>tc_30m.tif</th> 
+									<td>3-band MSS tasseled cap image (brightness, greenness, wetness)</td> 
+									<td>MSScal</td> 							
+								</tr>
+								<tr>
+									<th>tca_30m.tif</th>
+									<td>1-band MSS tasseled cap angle image</td>
+									<td>MSScal</td>							
+								</tr>
+								<tr>
+									<th>VER.jpg</th>
+									<td>Verify Image Product from USGS LPGS processing (georegistration information)</td>
+									<td>MSSunpackr (from LPGS processing)</td>						
+								</tr>
+								<tr>
+									<th>VER.txt</th>
+									<td>Verify Image Product from USGS LPGS processing (georegistration information)</td>
+									<td>MSSunpackr (from LPGS processing)</td>							
+								</tr>
+							</tbody>
+						</table>
+						
+						<figure class="fig_space">
+							<img class="guide_link img-responsive" id="tmfiles" src="imgs/guide/tmfiles.png">
+							<figcaption>
+								Figure 8. Example LLR filenames for an TM/ETM+ image.
+							</figcaption>
+						</figure>
+						
+						<a class="guide_link" id="table3"></a>
+						<table class="table table-striped table-bordered">
+							<caption>Table 3. Description of TM/ETM+ files associated with each TM/ETM+ image.</caption>
+							<thead>
+								<tr>
+									<th>File</th>
+									<th>Description</th>
+									<th>Function</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th>cloudmask.tif</th>
+									<td>1-band cloud/shadow mask image. 0=clouds/shadow, 1=clear-view</td>
+									<td>TMunpackr (FMask)</td>
+								</tr>
+								<tr>
+									<th>ledaps.tif</th>	
+									<td>6-band TM/ETM+ surface reflectance image from LEDAPS</td>	
+									<td>TMunpackr (LEDAPS image)</td> 	
+								</tr>
+								<tr>
+									<th>proj.txt</th> 
+									<td>PROJ.4 image projection definition</td> 	
+									<td>TMunpackr</td> 								
+								</tr>
+								<tr>
+									<th>tc.tif</th> 
+									<td>3-band TM/ETM+ tasseled cap image (brightness, greenness, wetness)</td> 
+									<td>TMunpackr</td> 							
+								</tr>
+								<tr>
+									<th>tca.tif</th>
+									<td>1-band TM/ETM+ tasseled cap angle image</td>
+									<td>TMunpackr</td>							
+								</tr>
+							</tbody>
+						</table>
+						
+						<figure class="fig_space">
+							<img class="guide_link img-responsive" id="olifiles" src="imgs/guide/olifiles.png">
+							<figcaption>
+								Figure 9. Example LLR filenames for an OLI image.
+							</figcaption>
+						</figure>
+						
+						<a class="guide_link" id="table4"></a>
+						<table class="table table-striped table-bordered">
+							<caption>Table 4. Description of OLI files associated with each OLI image.</caption>
+							<thead>
+								<tr>
+									<th>File</th>
+									<th>Description</th>
+									<th>Function</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th>cloudmask.tif</th>
+									<td>1-band cloud/shadow mask image. 0=clouds/shadow, 1=clear-view</td>
+									<td>OLIunpackr (FMask)</td>
+								</tr>
+								<tr>
+									<th>l8sr.tif</th>	
+									<td>6-band OLI surface reflectance image from L8SR</td>	
+									<td>OLIunpackr (L8SR image)</td> 	
+								</tr>
+								<tr>
+									<th>proj.txt</th> 
+									<td>PROJ.4 image projection definition</td> 	
+									<td>OLIunpackr</td> 								
+								</tr>
+								<tr>
+									<th>tc.tif</th> 
+									<td>3-band OLI tasseled cap image (brightness, greenness, wetness)</td> 
+									<td>OLIcal</td> 							
+								</tr>
+								<tr>
+									<th>tca.tif</th>
+									<td>1-band TM/ETM+ tasseled cap angle image</td>
+									<td>OLIcal</td>							
+								</tr>
+							</tbody>
+						</table>
+						
+						
+						<h3 class="guide_link" id="calibration_outputs">Calibration outputs</h3>
+						<p>
+							MSS WRS-2 images spectrally tie all intersecting MSS images to the TM images for a 
+							given scene. Landsat satellites 4 and 5 carried both MSS and TM sensors and from 1982 to 1992 
+							collected images coincidently. These coincident image pairs provide an excellent dataset to calibrate 
+							the MSS data to TM data. Currently, linear models for each coincident pair are developed, as 
+							well as an aggregated model that combines a sample of pixels from each pair together in one model. 
+							The single models are compared against the aggregated model for evaluation purposes, but in the end 
+							only the aggregated model is used to calibrate MSS images to TM images. The same process is applied to
+							calibrate the OLI data to ETM+ data, however, the population of coincident images between OLI and ETM+ are
+							limited to a small set of overflight test images. Instead, we use the nearest date between a given OLI and ETM+
+							image as calibration pairs. 
+						</p>
+						
+						<figure class="fig_space">
+							<img class="guide_link img-responsive" id="caldir" src="imgs/guide/caldir.png">
+							<figcaption>
+								Figure 10. Example directory structure demonstrating the <em>calibration</em> folder.
+							</figcaption>
+						</figure>
+						
+						<figure class="fig_space">
+							<img class="guide_link img-responsive" id="calfiles" src="imgs/guide/calfiles.png">
+							<figcaption>
+								Figure 11. Example LLR filenames for individual MSS/TM or OLI/ETM+ image pair models.
+							</figcaption>
+						</figure>
+						
+						<a class="guide_link" id="table5"></a>
+						<table class="table table-striped table-bordered">
+							<caption>
+								Table 5 Description of MSS and OLI individual image-pair model calibration files. *Files exist for each Tasseled 
+								cap index: brightness (tcb), greenness (tcg), wetness (tcw), and angle (tca).</caption>
+							<thead>
+								<tr>
+									<th>File</th>
+									<th>Description</th>
+									<th>Function</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th>*cal_coef.csv</th>
+									<td>Linear model coefficients for deriving TM index from MSS bands</td>
+									<td>MSScal/OLIcal</td>
+								</tr>
+								<tr>
+									<th>*cal_plot.png</th>	
+									<td>Scatterplot showing relationship between MSS-modeled index and TM index </td>	
+									<td>MSScal/OLIcal</td> 	
+								</tr>
+								<tr>
+									<th>*cal_samp.csv</th> 
+									<td>Table of sample values from MSS and TM used to develop linear model</td> 	
+									<td>MSScal/OLIcal</td> 								
+								</tr>
+							</tbody>
+						</table>
+												
+
+						
+						<p>
+							Besides the individual image-pair model folders there is a <em>composite_model</em> folder that contains diagnostic 
+							files related to the aggregate models (<a href="#figure12">Figure 12</a>).
+						</p>
+						
+						<figure class="fig_space">
+							<img class="guide_link img-responsive" id="figure12" src="imgs/guide/aggcalfiles.png">
+							<figcaption>
+								Figure 12. Example files for the aggregate model.
+							</figcaption>
+						</figure>
+						
+						<a class="guide_link" id="table6"></a>
+						<table class="table table-striped table-bordered">
+							<caption>
+								Table 6. Description of MSS and OLI individual image-pair model calibration files. *Files exist for each Tasseled 
+								cap index: brightness (tcb), greenness (tcg), wetness (tcw), and angle (tca).</caption>
+							<thead>
+								<tr>
+									<th>File</th>
+									<th>Description</th>
+									<th>Function</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th>*aggregate_mean_dif.png</th>
+									<td>Figure showing the difference between mean predicted index values (based on aggregate model) and actual values for each image used in model building</td>
+									<td>MSScal/OLIcal</td>
+								</tr>
+								<tr>
+									<th>*aggregate_regression.png</th>	
+									<td>Scatterplot showing relationship between MSS/OLI-modeled index values and TM/ETM+ index values</td>	
+									<td>MSScal/OLIcal</td> 	
+								</tr>
+								<tr>
+									<th>*cal_aggregate_coef.csv</th> 
+									<td>Aggregated image-pair linear model coefficients for deriving TM/ETM+ TC index from MSS/OLI bands</td> 	
+									<td>MSScal/OLIcal</td> 								
+								</tr>
+								<tr>
+									<th>*cal_aggregate_sample.csv</th>
+									<td>Table of aggregated image-pair sample values from MSS/OLI and TM/ETM+ used to develop linear model</td>
+									<td>MSScal/OLIcal</td>
+								</tr>
+								<tr>
+									<th>*cal_combined_coef.csv</th>	
+									<td>List of all individual image-pair linear model coefficients for deriving TM/ETM+ TC index from MSS/OLI bands</td>	
+									<td>MSScal/OLIcal</td> 	
+								</tr>
+								<tr>
+									<th>*single_mean_dif.png</th> 
+									<td>Figure showing the difference between mean predicted index values (based on single pair models) and actual values for each image used in model building</td> 	
+									<td>MSScal/OLIcal</td> 								
+								</tr>
+								<tr>
+									<th>*single_regression.png</th> 
+									<td>Table of sample values from MSS and TM used to develop linear model</td> 	
+									<td>MSScal/OLIcal</td> 								
+								</tr>
+							</tbody>
+						</table>
+						
+						
+						<h3 class="guide_link" id="composite_outputs">Composite outputs</h3>
+						<p>
+							The final step of LLR creates annual cloud free composites by applying image cloud masks (includes masking ETM+ bad scan lines) 
+							and merging multiple overlapping 
+							images from the same year into a single image using the mean. It produces a set of files for each TC index
+							as individual year composite images and also as a temporal stack. The composite output directory is specified by the user 
+							(<a href="#running_llr_step_6">Running LLR Step 6 - Composite imagery</a>) along 
+							with a unique composite identification string that is included in all file names for a given study area composite set. A 
+							subset example of the output files are shown <a href="#figure13">Figure 13</a> and <a href="#table7">Table 7</a> describes what each 
+							file is. All file names adhere to the following naming convention:  
+						</p>		
+						<p>Example: 2013_test_tca_composite.bsq</p>
+						<p>&ltyear&gt_&ltunique ID&gt_&ltspectral index&gt_&ltdescriptor&gt_&ltextension&gt</p>
+						<p>Where:</p>
+						<p>
+							<em>year</em> = the year of the image composite<br>
+							<em>unique ID</em> = the user-provided name of the composite series requested upon running the Step 4 of LLR<br>
+							<em>spectral index</em> = the spectral index of the composite series<br>
+							<em>descriptor</em> = a string describing the file<br>
+							<em>extension</em> = file extension<br>
+						</p>
+						
+						<figure class="fig_space">
+							<img class="guide_link img-responsive" id="figure13" src="imgs/guide/compfiles.png">
+							<figcaption>
+								Figure 13. Example files for the aggregate model.
+							</figcaption>
+						</figure>
+						
+						<a class="guide_link" id="table7"></a>
+						<table class="table table-striped table-bordered">
+							<caption>
+								Table 7. Description of composite image files.</caption>
+							<thead>
+								<tr>
+									<th>File</th>
+									<th>Description</th>
+									<th>Function</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th>&ltyear&gt_&ltid&gt_&ltindex&gt_composite.bsq</th>
+									<td>Image composite for a given year - ENVI file type</td>
+									<td>miXel</td>
+								</tr>
+								<tr>
+									<th>&ltyear&gt_&ltid&gt_&ltindex&gt_composite.bsq.aux.xml</th>	
+									<td>Metadata for the corresponding composite image produced by default when writing ENVI files</td>	
+									<td>miXel</td> 	
+								</tr>
+								<tr>
+									<th>&ltyear&gt_&ltid&gt_&ltindex&gt_composite.hdr</th> 
+									<td>ENVI header file - needs to always accompany the corresponding .bsq image file</td> 	
+									<td>miXel</td> 								
+								</tr>
+								<tr>
+									<th>&ltyear&gt_&ltid&gt_&ltindex&gt_composite_img_list.csv</th>
+									<td>A list of individual images that went into creating the composite for a given year</td>
+									<td>miXel</td>
+								</tr>
+								<tr>
+									<th>&ltid&gt_&ltindex&gt_composite.bsq</th>	
+									<td>Annual image composite stack with as many bands as there are years. The bands are in acceding order of years ie low band number = early year and high band number = late year </td>	
+									<td>miXel</td> 	
+								</tr>
+								<tr>
+									<th>&ltid&gt_&ltindex&gt_composite.bsq.aux.xml</th> 
+									<td>Metadata for the corresponding composite image produced by default when writing ENVI files</td> 	
+									<td>miXel</td> 								
+								</tr>
+								<tr>
+									<th>&ltid&gt_&ltindex&gt_composite.hdr</th> 
+									<td>ENVI header file - needs to always accompany the corresponding .bsq image file</td> 	
+									<td>miXel</td> 								
+								</tr>
+							</tbody>
+						</table>
+						
+					</div>
+					<div>
+						<h2 class="page-header guide_link" id="helper_functions">Helper functions</h2>
+						<h3 class="guide_link" id="mosaic_dems">Mosaic DEMS</h3>
+						<p>
+							The <code>mosaic_dems</code> function will take an assemblage of adjacent DEM files and mosaic them together. <code>MSScvm</code> 
+							cloud masking relies on a DEM to help identify water and remove topographic illumination variation. 
+							This function is an easy way to create these DEM files. The function is called from the RStudio command prompt as: 
+						</p>
+						<p><code>mosaic_dems(dir, proj)</code></p>
+						<p>Where:</p>
+						<p>
+							<var>dir</var> is the full path to a directory containing the individual DEM files that you wish to mosaic. The only files 
+							in the directory should be decompressed DEM files (no zipped files). <var>proj</var> is the PROJ.4 string that defines 
+							the common projection for all image data in your project. See the <a href="#selecting_a_geographic_projection">Selecting a geographic projection</a> section for more information.
+						</p>
+						<p>Example:</p>
+						<pre>mosaic_dems(dir = "E:/dems/wrs1/045030", proj = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")</pre>
+					</div>
+				
+				</div>
+				
+				
+				<!--Nav Bar -->
+
+				<nav class="col-md-3 bs-docs-sidebar">  <!--class="nav bs-docs-sidenav"!-->
+					<ul class="nav nav-stacked fixed" id="sidenav">
+						<li>
+							<a href="#introduction" class="active">Introduction</a>
+							<ul class="nav nav-stacked">
+								<li><a href="#about_landsatlinkr">About LandsatLinkr</a></li>
+								<li><a href="#landsatlinkr_workflow">LandsatLinkr workflow</a></li>
+							</ul>
+						</li>
+
+						<li>
+							<a href="#system_requirements">System requirements</a>
+							<ul class="nav nav-stacked">
+								<li><a href="#computer">Computer</a></li>
+								<li><a href="#data_storage">Data storage</a></li>
+								<li><a href="#software">Software</a></li>
+							</ul>
+						</li>
+						
+						<li>
+							<a href="#setup">Setup</a>
+							<ul class="nav nav-stacked">
+								<li><a href="#install_software">Install software</a></li>
+									<ul class="nav nav-stacked">
+										<li><a href="#r">R</a></li>
+										<li><a href="#rstudio">RStudio</a></li>
+										<li><a href="#gdal">GDAL</a></li>
+									</ul>
+								<li><a href="#install_landsatlinkr">Install LandsatLinkr</a></li>
+								<li><a href="#setup_processing_directories">Setup processing directories</a></li>
+								<li><a href="#download_landsat_images">Download Landsat images</a></li>
+									<ul class="nav nav-stacked">
+										<li><a href="#mss_images">MSS images</a></li>
+										<li><a href="#tm/etm+_images">TM/ETM+ images</a></li>
+										<li><a href="#oli_images">OLI images</a></li>
+										<li><a href="#image_information">Image information</a></li>
+									</ul>
+								<li><a href="#digital_elevation_model">Digital elevation model</a></li>
+								<li><a href="#selecting_a_geographic_projection">Selecting a geographic projection</a></li>
+							</ul>
+						</li>
+						
+						<li>
+							<a href="#running_landsatlinkr">Running LandsatLinkr</a>
+							<ul class="nav nav-stacked">
+								<li><a href="#running_llr_step_1">Prepare MSS images</a></li>
+								<li><a href="#running_llr_step_2">Prepare TM/ETM+ images</a></li>
+								<li><a href="#running_llr_step_3">Prepare OLI images</a></li>
+								<li><a href="#running_llr_step_4">MSS to TM calibration</a></li>
+								<li><a href="#running_llr_step_5">OLI to ETM+ calibration</a></li>
+								<li><a href="#running_llr_step_6">Compositing</a></li>
+							</ul>
+						</li>
+						
+						<li>
+							<a href="#outputs">Outputs</a>
+							<ul class="nav nav-stacked">
+								<li><a href="#individual_image_outputs">Individual image outputs</a></li>
+								<li><a href="#calibration_outputs">Calibration outputs</a></li>
+								<li><a href="#composite_outputs">Composite outputs</a></li>
+							</ul>
+						</li>
+					
+						<li>
+							<a href="#helper_functions">Helper functions</a>
+							<ul class="nav nav-stacked">
+								<li><a href="#mosaic_dems">Mosaic DEMs</a></li>
+							</ul>
+						</li>
+					
+					
+					</ul>
+				</nav>
+		</div>
+		</div>
+	</body>
+</html>

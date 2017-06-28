@@ -1,0 +1,95 @@
+
+<h1>Instructions</h1>
+<p><strong>These instructions are a work in progress please, email me with any missing info that prevents running or suggestions for clarification.</strong></p>
+<h3>Downloading</h3>
+<p>
+	Click on the "release" tab above and download the most recent version's .zip or .tar.gz source code.
+	decompress the code and place the code library somewhere that makes sense with
+	your system of organization.
+</p>
+
+<h3>Installing the IDL LandTrendr code</h3>
+<p>
+	To run LandTrendr you need to have IDL on your system.
+	Open an IDL session and use one of the many methods to source the library you just decompressed and stored.
+	Generally, an easy way to accomplish this is to simply copy the whole code library and paste it into the
+	"Default" project folder or create a new project and paste the code there. 
+</p>
+
+<h3>Running LandTrendr segmentation and fitting procedure</h3>
+<p>
+	To run the LandTrendr segmentation and fitting procedure using outputs from the jdbcode/LandsatLinkr (LLR)
+	library you need to modify two files included in the code library. One is a segmentation parameter file 
+	and the other is a batch file. Before you can run anything, however, you need to have completed the
+	"Composite imagery" step of LLR. See the <a href="http://landsatlinkr.jdbcode.com/guide.html#composite_outputs">LLR user guide</a>
+	section on composite outputs to familiarize yourself with the files and directories that you'll be needing to define in
+	the batchfile.
+</p>
+<p>
+	When running the LLR composite imagery step you defined a folder where the composite images are place. In this folder are
+	subfolders for each spectral index that was composited. Currently it will include "tca", "tcb", "tcg", "tcw" (tasseled cap
+	brightness, greenness, wetness, and angle). You will define the full path to these directories when you fill out the batchfile. 
+</p>
+<p>
+	You need to create a folder for LandTrendr outputs, you can put this where you like - I usually put it at the same level as the
+	composite image folders mentioned just a couple lines up. I call it "lt_outputs" or "landtrendr".
+<p/>
+<p>
+	Keep this folder open so you can copy two files into it. These files will come from the code library. Copy the "segmentation_parameters.txt"
+	file found in the "parameter_files" directory - paste it in the folder you just made. Now open the "run_files" directory in the code library
+	and copy the "run_llr_lt_seg_and_fit_batchfile.pro" into the folder you just made.
+</p>
+<p>
+	Open the copied/pasted "segmentation_parameters" in a text editor (Notepad++ is a good). You need to edit the "run_name" and "base_index" parameters.  The "run_name" is a unique identifier that
+	will be added to the output filenames - just a descriptor to help keep your outputs organized - ie is
+	this for a specific project you are working on. The "base_index" parameter tells the segmentation and fitting
+	procedures what the spectral index it is that you are running so it know how to interpret spectral trend direction.
+	<strong>It is really important that it is defined strictly as either "brightness", "greenness", "wetness", or "tcangle" - whichever
+	you happen to be running</strong>. The other parameters affect the segmentation algorithms and can be set as you like, though the defaults
+	are generally appropriate. For more information see Robert Kennedy's <a href="http://landtrendr.forestry.oregonstate.edu/sites/default/files/Kennedy_etal2010.pdf">
+	paper</a> describing the method or his <a href="https://github.com/KennedyResearch/LandTrendr-2012/blob/master/docs/LandTrendr%20Users%20Guide.docx">instructions</a>
+	on github. Save the file. 
+</p>
+<p>
+	The last step is to edit the batchfile. Open the copied/pasted "run_llr_lt_seg_and_fit_batchfile.pro" file in IDL.
+	There are 6 parameters. 
+</p>
+<ul>
+	<li>
+		<strong>llr_composite_dir</strong>: provide the full path to the llr composite image index directory you want to run LandTrendr on. It should be
+		the same index you just defined in the "segmentation_parameters" file. Example: "K:\test\composite\tca\" - make sure the "\" character
+		is at the end of the path.
+	</li>
+	<li>
+		<strong>lt_output_dir</strong>: full path to the LandTrendr outputs directory you just made and copied the "segmentation_parameters" 
+		and "run_llr_lt_seg_and_fit_batchfile.pro" files to. Example: "K:\test\composite\landtrendr\" - make sure the "\" character
+		is at the end of the path.
+	</li>
+	<li>
+		<strong>seg_params_txt</strong>: full path to the "segmentation_parameters" file you just edited. Make sure that the in "base_index" parameter you set in it corresponds to the 
+		"llr_composite_dir" path you just set. Example: "K:\test\composite\landtrendr\tca_segmentation_parameters.txt"
+	</li>
+	<li>
+		<strong>mask_image</strong>: full path to a region of interest file that defines what pixel LandTrendr should be run on. It should be a .bsq raster file that contains only values 1 and 0.
+		1 for pixels to run LandTrendr on and 0 to ignore. This file can be the same file you provided to the LLR compositing function. However, you may need to convert it to a .bsq file - 
+		gdal can be helpful here, I will add a function to the LLR library as well. Example:"K:\test\composite\useareafile.bsq"
+	</li>
+	<li><strong>eval</strong>: a logical parameter for setting whether to run LandTrendr in evaluation mode (run every 3rd pixel and interpolate the rest) or full. 0 for full, 1 for evaluation.</li>
+	<li>
+		<strong>resume</strong>: a logical parameter for resuming a LandTrendr run that has crashed because of a power or data transfer interruption. If this situation occurs, set resume to 1 and 
+		the process should continue where it was just before being interrupted. Leave set a 0 otherwise.
+	</li>
+</ul>
+<p>
+	When you have finished editing the batchfile, save it and in the IDL command prompt type the @ symbol followed by the full path to the "run_llr_lt_seg_and_fit_batchfile.pro" 
+	file you just edited enclosed in quotes and hit enter. Example: @"K:\test\composite\landtrendr\tca_run_llr_lt_seg_and_fit_batchfile.pro"
+</p>
+<p>
+	IDL should be cranking away and a progress bar should be reporting its status. Files should be generated in a spectral index subfolder of the LandTrendr outputs folder you defined.
+	You need to repeat the above steps for all spectral indices you want processed with LandTrendr. I use the same LandTrendr folder and just make new copies of the "segmentation_parameters.txt"
+	and "run_llr_lt_seg_and_fit_batchfile.pro" files with unique spectral indices appended to the file names.
+</p>
+
+
+
+

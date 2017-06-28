@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>miXel - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="cache-control" content="no-cache"/>
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>	
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li><a href="about.html">About</a></li>
+				<li class="active"><a href="process.html">Process</a></li>
+				<li><a href="outputs.html">Outputs</a></li>
+				<li><a href="guide.html">Guide</a></li>
+				<li><a href="download.html">Download</a></li>
+				<li><a href="examples.html">Examples</a></li>
+				<li><a href="#">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container">
+			<div class="row top_margin">
+				<div class="col-md-9">
+					<h3>miXel</h3>
+					<p>
+						miXel is the image compositing component of the LLR system. It creates cloud-free annual composite 
+						images by blending multiple images from the same year together using the overlapping pixel mean 
+						and ignoring pixels identified as cloud, cloud shadow, or no data in the ETM+ SLC-OFF images in the calculation (Figure 1). 
+						In the case where all overlapping pixels are identified as obscured, the composite pixel is 
+						assigned a value of NA. Given a series of directory locations and an area-of-interest (AOI) 
+						raster file or xy corner coordinates, miXel looks through the given directories and finds images 
+						(and their corresponding cloud masks) that intersect the AOI. It organizes the images by year, and 
+						for each, creates a composite image and then clips that image to the extent of the AOI. It creates 
+						composites from modeled MSS tasseled cap indices, TM/ETM+ tasseled cap indices, and modeled OLI tasseled cap indices
+						and writes them to a user-defined directory as both individual year files and as a time series stack 
+						with as many bands as there are years. Figure 2 shows a visual example of miXel mean composting 
+						for a single-pixel time series and Figure 3 shows an example of temporal fitting based on mean 
+						annual compositing.
+					</p>
+					<img class="img-responsive img_space" src="imgs/mixel.png">
+					<p>
+						Figure 1. Conceptual example of LLR miXel cloud-free compositing. Given multiple images from the same 
+						year and season, miXel creates a composite from the mean of all overlapping cloud-free observations.
+					</p>
+					<hr>
+					<img class="img-responsive  img_space" src="imgs/composite.png">
+					<p>
+						Figure 2. Visual example of miXel mean composting for a single-pixel time series. Transparent colored 
+						dots are the original individual image pixel values and the black dots represent the mean value of 
+						the pixel values for each year.    
+					</p>
+					<hr>
+					<img class="img-responsive  img_space" src="imgs/composite_fitted.png">
+					<p>
+						Figure 3. Example of temporal fitting of composite values for a given pixel. Annual compositing along 
+						with temporal fitting produces a simplified representation of the pixel's spectral history. In this 
+						case the pixel experienced a spectral decline, followed by a recovery, a gradual decline that transitioned 
+						to a more rapid high magnitude decline, and finally another recovery.  
+					</p>
+					
+					<h4 style="margin-top:30px;">Pixel-level adjustment</h4>
+					<p>
+						If MSS and OLI data are included in the composites, besides spectral calibration at the image level, a pixel-level
+						adjustment is also made. This adjustment is made to the annual composites. First, for all annual composite years that 
+						are common between MSS and TM and/or ETM+ and OLI a difference image is created. The mean of all difference images (per pixel) is calculated,
+						which is considered the mean offset between the two sets of sensors per pixel. This mean difference per pixel is then subtracted or
+						added to all MSS and/or OLI composites that were created initially (Figure 4). This is a fine tuning method to better spectrally-temporally
+						align very dark and very bright pixels. Figure 5 shows the pre- and post-adjustment pixel offset between sensors as measured by RMSE of
+						the overlapping annual composite years for a sample of pixels. We see a slight decrease in RMSE after the pixel-level correction is made.
+						This example is from tasseled cap angle composites.
+					</p>
+					<img class="img-responsive  img_space" src="imgs/pixel_offset.gif">
+					<p>
+						Figure 4. Conceptual demonstration of how the mean pixel-level offset between common annual composite years for MSS and TM data is calculated and corrected.  
+					</p>
+					<hr>
+					<img class="img-responsive  img_space" src="imgs/offset_rmse.png">
+					<p>
+						Figure 5. Example of pixel-level offset for difference between common annual composite years for MSS and TM pre- and post-adjustment as measured by RMSE.
+						This example is from tasseled cap angle data. We see that there is a reduction in RMSE when the pixel level adjustment is applied.
+					</p>
+					
+					<p>
+					This method of pixel-level correction is based on the following manuscript:
+					</p>
+					<p class="bottom_margin">
+						<a href="http://larse.forestry.oregonstate.edu/sites/larse/files/pub_pdfs/Pflugmacher_etal_2012.pdf" target="_blank">
+							Pflugmacher, D., Cohen, W. B., & E. Kennedy, R. (2012). Using Landsat-derived disturbance history (1972-2010) to 
+							predict current forest structure. Remote Sensing of Environment, 122, 146-165.
+						</a>
+					</p>
+					
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

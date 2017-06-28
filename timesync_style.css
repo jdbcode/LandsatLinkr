@@ -1,0 +1,485 @@
+body {
+	overflow-y: scroll;
+}			
+
+body {
+	font-size:11px;
+}
+
+/*############## CHIP INPUTS ###############################################################*/
+#chipOptionHolder{
+	margin-top:2px;
+	display:inline-block;
+}
+
+.chipOptions{
+	display:inline-block;
+	margin-right:15px;
+}
+
+#chipSize, #plotSize{
+	width:60px;
+}
+
+#zoomSize{
+	display:inline-block;
+	width:75px; 
+	margin-bottom:-4px; 
+}
+
+.colorOptions{
+	width:80px;
+}
+
+.colorOptions input{
+	height:17px;
+	width:30px
+}
+
+
+/*###########################################################################################*/
+
+
+/*############## TS GUIDE ###############################################################*/
+#tsGuideBody{
+	font-size:12px;
+	height:750px;
+}
+#tsGuideBody li:hover{
+	background-color: transparent;
+}
+#btnTsGuide:focus{
+	background-color: transparent;
+}
+#btnTsGuide:hover{
+	background-color: #F1F1F1;;
+}
+#btnTsGuide{
+	margin:2px 3px 0px 0px;
+	text-align: left;
+	padding:0px 0px 0px 5px;
+	font-size:11px;
+	height:21.7167px;
+	width:57px;
+	float:right;
+}
+
+/*###########################################################################################*/
+
+/*############## TRAJECTORY PLOT ###############################################################*/
+.axis path,
+.axis line {
+	fill: none;
+	stroke: black;
+	shape-rendering: crispEdges;
+}
+
+.axis text, 
+#specPlotIndex {
+	font-family: sans-serif;
+
+}
+
+#plot{
+	border:1px solid #afafaf;;
+	border-radius: 4px;
+}
+
+circle.data{
+	cursor: pointer;
+}
+
+circle.selected{
+	stroke:#ED2939; /*#ED2939; '#FF0000;*/
+	stroke-width:2;
+}
+
+circle.highlight{
+	stroke:#32CD32; /*'#FF0000;*/
+	stroke-width:5;
+}
+
+/*circle.data:hover{
+	stroke:#ED2939;
+	stroke-width:1;
+}*/
+
+svg{
+	margin:-1px;
+	cursor: n-resize;
+	display: block;
+}
+#plotLine{
+	stroke:#ED2939; /*'#FF0000;*/
+	stroke-width:2px;
+	fill:none;
+	
+}
+/*###########################################################################################*/
+
+
+
+
+/*############## CHIP GALLERY ###############################################################*/
+#chip-gallery{
+	height:59.6vh; /*565px*/
+	width:auto;
+	overflow-y: auto;
+}
+/*#chip-gallery canvas{
+	display:inline;
+	margin:3px;
+	vertical-align:top;
+	cursor: pointer;
+	border: 3px solid white;
+}*/
+
+.chipHolder{
+	display:inline-block;
+	margin:3px;
+	border: 3px solid white;
+	box-shadow:rgba(0, 0, 0, 0.176) 0px 1px 2px 0px;
+}
+
+.chipImg{
+	cursor: pointer;
+}
+
+.chipDate{
+	text-align: center;
+}
+
+#chip-gallery .selected{
+	border: 3px solid #ED2939; /*black;*/
+}
+
+.chipHolder .highlight{
+	border: 3px solid #32CD32;
+}
+
+.expandChipYear{
+	visibility: hidden;
+	cursor: pointer;
+}
+
+.chipHolder:hover .expandChipYear{
+	visibility: visible;
+}
+
+/*#################################################################################################*/
+
+
+
+#img-gallery{
+	display:none;
+}
+.chipImgSrc{
+	display:none;
+}
+
+
+/*############## SECTION COMPONENTS ###############################################################*/
+#topSection{
+	/*width:100%;*/
+	margin:10px 10px -5px 10px;
+	box-shadow:rgba(0, 0, 0, 0.176) 1px 1px 1px /*grey*/;
+	vertical-align:top;
+	border:1px solid #afafaf; /*#dbdbdb;*/
+	border-radius: 4px;
+}
+
+#topSection p{
+	margin-bottom:5px;
+}
+
+#title{
+	font-weight:bold;
+	font-size:12px;
+	padding-left:3px;
+	margin:0px 40px 0px 0px;
+	
+}
+
+
+
+#containerDiv{
+	display:table;
+	border-spacing: 5px;
+	margin:5px;
+}
+
+#containerDiv div{
+	
+	
+	/*margin: 5px;*/
+}
+
+#plotSelectionDiv{
+	min-width:55px;
+	width:55px;
+	height:%;
+	
+}
+#plotSelectionDiv ul{
+	list-style-type: none;
+ 	padding-left:0px;
+	margin:0px;
+	height:281px;
+	overflow-y: scroll;
+}
+.plotList{
+	padding-left:3px;
+	cursor:pointer;
+}
+.plotList.selected{
+	background-color:#F1F1F1;
+}
+
+#chipGallerySection{
+	border:1px solid #afafaf; 
+	border-radius: 4px; 
+	margin:-5px 10px 10px 10px; 
+	box-shadow: rgba(0, 0, 0, 0.176) 1px 1px 1px /*grey*/;
+}
+
+.test{
+	text-align: right;
+	margin-top:1px;
+	padding-left:0px;
+	margin-bottom:0px;
+	margin-right:-1px;
+}
+.test li{
+	/*text-align: left;*/
+	width: 75px;
+	display: inline-block;
+	/*font-size:12px;*/
+	font-weight: bold;
+	padding: 0px 3px 3px 3px;
+	border: 1px solid #afafaf;
+	cursor: pointer;
+}
+
+.test li.selected{
+	background-color:#f1f1f1;
+}
+
+.header{
+	padding-left:3px;
+	font-size: 12px;
+	font-weight: bold;
+	/*background:#f1f1f1;*/
+	margin-bottom:1px;
+	padding-bottom:3px;
+	
+}
+.subHeader{
+	padding-left:3px;
+	font-weight: bold;
+	margin-bottom:1px;
+	padding-bottom:3px;
+}
+
+.sectionDiv{	
+	display: table-cell;
+	vertical-align:top;
+	border:1px solid #afafaf;
+	border-radius: 4px;
+	box-shadow: rgba(0, 0, 0, 0.176) 1px 1px 1px /*grey*/;
+}
+
+#commentsSection{
+	width:100%;
+}
+
+tr.active{
+	background-color:#32CD32;
+}
+/*#########################################################################################*/
+
+.formDropSelection{
+	border:1px solid #afafaf;
+	margin:3px 3px 3px 3px; /*0px,3px,3px,3px*/
+	cursor:pointer;
+	padding-left:3px;
+	height:17px; /*20px;*/
+	
+}
+#changeProcessList, #landUseList, #landCoverList {
+	display:none;
+	list-style-type: none;
+ 	padding-left:0px;
+	margin:0px;
+	font-size: 11px;
+	border:1px solid #afafaf;
+	border-radius:0px 0px 4px 4px;
+	margin:-4px 3px 3px 3px;
+}
+#CPnotesList, #LUnotesList , #LCnotesList{
+	border:1px solid #afafaf;
+	border-radius:0px 0px 4px 4px;
+	margin:-4px 3px 3px 3px;
+	list-style-type: none;
+ 	padding-left:0px;
+	font-size: 11px;
+	height:67px;
+}
+#LCnotesList{
+	height:100px;
+}
+
+.glyphicon.glyphicon-search{
+	font-size:11px;
+}
+.highlightIt{
+	cursor:pointer;
+}
+
+
+/*############## VERTICES FORM ####################################################*/
+
+.doneBtn{
+	border:1px solid #afafaf;
+	border-radius:4px;
+	margin:7px 3px 3px 3px;
+	text-align:center;
+	font-weight: bold;
+	cursor:pointer;
+	height:40px;
+	padding-top:10px;
+}
+.doneBtn:hover{
+	background-color:#f1f1f1;
+}
+
+.formDrop{
+	cursor:pointer;
+}
+
+/*#########################################################################################*/
+
+/*############## COMMENTS SECTION ####################################################*/
+.listFormat{
+	list-style-type: none;
+ 	padding-left:0px;
+	margin:0px;
+}
+
+
+
+.tableDisplay{
+	display:table;
+	border-spacing: 0px;
+	margin-left:3px;
+}
+
+
+#commentInput{
+	/*height:250px;*/
+	height:270px;
+	width:100%;
+}
+
+#commentInputDiv{
+	margin:0px 3px 3px 3px;
+}
+
+/*############## TRAJECTORY PLOT BUTTONS ####################################################*/
+
+button:focus {outline:none !important;}
+
+li:hover{
+	background-color:#f1f1f1;
+}
+
+.dropdown-menu .active{
+	background-color:#dbdbdb;
+}
+.dropdown-menu.plot li{
+	font-size:11px;
+	padding-left:5px;
+	cursor:pointer;
+	width:99px; /*substract 1 from .dropdown button width because of border*/
+}
+.dropdown-menu.plot {
+	margin-top: 0;
+	min-width:0px;
+}
+			
+.dropdown:hover .dropdown-menu {
+	display: block;
+}
+
+.specPlotBtn{
+	border: 1px solid #afafaf;
+	font-size:11px;
+	text-align: left;
+	padding:0px 0px 1px 5px;
+	width:100px;
+	height:35px
+}
+
+.buttonText{margin-right:2px;}
+
+.caret {
+	position: absolute;
+	left: 80%;
+	top: 65%;
+}
+
+/*#########################################################################################*/
+
+
+
+/*############## SEGMENTS TABLE ###########################################################*/
+table, th, td {
+	margin:-1px;
+	border: 1px solid #afafaf;
+	border-collapse: collapse;
+	
+}
+
+
+table td, table th{
+	padding-left:3px;
+}
+#segmentsFormTbl, #verticesFormTbl{
+	width:310px
+}
+
+#verticesFormDiv{
+	display:none;
+}
+
+.trHeader{
+	background-color:#f1f1f1;
+}
+
+#changeProcessList ul{
+	
+	list-style-type: none;
+ 	padding-left:0px;
+	margin:0px;
+	
+}
+
+
+.dropThis{
+	display:none;
+	background-color:white;
+	border:1px solid #afafaf;
+	border-radius:0px 0px 4px 4px;
+	box-shadow:rgba(0, 0, 0, 0.176) 0px 6px 12px 0px;
+}
+.dropThis ul{
+	list-style-type: none;
+ 	padding-left:0px;
+	margin:0px;
+	margin-bottom:3px;
+}
+.dropThis li{
+	padding-left:3px;
+	cursor:pointer;
+}
+
+/*#########################################################################################*/

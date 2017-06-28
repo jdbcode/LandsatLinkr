@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>TMunpackr - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="cache-control" content="no-cache" />
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">	
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>	
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li><a href="about.html">About</a></li>
+				<li class="active"><a href="process.html">Process</a></li>
+				<li><a href="outputs.html">Outputs</a></li>
+				<li><a href="guide.html">Guide</a></li>
+				<li><a href="download.html">Download</a></li>
+				<li><a href="examples.html">Examples</a></li>
+				<li><a href="#">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container">
+			<div class="row top_margin">
+				<div class="col-md-9">
+					<h3>TMunpackr</h3>
+					<p class="bottom_margin">
+						TMunpacker automatically decompress, stacks, reprojects, produces tasseled cap 
+						transformations, and derives a cloud mask from Fmask. It requires USGS CRD TM and ETM+ image products 
+						downloaded from USGS Earth Explorer as input. It locates these files in targz folder in the 
+						user-provided scene directory path. For each compressed image file it creates a new 
+						temporary folder where compressed images in the targz folder are decompressed to. The 
+						compressed CDR product includes LEDAPS surface reflectance image bands and cloud masks. 
+						TMunpackr decompresses the CDR product, stacks image bands 1-5 and 7
+						and reprojects the image stack. The included Fmask cloud mask is reclassified to include only 
+						values 0 and 1 representing obscured and clear-view pixel designations. This means that original 
+						values for cloud, cloud shadow, snow, and no observation are all assigned the value 0 while 
+						clear land and clear water are assigned the value 1. Fmask reclassication is done to match the 
+						MSS cloud mask produced by <a href="msscvm.html" target="_blank">MSScvm</a> and to allow efficient mask application during the compositing 
+						process (<a href="mixel.html" target="_blank">miXel</a>). The cloud mask is reprojected in the same way as the corresponding 
+						image stack. Finally, the tasseled cap transformation is applied to the surface reflectance image 
+						stack to produce tasseled cap brightness, greenness, and wetness spectral indices. The final image stack, image 
+						ancillary data, cloud mask, and tasseled cap stack are renamed and placed in a subdirectoy to the scene directory called 
+						images where they are further divided into folders by year.  
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

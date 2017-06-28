@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>MSSunpackr - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="cache-control" content="no-cache" />
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li><a href="about.html">About</a></li>
+				<li class="active"><a href="process.html">Process</a></li>
+				<li><a href="outputs.html">Outputs</a></li>
+				<li><a href="guide.html">Guide</a></li>
+				<li><a href="download.html">Download</a></li>
+				<li><a href="examples.html">Examples</a></li>
+				<li><a href="#">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container">
+			<div class="row top_margin">
+				<div class="col-md-9">
+					<h3>MSSunpackr</h3>
+					<p class="bottom_margin">
+						MSSunpacker automatically assesses image quality, decompress, resamples, stacks, reprojects, 
+						and fixes image edge error.  It locates the targz folder in the user-provided scene directory 
+						path and for each compressed image file creates a new temporary folder where compressed images 
+						are decompressed to. It reviews the image metadata to determine if an image is L1G or L1T 
+						processed. If the image is only processed to L1G, all files associated with the image are deleted 
+						and a record is made in the scene sub-folder images_deleted. If an image is L1T, then a 4-band 
+						raster stack file is created from the 4 individual MSS band files. Pixels with values of 0 or 1 
+						in any band are then set to background (value 0); if a pixel is background in one band all 
+						corresponding pixels in the other bands are set to background as well. This procedure cleans bad 
+						data apparent along the edge of images when overlapping scenes are mosaiced. Images that are 
+						composed of greater than 75% of these bad pixels are deleted along with all associated files and 
+						recorded as a note in the images_deleted folder. An estimate of the percent cloud cover is made by 
+						finding the proportion of pixels in the MSS green band greater than 130. This value along with the 
+						scene georegistration RMSE are recorded in a diagnostic file that accompanies the image file.
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

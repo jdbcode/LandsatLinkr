@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>Outputs - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="cache-control" content="no-cache" />
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li><a href="about.html">About</a></li>
+				<li><a href="process.html">Process</a></li>
+				<li class="active"><a href="outputs.html">Outputs</a></li>
+				<li><a href="guide.html">Guide</a></li>
+				<li><a href="download.html">Download</a></li>
+				<li><a href="visualization.html">Visualization</a></li>
+				<li><a href="examples.html">Examples</a></li>
+				<li><a href="contact.html">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container">
+			<div class="row top_margin">
+				<div class="col-md-9">
+					<p>
+						For each MSS, TM, ETM+, and OLI image downloaded, several outputs are created. From these 
+						single image outputs, annual cloud-free image composites are derived by infilling 
+						where clouds are present and taking the mean pixel value from overlapping near-date images.
+					</p>
+					<h3>MSS image data</h3>
+					<ul>
+						<li>4-band DN raster stack</li>
+						<li>4-band radiance raster stack</li>
+						<li>4-band atmospherically corrected surface reflectance</li>
+						<li>3-band TM-calibrated tasseled cap raster stack</li>
+						<li>1-band TM-calibrated tasseled cap angle raster</li>
+						<li>1-band cloud and shadow mask raster</li>
+					</ul>
+					<h3>TM/ETM+ image data</h3>
+					<ul>
+						<li>6-band atmospherically corrected surface reflectance (LEDAPS) raster stack</li>
+						<li>3-band tasseled cap raster stack</li>
+						<li>1-band tasseled cap angle raster</li>
+						<li>1-band cloud and shadow mask raster</li>
+					</ul>
+					<h3>OLI image data</h3>
+					<ul>
+						<li>7-band atmospherically corrected surface reflectance (L8SR) raster stack</li>
+						<li>3-band ETM+ -calibrated tasseled cap raster stack</li>
+						<li>1-band ETM+ -calibrated tasseled cap angle raster</li>
+						<li>1-band cloud and shadow mask raster</li>
+					</ul>
+					<h3>Composite image data</h3>
+					<ul>
+						<li>1-band annual cloud-free tasseled cap brightness raster</li>
+						<li>1-band annual cloud-free tasseled cap greenness raster</li>
+						<li>1-band annual cloud-free tasseled cap wetness raster</li>
+						<li>1-band annual cloud-free tasseled cap angle</li>
+						<li>Multi-band cloud-free tasseled cap brightness time-series raster stack</li>
+						<li>Multi-band cloud-free tasseled cap greenness time-series raster stack</li>
+						<li>Multi-band cloud-free tasseled cap wetness time-series raster stack</li>
+						<li>Multi-band cloud-free tasseled cap angle time-series raster stack</li>
+					</ul>
+					<h3>Spectral chronology</h3>
+					<p class="bottom_margin">
+						LLR time series vizualization tool: <a href="visualization.html">LLR-TimeMachine</a>
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

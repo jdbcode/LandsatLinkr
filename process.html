@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>Process - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="cache-control" content="no-cache" />
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li><a href="about.html">About</a></li>
+				<li class="active"><a href="process.html">Process</a></li>
+				<li><a href="outputs.html">Outputs</a></li>
+				<li><a href="guide.html">Guide</a></li>
+				<li><a href="download.html">Download</a></li>
+				<li><a href="visualization.html">Visualization</a></li>
+				<li><a href="examples.html">Examples</a></li>
+				<li><a href="contact.html">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container">
+			<div class="row top_margin">
+				<div class="col-md-9">
+					<p>
+						LandsatLinkr was developed in the R programming language and is run with a single 
+						function call to provide easy use for users across the whole range of R experience. 
+						Landsat images from MSS, TM, ETM+, and OLI sensors are downloaded and placed into a specific 
+						directory structure and then <code>run_landsatlinkr()</code> is typed into the R console command 
+						line. A few questions are interactively asked of the user regarding what process 
+						to run and where the downloaded image data resides. Upon execution of the program, 
+						LandsatLinkr will automatically run through all procedures for a given step defined 
+						in the LLR workflow (figure below) for all images in a given directory. For a detailed 
+						description of each procedure see the function links below the workflow diagram.
+					</p>
+					<img class="img-responsive" src="imgs/landsatlinkr_workflow.png">
+					<h3>LLR procedures - click on function buttons for more information</h3>
+					<h4>Step 1: Prepare MSS imagery</h4>
+					<table>
+						<tr class="process_tr">
+							<td><a href="mssunpackr.html"><img src="imgs/buttons/mssunpackr.png"></a></td>
+							<td class="button_descrip">Untar/unzip, reproject/resample, stack MSS images</td>		
+						</tr>
+						<tr class="process_tr">
+							<td><a href="msswarp.html"><img src="imgs/buttons/msswarp.png"></td>
+							<td class="button_descrip">Improve georegistration for select MSS images</td>
+						</tr>
+						<tr class="process_tr">
+							<td><a href="mssdn2refl.html"><img src="imgs/buttons/mssdn2refl.png"></td>
+							<td class="button_descrip">Convert MSS image reflectance units from DN to top-of-atmosphere reflectance</td>
+						</tr>
+						<tr class="process_tr">
+							<td><a href="msscost.html"><img src="imgs/buttons/msscost.png"></td>
+							<td class="button_descrip">Apply DOS atmospheric correction and convert reflectance units from DN to surface reflectance </td>
+						</tr>
+						<tr class="process_tr">
+							<td><a href="msscvm.html"><img src="imgs/buttons/msscvm.png"></td>
+							<td class="button_descrip">Make cloud and shadow masks for MSS imagery</td>
+						</tr>
+					</table>
+					<hr>
+					
+					<h4>Step 2: Prepare TM/ETM+ imagery</h4>
+					<table>
+						<tr class="process_tr">
+							<td><a href="tmunpackr.html"><img src="imgs/buttons/tmunpackr.png"></td>
+							<td class="button_descrip">Untar/unzip, reproject, stack, and apply Tasseled Cap transformations</td>		
+						</tr>
+					</table>
+					<hr>
+					
+					<h4>Step 3: Prepare OLI imagery</h4>
+					<table>
+						<tr class="process_tr">
+							<td><a href="oliunpackr.html"><img src="imgs/buttons/oliunpackr.png"></td>
+							<td class="button_descrip">Untar/unzip, reproject, and stack OLI L8SR imagery</td>		
+						</tr>
+					</table>
+					<hr>
+					
+					<h4>Step 4: Calibrate MSS to TM</h4>
+					<table>
+						<tr class="process_tr">
+							<td><a href="msscal.html"><img src="imgs/buttons/msscal.png"></td>
+							<td class="button_descrip">Spectrally calibrate MSS images to TM images</td>		
+						</tr>
+					</table>
+					<hr>
+					
+					<h4>Step 5: Calibrate OLI to ETM+</h4>
+					<table>
+						<tr class="process_tr">
+							<td><a href="olical.html"><img src="imgs/buttons/olical.png"></td>
+							<td class="button_descrip">Spectrally calibrate OLI images to ETM+ images</td>		
+						</tr>
+					</table>
+					<hr>
+					
+					<h4>Step 6: Create image composites</h4>
+					<table>
+						<tr class="process_tr">
+							<td><a href="mixel.html"><img src="imgs/buttons/mixel.png"></td>
+							<td class="button_descrip">Create cloud-free yearly image composites</td>		
+						</tr>
+					</table>
+					<hr class="bottom_margin">
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>Examples - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="cache-control" content="no-cache" />
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+		<script src="http://maps.googleapis.com/maps/api/js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li><a href="about.html">About</a></li>
+				<li><a href="process.html">Process</a></li>
+				<li><a href="outputs.html">Outputs</a></li>
+				<li><a href="guide.html">Guide</a></li>
+				<li><a href="download.html">Download</a></li>
+				<li><a href="visualization.html">Visualization</a></li>
+				<li class="active"><a href="examples.html">Examples</a></li>
+				<li><a href="contact.html">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container">
+			<div class="row top_margin">
+				<div class="col-md-9">
+					<h3>Yellowstone National Park fires</h3>
+					<img class="img-responsive" src="imgs/yellowstonefire.gif">
+					<p>Time lapse sequence of LandsatLinkr-processed imagery (1974-2014). 
+					White indicates missing data at the beginning or end of the time series 
+					(the spectral-temporal fitting does not extrapolate).
+					</p>
+					
+					<img class="img-responsive" src="imgs/yellowstonefirearea.png">
+					<p class="bottom_margin">Study area boundary. Portion of Yellowstone National Park in Northwest Wyoming.</p>
+					<hr>
+					<div>
+						 <h3>Examples from NASA DEVELOP</h3>
+						 <p>
+							 <a href="http://develop.larc.nasa.gov/" target="_blank">DEVELOP</a>, part of NASA's Applied Sciences Program, addresses environmental and public policy issues through interdisciplinary
+							 research projects that apply the lens of NASA Earth observations to community concerns around the globe. Bridging the gap 
+							 between NASA Earth Science and society, DEVELOP builds capacity in both participants and partner organizations to better 
+							 prepare them to address the challenges that face our society and future generations. With the competitive nature and growing 
+							 societal role of science and technology in today's global workplace, DEVELOP is fostering an adept corps of tomorrow's 
+							 scientists and leaders.
+						 </p>
+						 <p>LLR was used in the following two projects from the NASA DEVELOP node at Colorado State Univeristy, Fort Collins, CO.</p>
+						 <ul>
+							<li><h4><a href="http://earthzine.org/2015/07/30/mapping-fire-history-in-ethiopia-with-a-42-year-landsat-time-series/" target="_blank">Mapping Fire History in Ethiopia with a 42-Year Landsat Time Series</a></h4></li>
+							<li><h4><a href="http://earthzine.org/2015/07/30/down-to-earth-reconstructing-forest-disturbances-with-landsat/" target="_blank">Down to Earth: Reconstructing Forest Disturbances with Landsat </a></h4></li>
+						 </ul>
+					</div>
+					<hr>
+					<div>
+						<h3>Example of MSS time series showing phenology pattern</h3>
+						<p>
+							MSS data is often overlooked because it has lower spatial and radiometric resolution, and records fewer wavelength bands than its successors (TM, ETM+, and OLI).
+							However, it adds ~12 years of observation (1972-1984) to the Landsat archive for a total of 43+ years of Earth observation data. This record is unparalleled and is approaching
+							an ecologically meaningful length of time to study short-term Earth surface changes. LandsatLinkr makes MSS images relevant and easy to work with by producing synthetic 
+							data that matches the qualities and spectral character of TM/ETM+ data. Below is an example of synthetic tasseled cap greenness (similar to NDVI) MSS data that 
+							demonstrates its utility for recording phenology in the north eastern US. The time series represents nearly all MSS images that intersect WRS-2 path/row: 014/032. The values 
+							are image median post-cloud masking and cropped to WRS-2 path/row: 014/032.
+						</p>
+						<p>The plot was built with the Plotly.js API, so it is interactive. Click, scroll, hover, and choose options from the Plotly menu.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div id="tcgDiv" style="width: 1800px; height: 500px;"></div>
+		<div>
+			<div id="googlemap" class="google-map" style="width: 1800px; height: 700px; margin:0px 0px 5px 30px;"></div>
+		<div>
+		<p style="margin:0px 0px 30px 30px;">Area represented by the data in the MSS tasseled cap greenness time series plot above (WRS-2 014/032).</p>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-9">
+					<hr>
+					<h3>Examples of MSS to TM spectral calibration</h3>
+					<p>
+						To showcase the results of LLR spectral-temporal calibration, three figures are provided. Figure 1 shows a visual 
+						comparison of standard tasseled cap planes for MSS (top row) and TM (bottom row) for a sample 
+						of pixel values from a coincident image pair. The shape and density of the scatter plots are 
+						very similar, particularly for tasseled cap brightness and greenness, with some disparity for 
+						wetness. In a similar example, Figure 2 shows an MSS/TM image pair as tasseled cap brightness, 
+						greenness, wetness displayed to the red, green, and blue color guns with the same scaling. 
+						Notice the close similarity in visual appearance. Finally, Figure 3 displays a time series 
+						of calibrated pixel values at a given coordinate for all images included for an example LLR 
+						project. Note the smooth blended transition between sensors at their overlap.
+					</p>
+					<img class="img-responsive img_space" src="imgs/composite_cal_tc_planes_comparison.png">
+					<p>
+						Figure 1. Comparison of the standard Tasseled cap planes for MSS (top row) and TM (bottom row) 
+						for coincident images. 
+					</p>
+					<img class="img-responsive img_space" src="imgs/LM40340321989186_tc.png">
+					<p>
+						Figure 2. Example of MSS (left) and TM (right) tasseled cap indices brightness, greenness, wetness 
+						displayed with red, green, and blue color guns for a standardized scale. Note the close similarity 
+						between the two coincident image displays.
+					</p>
+					<img class="img-responsive img_space" src="imgs/time_series_points.png">
+					<p class="bottom_margin">
+						Figure 3. Calibrated pixel values at a given coordinate for all images included in this example 
+						LLR project. Note the smooth blended transition between sensors at their overlap.  
+					</p>
+				</div>
+			</div>
+		</div>
+		
+		<script>
+			var tcgdata = [{"x":[1972.62568306011,1972.67486338798,1972.77322404372,1973.06830601093,1973.1174863388,1973.2650273224,1973.65846994536,1973.70765027322,1973.80601092896,1974.34972677596,1974.44808743169,1974.54644808743,1974.5956284153,1974.98907103825,1975.09016393443,1975.1393442623,1975.23770491803,1975.63114754098,1976.22404371585,1976.56830601093,1976.66666666667],"y":[0.193,0.1127,0.1653,0.0657,0.073,0.0656,0.1461,0.1258,0.1081,0.1094,0.1795,0.0921,0.1372,0.0649,0.0299,0.0269,0.0548,0.192,0.0487,0.2009,0.1719],"name":"LM1014032","mode":"markers","type":"scatter"},{"x":[1973.66120218579,1973.8087431694,1973.85792349727,1974.15573770492,1974.54918032787,1974.79508196721,1975.14207650273,1975.58469945355,1975.68306010929,1975.78142076503,1975.8306010929,1975.87978142077,1975.9781420765,1976.27595628415,1976.42349726776],"y":[0.0956,0.0707,0.0675,0.0542,0.122,0.1188,0.0226,0.1211,0.1208,0.0777,0.0719,0.0528,0.0427,0.0709,0.137],"name":"LM1015032","mode":"markers","type":"scatter"},{"x":[1972.72950819672,1972.77868852459,1973.02459016393,1973.51639344262,1973.66393442623,1973.81147540984,1974.10928961749,1974.15846994536,1975.04644808743,1975.0956284153,1975.14480874317,1975.29234972678,1975.78415300546,1975.8825136612,1976.22950819672,1976.4262295082,1977.10655737705,1977.15573770492],"y":[0.0847,0.1039,0.0425,0.0918,0.055,0.073,0.0278,0.0162,0.0185,-0.0328,0.0236,0.0317,0.0367,0.0235,0.0173,0.1854,0.0111,0.0207],"name":"LM1016031","mode":"markers","type":"scatter"},{"x":[1972.72950819672,1972.77868852459,1973.02459016393,1973.27049180328,1973.51639344262,1973.81147540984,1973.86065573771,1974.10928961749,1974.15846994536,1974.69945355191,1974.79781420765,1975.14480874317,1975.78415300546,1975.8825136612,1976.22950819672,1977.10655737705,1977.15573770492],"y":[0.0683,0.1016,0.0502,0.0308,0.0793,0.0707,0.0464,0.0249,0.0549,0.1067,0.1182,0.0346,0.0605,0.046,0.0229,0.0111,0.0294],"name":"LM1016032","mode":"markers","type":"scatter"},{"x":[1975.0737704918,1975.36065573771,1975.55737704918,1975.80327868852,1975.90163934426,1976.29781420765,1976.34699453552,1976.39617486339,1976.44535519126,1976.6912568306,1976.78961748634,1976.83879781421,1977.18306010929,1977.28142076503,1977.3306010929,1977.77322404372,1977.82240437158,1977.87158469945,1977.92076502732,1978.12021857923,1978.21857923497,1978.51366120219,1978.8087431694,1978.85792349727,1979.20491803279,1979.30327868852,1979.35245901639,1979.45081967213,1979.59836065574,1979.69672131148,1980.48633879781,1980.58469945355,1980.8306010929,1980.87978142077,1981.12568306011,1981.27322404372,1981.32240437158,1981.51912568306,1981.6174863388,1981.71584699454,1981.86338797814,1981.91256830601],"y":[0.039,0.0663,0.1557,0.0638,0.0209,0.0591,0.1005,0.1683,0.1581,0.1136,0.0851,0.0543,0.0482,0.0551,0.0934,0.0772,0.0388,0.0343,-0.0247,-0.0171,0.0334,0.1689,0.0684,0.0449,0.0522,"NA",0.0738,0.1613,0.1485,0.0192,0.1141,0.1271,0.0708,-0.0576,0.0323,0.0604,0.0689,0.1354,0.1226,0.1067,0.0381,0.0321],"name":"LM2014032","mode":"markers","type":"scatter"},{"x":[1975.2650273224,1976.20218579235,1976.30054644809,1976.49726775956,1976.54644808743,1976.5956284153,1976.74316939891,1977.18579234973,1977.2349726776,1977.28415300546,1977.53005464481,1977.57923497268,1977.82513661202,1977.87431693989,1977.92349726776,1977.97267759563,1978.27049180328,1978.51639344262,1978.81147540984,1979.20765027322,1979.45355191257,1979.50273224044,1979.60109289617,1979.69945355191,1980.43989071038,1980.53825136612,1980.58743169399,1980.63661202186,1980.68579234973,1980.78415300546,1980.83333333333,1981.03005464481,1981.07923497268,1981.12841530055,1981.32513661202,1981.37431693989,1981.47267759563,1981.5218579235,1981.71857923497,1981.86612021858,1981.96448087432,1982.06557377049],"y":[0.0481,0.0487,0.0582,0.138,0.204,0.1496,0.1302,0.0435,0.0536,0.0661,0.0723,0.0932,0.051,0.0318,0.0169,-0.0111,0.0531,0.1836,0.0855,0.0423,0.1136,0.1789,0.0958,0.1444,0.1821,0.1641,0.1733,0.1668,0.1333,0.1307,0.0665,-0.001,0.0282,0.0388,0.0475,0.1397,0.0743,0.1306,0.14,0.0421,0.0093,-0.0268],"name":"LM2015032","mode":"markers","type":"scatter"},{"x":[1975.12021857923,1975.21857923497,1975.31693989071,1975.36612021858,1975.8087431694,1976.35245901639,1976.54918032787,1976.69672131148,1976.84426229508,1977.04098360656,1977.09016393443,1977.18852459016,1977.2868852459,1977.33606557377,1977.38524590164,1977.53278688525,1977.77868852459,1977.82786885246,1978.02732240437,1978.07650273224,1978.12568306011,1978.22404371585,1978.27322404372,1978.32240437158,1978.6174863388,1979.01366120219,1979.06284153005,1979.11202185792,1979.16120218579,1979.45628415301,1980.68852459016,1980.7868852459,1980.98360655738,1981.03278688525,1981.13114754098,1981.37704918033,1981.52459016393,1981.72131147541,1981.86885245902,1981.96721311475,1982.06830601093],"y":[0.0268,0.04,0.0402,0.0355,0.0371,0.0578,0.2313,0.1731,0.0364,-0.0731,-0.0457,0.0175,0.0474,0.0333,0.0671,0.2116,0.1209,0.04,0.0096,-0.043,-0.0043,-0.0188,0.034,0.0357,0.1063,0.0163,-0.0128,-0.0077,0.0199,0.0961,0.1405,0.1374,0.03,0.0215,0.0096,0.1185,0.2163,0.1533,0.0001,0.011,-0.0075],"name":"LM2016031","mode":"markers","type":"scatter"},{"x":[1975.12021857923,1975.21857923497,1975.26775956284,1975.31693989071,1975.8087431694,1976.20491803279,1976.30327868852,1976.35245901639,1976.54918032787,1976.69672131148,1976.94262295082,1977.04098360656,1977.09016393443,1977.18852459016,1977.2868852459,1977.33606557377,1977.53278688525,1977.68032786885,1977.77868852459,1977.82786885246,1977.97540983607,1978.07650273224,1978.12568306011,1978.27322404372,1978.32240437158,1978.96174863388,1979.01366120219,1979.06284153005,1979.11202185792,1979.16120218579,1979.35792349727,1980.54098360656,1980.59016393443,1980.68852459016,1980.7868852459,1980.83606557377,1980.88524590164,1980.98360655738,1981.03278688525,1981.18032786885,1981.37704918033,1981.52459016393,1981.72131147541,1981.96721311475,1982.06830601093],"y":[0.015,0.0305,0.0177,0.0275,0.0627,0.0208,0.0195,0.0886,0.2152,0.1333,0.0373,-0.0179,-0.0106,0.0027,0.069,0.05,0.178,0.0459,0.1045,0.0631,0.0117,-0.0216,-0.0158,0.0126,0.0805,0.0392,-0.0008,0.0299,-0.0015,0.0222,0.0486,0.0397,0.0583,0.1025,0.1256,0.0945,0.0685,0.0407,0.0218,0.0294,0.1378,0.2103,0.0511,-0.001,-0.0139],"name":"LM2016032","mode":"markers","type":"scatter"},{"x":[1978.1912568306,1978.24316939891,1978.43989071038,1978.48907103825,1978.7349726776,1979.13114754098,1979.96721311475,1980.06830601093,1980.1174863388,1981.44535519126,1981.49453551913,1982.33333333333,1982.48087431694],"y":[-0.0289,0.0375,0.1689,0.1711,0.1337,0.0353,-0.0461,-0.0091,0.0468,"NA",0.0615,0.0273,0.048],"name":"LM3014032","mode":"markers","type":"scatter"},{"x":[1978.83606557377,1980.1693989071,1980.26775956284,1980.51366120219,1980.56284153005,1981.44808743169,1982.23770491803,1982.33606557377,1982.48360655738,1982.53278688525,1982.63114754098],"y":[0.0532,-0.0065,0.0385,0.1779,0.1726,0.148,0.0571,0.0894,0.1496,0.0434,0.1773],"name":"LM3015032","mode":"markers","type":"scatter"},{"x":[1979.08743169399,1979.18579234973,1979.87431693989,1979.97267759563,1980.17213114754,1980.41803278689,1982.33879781421],"y":[-0.0105,0.0396,0.0351,-0.0575,0.0246,0.2393,0.0713],"name":"LM3016031","mode":"markers","type":"scatter"},{"x":[1978.49453551913,1978.64207650273,1978.83879781421,1979.13661202186,1979.82513661202,1980.17213114754,1980.56557377049,1981.69672131148,1982.33879781421],"y":[0.182,0.2011,0.0753,"NA",0.0767,0.0268,0.1973,0.1326,0.1237],"name":"LM3016032","mode":"markers","type":"scatter"},{"x":[1982.77322404372,1982.9043715847,1983.03825136612,1983.1693989071,1983.34426229508,1983.47540983607,1983.51912568306,1983.65027322404,1983.69398907104,1983.73770491803,1983.82513661202,1983.91256830601,1983.95628415301,1984.09016393443,1984.13387978142,1984.92076502732],"y":[0.0698,0.0476,0.0286,0.0443,0.1235,0.1905,0.1627,0.1486,0.1351,0.1359,0.0909,0.0423,0.0349,0.0118,0.0199,0.0237],"name":"LM4014032","mode":"markers","type":"scatter"},{"x":[1984.41803278689,1984.50546448087,1984.54918032787,1984.59289617486,1984.63661202186,1984.68032786885,1984.72404371585,1984.76775956284,1984.85519125683,1984.89890710383,1984.98633879781,1985.0737704918,1985.16120218579,1985.20491803279,1985.24863387978,1985.29234972678,1985.42349726776,1985.46721311475,1985.64207650273,1985.68579234973,1985.77322404372,1985.81693989071,1985.99180327869,1986.03825136612,1986.08196721311,1986.12568306011,1986.1693989071,1986.56284153005,1986.65027322404,1986.69398907104,1986.82513661202,1986.91256830601,1987.09016393443,1987.13387978142,1987.17759562842,1987.35245901639,1987.43989071038,1987.57103825137,1987.61475409836,1987.70218579235,1987.78961748634,1987.83333333333,1987.87704918033,1988.09836065574,1988.14207650273,1988.18579234973,1988.22950819672,1988.31693989071,1988.4043715847,1988.44808743169,1988.49180327869,1988.53551912568,1988.57923497268,1988.62295081967,1988.66666666667,1988.71038251366,1988.75409836066,1988.84153005464,1989.06010928962,1989.14754098361,1989.1912568306,1989.2349726776,1989.27868852459,1989.32240437158,1989.36612021858,1989.49726775956,1989.58469945355,1989.67213114754,1989.75956284153,1989.80327868852,1989.89071038251,1989.9781420765,1990.02459016393,1990.3306010929,1990.46174863388,1990.50546448087,1990.54918032787,1990.76775956284,1990.81147540984,1990.85519125683,1990.89890710383,1991.12021857923,1991.16393442623,1991.20765027322,1991.33879781421,1991.3825136612,1991.46994535519,1991.51366120219,1991.55737704918,1991.60109289617,1991.64480874317,1991.68852459016,1991.81967213115,1991.86338797814,1992.04098360656,1992.25956284153,1992.34699453552,1992.39071038251,1992.43442622951,1992.4781420765,1992.5218579235,1992.56557377049,1992.65300546448,1992.78415300546,1992.82786885246],"y":[0.1896,0.1693,0.2219,0.1573,0.2291,0.1959,0.1786,0.1203,0.0698,0.0428,0.0406,-0.0107,0.0403,0.053,0.0665,0.0747,0.2237,0.2111,0.2026,0.11,0.1,0.0913,0.0376,-0.0139,0.0339,0.0657,0.0308,0.1506,0.2052,0.1473,0.0748,0.0454,-0.0087,-0.0102,0.0392,0.1267,0.1961,0.2143,0.2251,0.1679,0.107,0.0697,0.0435,0.0448,0.0457,0.0424,0.0379,0.0862,0.1942,0.1952,0.1894,0.1458,0.1814,0.1817,0.199,0.1748,0.1105,0.0697,0.0375,0.043,0.0391,0.0538,0.0694,0.0833,0.0932,0.1995,0.169,0.1843,0.138,0.0898,0.035,0.0042,-0.0027,0.0816,0.1679,0.1796,0.1722,0.0747,0.0977,0.0674,0.0235,0.0135,0.0386,0.0489,0.127,0.2074,0.1891,0.1261,0.1516,0.135,0.138,0.159,0.042,0.0593,0.0356,0.0496,0.0813,0.182,0.1801,0.1695,0.1311,0.1966,0.1389,0.1047,0.0572],"name":"LM5014032","mode":"markers","type":"scatter"}]
+			var tcglayout = {
+				title:"MSS Tasseled Cap Greenness Image Median Time Series Showing Phenology Wave",
+				hovermode:'closest',
+				showlegend: true,
+				yaxis:{
+					title: "TCG",
+					range: [-0.8, 1.1],
+					tickmode: "auto",
+					nticks: 30,
+					zeroline: false
+				}
+			};
+			
+			var bounds = {
+							north: 41.258323,
+							south: 39.411246,
+							east: -73.705353,
+							west: -76.105223
+						};
+			var center = [40.408111,-74.901610];
+			
+			function initMap(element){
+				var map = new google.maps.Map(document.getElementById(element),{
+					center:	{lat:center[0],lng:center[1]},
+					zoom:8,
+					mapTypeId:google.maps.MapTypeId.HYBRID			
+				});
+				
+				var rectangle = new google.maps.Rectangle({
+					bounds: bounds,
+					strokeColor: '#FF0000',
+					strokeOpacity: 0.8,
+					strokeWeight: 2,
+					fillColor: '#FF0000',
+					fillOpacity: 0.0,
+					map: map,
+				});
+				
+			}
+			
+			function resizeElements(){
+				var wWidth = $(window).width();
+				if(wWidth < 1800){
+					$("#tcgDiv").css("width",wWidth);	
+					$("#googlemap").css("width",wWidth-60);
+				}
+			}
+						
+			$(window).load(function(){
+				resizeElements();
+				Plotly.newPlot("tcgDiv", tcgdata, tcglayout, {displaylogo: false, scrollZoom: true});
+				initMap("googlemap");
+			});
+					
+		</script>
+	</body>
+</html>

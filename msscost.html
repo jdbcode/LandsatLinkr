@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<title>MSScost - LandsatLinkr</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>				
+				</button>
+				<a class="navbar-brand" href="index.html">LandsatLinkr</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+			  <ul class="nav navbar-nav">
+				<li><a href="about.html">About</a></li>
+				<li class="active"><a href="process.html">Process</a></li>
+				<li><a href="outputs.html">Outputs</a></li>
+				<li><a href="guide.html">Guide</a></li>
+				<li><a href="download.html">Download</a></li>
+				<li><a href="examples.html">Examples</a></li>
+				<li><a href="#">Contact</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</nav>
+		<div class="container">
+			<div class="row top_margin">
+				<div class="col-md-9">
+					<h3>MSScost</h3>
+					<p>
+						MSS images with units of scaled digital numbers are converted to units of surface reflectance 
+						using the COST method (Chavez, 1996). The "Lhaze" parameter or dark object value per band is 
+						estimated by the histogram method (Chavez, 1988) using an automated algorithm (Figure 1). 
+					</p>
+					
+					
+					<img class="img-responsive img_space" src="imgs/dof_auto.png">
+					<p>
+						Figure 1. Demonstration of the automated histogram-based dark object value estimation. The red 
+						line indicates the estimated dark object value per band.
+					</p>
+					
+					<p>
+						The DN image and the estimated DN-based dark object values are converted to top-of-atmosphere radiance using equation 1. 
+					</p>
+					<p>L&lambda; = "gain" * QCAL + "bias"</p>
+					<p>
+						Equation 1. Conversion from DN to top-of-atmosphere radiance using "gain" and "bias" parameters from the LPGS metadata file, according to
+						USGS recommendation for <a href="http://landsat.usgs.gov/how_is_radiance_calculated.php" target="_blank">conversion from DN to TOA radiance</a>.
+					</p>
+					
+					<p>
+						The TOA radiance dark object values are subtracted from the TOA radiance image per band. The TOA radiance image is then 
+						converted to surface reflectance using Equation 2.  
+					</p>
+					
+					<img class="img-responsive img_space" src="imgs/surface_reflectance_eqaution.png">
+					<p>Equation 2. Conversion from top-of-atmosphere radiance to surface reflectance.</p>
+					<hr>
+					<p>
+						Chavez Jr, P. S. (1988). An improved dark-object subtraction technique for atmospheric scattering 
+						correction of multispectral data. Remote Sensing of Environment, 24(3), 459-479.
+					</p>
+					<p class="bottom_margin">
+						Chavez, P. S. (1996). Image-based atmospheric corrections-revisited and improved. Photogrammetric 
+						Engineering and Remote Sensing, 62(9), 1025-1035. 
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
