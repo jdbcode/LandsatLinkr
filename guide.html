@@ -583,11 +583,11 @@ install.packages(c("raster","SDMTools","doParallel","foreach","plyr","gdalUtils"
 								truncated) and then press the <em>Data Sets</em> button
 							</li>
 							<li>
-                                Expand the <em>Landsat Archive</em> menu, then the <em>Collection 1 Higher-Level</em> menu and check the <em>L4-5 TM C1 Highler-Level</em> box and click the <em>Additional 
+                                Expand the <em>Landsat</em> menu, then the <em>Landsat Collection 1 Level-2</em> menu and check the <em>Landsat 4-5 TM C1 Level-2</em> box and click the <em>Additional 
 								Criteria</em> tab.
 							</li>
 							<li>Under the <em>WRS Path</em> and <em>WRS Row</em> fields enter the associated path and row number for the scene of interest.</li>
-							<li>Scroll down to the <em>Data Type Level 1</em> menu and select <em>TM L1T</em> and then click the <em>Results</em> button</li>
+							<li>Scroll down to the <em>Collection Category</em> menu and select <em>Tier 1</em> and then click the <em>Results</em> button</li>
 							<li>
 								For each image in the list that is not completely clouded select either the <em>Add to Bulk Download</em> button or <em>Add to
 								Cart</em> button and then press the <em>View Item Basket</em>
@@ -608,9 +608,9 @@ install.packages(c("raster","SDMTools","doParallel","foreach","plyr","gdalUtils"
 							</li>
 						</ol>
 						<p>
-							Repeat these steps to place an order for ETM+ images with exceptions for step 3 and 5 where you will select the ETM+ 
-							sensor options instead of TM. Always make sure to select L1T as the data type (it has been terrain corrected - LLR will
-							not process L1G).
+							Repeat these steps to place an order for ETM+ images with exceptions for step 3 where you will select the Landsat 7 ETM+ C1 Level-2
+							option instead of Landsat 4-5 TM C1 Level-2. Always make sure to select Tier 1 as the Collection Category (it has been terrain corrected - LLR will
+							not process Tier 2).
 						</p>
 						<p>
 							Once images have been downloaded move them to the <em>targz</em> folder for the appropriate sensor, WRS type, 
@@ -620,9 +620,9 @@ install.packages(c("raster","SDMTools","doParallel","foreach","plyr","gdalUtils"
 						<h4 class="guide_link" id="oli_images">Downloading OLI</h4> 
 						<p>Downloading OLI images requires the same steps as downloading TM/ETM+ images, but with a different data set selection.</p>
 						<p>							
-							Exceptions to the TM/ETM+ download instructions are needed for steps 3 and 5 where you will select the OLI 
-							sensor options instead of TM or ETM+. When choosing options under the <em>Additional Criteria</em> tab, make sure that you only select
-							<em>OLI</em> under the <em>Sensor Identifier</em> list. Always make sure to select L1T as the data type (it has been terrain corrected - LLR will
+							Exceptions to the TM/ETM+ download instructions are needed for steps 3 where you will select the <em>Landsat 8 OLI/TIRS C1 Level-2</em> 
+							option instead of TM or ETM+. When choosing options under the <em>Additional Criteria</em> tab, make sure that you only select
+							<em>OLI</em> under the <em>Sensor Identifier</em> list. Also make sure to select <em>Tier 1</em> under the <em>Collection Category</em> section (it has been terrain corrected - LLR will
 							not process L1G).
 						</p>
 
