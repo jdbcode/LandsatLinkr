@@ -19,34 +19,53 @@ tmunpackr = function(file, proj="default", overwrite=F){
   #set new directories
   randomstring = paste(sample(c(0:9, letters, LETTERS), 6, replace=TRUE),collapse="")
   tempdir = file.path(dirname(file),randomstring) #temp
+  dir.create(tempdir, recursive=T, showWarnings=F)
   
-  targzbname = basename(file)
+  #decompress the image
+  untar(file, exdir=tempdir, tar="internal") #decompress the file
+  files = list.files(tempdir, full.names=T)
+ 
+  #are there files in the decompressed archive
+  if(length(files) == 0){
+    unlink(tempdir, recursive=T, force=T)
+    stop(paste('There were no files found in the decompressed archive:', file))
+  }
   
-  if(nchar(targzbname) == 46){
-    year = substr(targzbname,11,14)
-    
+  #are these sr files
+  filesBname = basename(files)
+  srFilesTest = grep("_sr_", filesBname, value=T)
+  if(length(srFilesTest) == 0){
+    unlink(tempdir, recursive=T, force=T)
+    stop(paste('There were no USGS ESPA Surface Reflectance files found in the decompressed archive:', file))
+  }
+  
+  #is this collection 1 or pre-collection
+  name = filesBname[1]
+  isCollection = substr(filesBname[1], 5,5) == '_'
+  
+  #get the sr bands
+  bands = sort(grep("band", files, value=T))
+  
+
+  if(isCollection){
+    #new version: LXSS_LLLL_PPPRRR_YYYYMMDD_yyyymmdd_CX_TX_prod_band.ext
+    year = substr(name,18,21)
     pieces = unlist(strsplit(dirname(file), "/")) #break up the directory and unlist so the pieces can be called by index
     len = length(pieces)-1 #get the ending index for "scene"
     newpieces = paste(pieces[1:len], collapse = "/") #subset the directory pieces so the last piece is the scene
     outdir = file.path(newpieces, "images", year)
-    dir.create(tempdir, recursive=T, showWarnings=F)
     dir.create(outdir, recursive=T, showWarnings=F)
     
-    #decompress the image and get/set files names
-    untar(file, exdir=tempdir, tar="internal") #decompress the file
-    files = list.files(tempdir, full.names=T)
-    bands = sort(grep("sr_band", files, value=T))
-    
+    # create the mask
     pixelqafile = grep("pixel_qa.tif", files, value=T)
     pixelqar = getValues(raster(pixelqafile))
-    pixelqar = pixelqar == 66 | pixelqar == 130 | pixelqar == 68 | pixelqar == 132 
+    #mask = as.numeric(pixelqar == 322 | pixelqar == 386 | pixelqar == 324 | pixelqar == 388 | pixelqar == 836 | pixelqar == 900)
+    shadow = bitwAnd(pixelqar, 8) == 0  # shadow
+    snow = bitwAnd(pixelqar, 16) == 0  # snow
+    clouds = bitwAnd(pixelqar, 32) == 0 # clouds
+    mask = shadow*snow*clouds
     
-    srcloudqafile = grep("sr_cloud_qa.tif", files, value=T)
-    srcloudqar = getValues(raster(srcloudqafile))
-    srcloudqar = srcloudqar == 0 | srcloudqar == 1 | srcloudqar == 32
-    
-    mask = pixelqar*srcloudqar
-    pixelqar = srcloudqar = 0 #clear memory
+    clouds = snow = shadow = pixelqar = 0 #clear memory
     
     # make the basename for final output files
     mtlfile = grep("MTL.txt", files, value=T)
@@ -57,14 +76,14 @@ tmunpackr = function(file, proj="default", overwrite=F){
     outbase = substr(sceneid,1,16)
     
   } else{
-    outbase = substr(targzbname,1,16)
-    year = substr(targzbname,10,13)
+    #name = 'LC80380292015214LGN00.xml'
+    outbase = substr(name,1,16) # need to get this from the filename, because pre-collection does not include an mtl file
+    year = substr(name,10,13)
     
     pieces = unlist(strsplit(dirname(file), "/")) #break up the directory and unlist so the pieces can be called by index
     len = length(pieces)-1 #get the ending index for "scene"
     newpieces = paste(pieces[1:len], collapse = "/") #subset the directory pieces so the last piece is the scene
     outdir = file.path(newpieces, "images", year)
-    dir.create(tempdir, recursive=T, showWarnings=F)
     dir.create(outdir, recursive=T, showWarnings=F)
     
     #decompress the image and get/set files names
