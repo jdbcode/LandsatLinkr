@@ -1,7 +1,7 @@
 Package: LandsatLinkr
 Title: Tools to spectrally link Landsat data
-Version: 0.4.2
-Date: 2017-06-26
+Version: 0.4.3
+Date: 2018-03-12
 Authors@R: c(person("Justin", "Braaten", email = "jstnbraaten@gmail.com", role = c("aut", "cre")),
     person("Warren", "Cohen", email = "warren.cohen@oregonstate.edu", role = "aut"),
     person("Zhiqiang", "Yang", email = "zhiqiang.yang@oregonstate.edu", role = "aut"))
