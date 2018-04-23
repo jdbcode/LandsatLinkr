@@ -12,8 +12,18 @@
 #' @import gdalUtils
 #' @export
 
-msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstart=c(0,0), fixstart=c(0,0)){
+
+msswarp = function(reffile, fixfile, refstart=c(0,0), fixstart=c(0,0)){
+  mode = 'warp'
+  method = 'order 2'
   
+  #mode can be: "rmse" or "warp"
+  #method can be: "tps" or "order 1" or "order 2"
+  
+  
+  #set default parameters
+  search=35 #27 
+  if(mode == "rmse"){search = 27} #it should be pretty close, no need to look over a larger region - keep at 27 since that is what the thresholds were selected at.
   
   #scale image values to center on mean and 1 unit variance (global mean and variance)
   scaleit = function(matrix){
@@ -32,85 +42,149 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
     maxrow = crow-radius
     return(extent(c(mincol,maxcol,minrow,maxrow)))
   }
-   
-  #check to see if the image should be run
-  info = get_metadata(fixfile)
-  dt = as.character(info$datatype)
-  rmsefile = sub("archv.tif","cloud_rmse.csv",fixfile)
-  rmse = as.numeric(read.table(rmsefile,sep=",")[3])
-  runit = as.numeric(rmse > 0.5 & dt == "L1T")
-  if(runit == 1){
-    #read in the fix image
-    fiximg = raster(fixfile, band=3) #load the fix image
-    origfiximg = fiximg #save a copy of the original fix image
-    fiximgb1 = raster(fixfile, band=1)
-    
-    #shift the fiximg if there is an initial offset provided
-    shiftit = refstart - fixstart
-    if(sum(shiftit) != 0){fiximg = shift(fiximg, x=shiftit[1], y=shiftit[2])}
-    
-    #load the ref image
-    refimg = raster(reffile, 3) 
-    
-    #make sure that the ref and fix img are croppd to eachother
-    refimg = intersect(refimg, fiximg)
-    fiximg = intersect(fiximg, refimg)
-    
-    #calculate similarity index input values from the fix image subset
-    values(fiximg) = scaleit(values(fiximg))
-    values(fiximg)[is.na(values(fiximg))] = 0
-    
-    #calculate similarity index input values from the ref image subset
-    values(refimg) = scaleit(values(refimg))
-    values(refimg)[is.na(values(refimg))] = 0
-    refimgsqr = refimg^2
-    
-    #get the resolution  
-    reso = xres(refimg)
+  
+  calc_rmse = function(info,reso){
+    xresid = (info[,"refx"]-info[,"fixx"])^2 #get the residuals of each x
+    yresid = (info[,"refy"]-info[,"fixy"])^2 #get the residuals of each y
+    r = (sqrt(xresid+yresid))/reso #get the rmse of each xy point
+    x_rmse = sqrt(mean(xresid))/reso
+    y_rmse = sqrt(mean(yresid))/reso
+    total_rmse = sqrt((x_rmse^2)+(y_rmse^2)) #total rmse including all points
+    rmse_info = list(x_rmse=x_rmse, y_rmse=y_rmse, total_rmse=total_rmse, r=r)
+    return(rmse_info)
+  }
+  
+  make_gdaltrans_opts = function(info, wktfile, fixfile, tempname){
+    info[,"refx"] = info[,"refx"]+(reso/2)
+    info[,"refy"] = info[,"refy"]-(reso/2)
+    fixcol = paste(info[,"fixcol"]) #fix col for tie point
+    fixrow = paste(info[,"fixrow"]) #fix row for tie point
+    refx = paste(round(info[,"refx"]))  #fix x tie point coord 
+    refy = paste(round(info[,"refy"]))  #fix y tie point coord
+    gcpstr = paste(" -gcp", fixcol, fixrow, refx, refy, collapse="")
+    gdaltrans_cmd = paste("-of Gtiff -ot Byte -co INTERLEAVE=BAND -a_srs", wktfile, gcpstr, fixfile, tempname)
+    return(gdaltrans_cmd)
+  }
+  
+  run_the_file = function(fixfile){
+    info = get_metadata(fixfile)
+    dt = as.character(info$datatype)
+    rmsefile = sub("archv.tif","cloud_rmse.csv",fixfile)
+    rmse = as.numeric(read.table(rmsefile,sep=",")[3])
+    runit = as.numeric(rmse > 0.75 & dt == "L1T")
+    return(runit)
+  }
+  
+  
+  
+  runit = run_the_file(fixfile)
+  if(runit == 0){return(0)}
+  
+  print(paste('Working on image:', basename(fixfile)))
+  
+  #read in the fix image
+  #fiximg = raster(fixfile, band=4) #load the fix image
+  fiximg = brick(fixfile) #load the fix image
+  origfiximg = subset(fiximg, subset=4) #save a copy of the original fix image so that the tie point coords can be assigned to the original row and cols
+  
+  #shift the fiximg if there is an initial offset provided
+  shiftit = refstart - fixstart
+  if(sum(shiftit) != 0){fiximg = shift(fiximg, x=shiftit[1], y=shiftit[2])}
+  
+  #load the ref image
+  refimg = raster(reffile, 4) 
+  
+  #make sure that the ref and fix img are croppd to eachother
+  extent(fiximg)  = alignExtent(fiximg, refimg, snap="near")
+  ext = intersect(extent(refimg), extent(fiximg))
+  refimg = crop(refimg, ext)
+  fiximg = crop(fiximg, ext)
+  #refimg = intersect(refimg, fiximg)
+  #fiximg = intersect(fiximg, refimg)
+  
+  #fiximgb1 = raster(fixfile, band=1)
+  #fiximgb4 = raster(fixfile, band=4)
+  #get bands 1 and 4 out for cloud and shadow id in the fix image, as well as for cross correlation with the reference image
+  fiximgb1 = subset(fiximg, subset=1)
+  fiximgb4 = subset(fiximg, subset=4)
+  fiximg = fiximgb4 #need to copy because fiximg will be scaled, but we also need an unalted copy to find shadows in
+  
+  
+  #calculate similarity index input values from the fix image subset
+  values(fiximg) = scaleit(values(fiximg))
+  values(fiximg)[is.na(values(fiximg))] = 0
+  
+  #calculate similarity index input values from the ref image subset
+  values(refimg) = scaleit(values(refimg))
+  values(refimg)[is.na(values(refimg))] = 0
+  refimgsqr = refimg^2
+  
+  #get the resolution  
+  reso = xres(refimg)
+  
+  #adjust the window and search size so that they are odd numbers
+  if (search %% 2 == 0){search = search+1}
+  
+  #sample the reference image, laying down a regular grid of points to check
+  s = sampleRegular(refimg, 15000, cells=T)[,1]
+  xy = xyFromCell(refimg,s) #[,1] #get the xy coordinates for each good point
+  
+  #filter points in fiximg that fall on clouds
+  thesecells = na.omit(cellFromXY(fiximgb1, xy))   #get fiximg cell index for sample 
+  b = which(fiximgb1[thesecells] < 120 & 
+            fiximgb4[thesecells] > 30 &
+            refimg[thesecells] > 0) # fiximgb1[theseones] != NA) #exclude points that don't meet criteria
+  
+  #if the number of sample points is less than 10 delete the image return
+  
+  #TODO - get out if there are not enough points to work with - there are examples of for doing this below
+  #if(length(b) < 10){
+  #  delete_files(fixfile, 2)
+  #  return(0)
+  #}
+  
+  #subset the sample
+  n_samp = length(b)
+  cat(paste("n points from original sample:",n_samp),"\n")
+  n_subsamp = 1200
+  if(n_samp < n_subsamp){n_subsamp = n_samp}
+  subsamp = sample(b, n_subsamp)
+  xy = xy[subsamp,] #subset the original sample
+  s = s[subsamp] #subset the original sample
+  rowcol = rowColFromCell(refimg, s)
+  
+  #make an array to hold all information collected
+  info = cbind(c(0),xy, rowcol[,2], rowcol[,1], array(0, c(length(xy[,1]), 8)))
+  cnames = c("point","refx","refy","refcol","refrow","fixx","fixy","fixcol","fixrow","nmax", "max","edgedist","decision")
+  colnames(info) = cnames
+  
+  #iterate process of creating a similarity surface for each check point in the sample
+  window_size = c(101,201,275)
+  for(size in 1:3){
+    cat(paste("Working on window size set: ",size,"/3",sep=""),"\n")
+    if(mode != "rmse"){
+      if(size == 1){pdf_file = sub("archv.tif", "ccc_surface_100w.pdf",fixfile)}
+      if(size == 2){pdf_file = sub("archv.tif", "ccc_surface_200w.pdf",fixfile)}
+      if(size == 3){pdf_file = sub("archv.tif", "ccc_surface_275w.pdf",fixfile)}
+      unlink(pdf_file) #delete the pdf if it exists
+      pdf(file=pdf_file, width=10, heigh=7) #size of the pdf page
+      par(mfrow=c(2,3)) #number of trajectories to place on a page (columns, rows)
+    }
+    window = window_size[size]
     
     #adjust the window and search size so that they are odd numbers
     if (window %% 2 == 0){window = window+1}
-    if (search %% 2 == 0){search = search+1}
     radius = floor(window/2) #radius of the window in pixels
     nrc = search+(radius*2) #the reference extent length to slide over
     
-    #sample the the reference image, laying down a regular grid of points to check
-    s = sampleRegular(refimg, sample, cells=T)
-    s = s[,1]
-    xy = xyFromCell(refimg,s) #[,1] #get the xy coordinates for each good point
     
-    #filter points in fiximg that fall on clouds
-    theseones = cellFromXY(fiximgb1, xy)   #get fiximg cell index for sample 
-    theseones = na.omit(theseones)
-    a = fiximgb1[theseones] #extract values for fiximg cell sample
-    b = which(fiximgb1[theseones] < 100) # fiximgb1[theseones] != NA) #exclude points that don't meet criteria
-    
-    #if the number of sample points is less than 10 delete the image return
-    if(length(b) < 10){
-      delete_files(fixfile, 2)
-      return(0)
-    }
-    
-    #subset the sample
-    xy = xy[b,] #subset the original sample
-    s = s[b] #subset the original sample
-    rowcol = rowColFromCell(refimg, s)
-    
-    #make an array to hold all information collected
-    info = cbind(c(0),xy, rowcol[,2], rowcol[,1], array(0, c(length(xy[,1]), 8)))
-    cnames = c("point","refx","refy","refcol","refrow","fixx","fixy","fixcol","fixrow","nmax", "max","edgedist","decision")
-    colnames(info) = cnames
-    
-    #start a pdf file to hold image chips and similarity surfaces
-    pdf_file = sub("archv.tif", "ccc_surface.pdf",fixfile)
-    unlink(pdf_file) #delete the pdf if it exists
-    pdf(file=pdf_file, width=10, heigh=7) #size of the pdf page
-    par(mfrow=c(2,3)) #number of trajectories to place on a page (columns, rows)
-
-    #iterate process of creating a similarity surface for each check point in the sample
     for(point in 1:length(info[,1])){ 
-      print(point) #print the point so we know where we're at
-      info[point,"point"] = point #info[point,1] = point #put the point number into the info table
+      #print(point) #print the point so we know where we're at
+      if(info[point,"decision"] == 1){
+        #  print("already good, skipping...")
+        next
+      }
+      if(size == 1){info[point,"point"] = point} #info[point,1] = point #put the point number into the info table
       
       #make a subset of the reference image for the fiximg chip to slide over
       a = make_kernal(refimg, info[point,2:3], nrc)
@@ -136,8 +210,8 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       #create numerator
       tofix = matrix(values(fixsub),ncol=window,byrow = T)
       
-      if (length(tofix) %% 2 == 0) {
-        print("skipping")
+      if(length(tofix) %% 2 == 0) {
+        #cat("Skipping","\n")
         next
       }
       
@@ -151,7 +225,7 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       sumfixsubsqr = sum(values(fixsub)^2) #fiximg standard only gets calcuated once
       denom = sqrt(sumfixsubsqr*sumrefsubsqr)
       
-      badone=0
+      #badone=0
       if(cellStats(num, stat="sum") + cellStats(denom, stat="sum") == 0){next} 
       
       ncc = num/denom
@@ -165,8 +239,7 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       
       x = y = seq(1,ncol(nccm),1)
       
-      good = which(values(ncc) == maxValue(ncc)) 
-      good = good[1]
+      good = which(values(ncc) == maxValue(ncc))[1] 
       
       ####
       xoffsetcoord = xFromCell(ncc, good)
@@ -176,12 +249,10 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       info[point,"fixx"] = xoffsetcoord-(xoffset*2)
       info[point,"fixy"] = yoffsetcoord-(yoffset*2)
       ####
-
       
       #get the row and column numbers for the fix image
       origfiximg_x = info[point,"fixx"]-shiftit[1]
       origfiximg_y = info[point,"fixy"]-shiftit[2]
-      #a = cellFromXY(origfiximg, c(info[point,"refx"],info[point,"refy"])) #fiximg
       a = cellFromXY(origfiximg, c(origfiximg_x,origfiximg_y))
       fiximgrc = rowColFromCell(origfiximg, a)
       info[point,"fixcol"] = fiximgrc[2] #info[point,8] = fiximgrc[2]
@@ -212,7 +283,7 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       bad[2] = info[point,"max"] < 3 #peak ge to 3 standard devs from mean
       bad[3] = info[point,"edgedist"] < 0.12 #peak distance from edge >= 0.12
       info[point,"decision"] = sum(bad) == 0 #7
-      if(badone == 1){info[point,"decision"] = 0}
+      #if(badone == 1){info[point,"decision"] = 0}
       
       #filter plots that will crash the plotting because of weird data points (na, NaN, (-)Inf)
       bad1 = is.na(ccc)
@@ -226,80 +297,129 @@ msswarp = function(reffile, fixfile, window=275, search=27, sample=1000, refstar
       #title = paste(point,info$nmax[point],info$max[point],info$edgedist[point], info$decision[point], sep = ",")
       if(info[point,"decision"] == 1){status = "accept"} else {status = "reject"}
       title = paste("Point:", point, status)
-      persp(x, y, ccc, theta = 30, phi = 30, expand = 0.5, col = 8, main=title)
+      #print(title)
+      if(mode != "rmse"){
+        ccc = ccc[nrow(ccc):1,]
+        persp(x, y, ccc, theta = 30, phi = 30, expand = 0.5, col = 8, main=title)
+      }
     }
-    
-    #write all the point info to a file
+    cat(paste("n goods =",length(which(info[,"decision"] == 1))),"\n")
+    if(mode != "rmse"){
+      dev.off() #turn off the plotting device
+    }
+  }
+  #print(paste("n goods =",length(which(info[,"decision"] == 1))))
+  
+  #write all the point info to a file
+  if(mode != "rmse"){
     info_file = sub("archv.tif", "info_full.csv",fixfile)
     write.csv(info, file=info_file, row.names = F) 
+  }
+  
+  #subset the points that passed the surface tests
+  these = which(info[,"decision"] == 1)
+  
+  # make file info for rmse - not used if not an rmse run
+  rmse_outfile = file.path(dirname(fixfile),paste(substr(basename(fixfile),1,16),"_rmse.Rdata",sep=""))
+  rmse_info = list(calc_rmse = F, x_rmse=NA, y_rmse=NA, total_rmse=NA, info=info)  
+  
+  
+  
+  #if the number of sample points is less than 10 delete the image and return
+  if(length(these) < 10){
+    delete_files(fixfile, 2)
+    return(0)
+  }
+  
+  info = info[these,]
+  
+  #filter points based on rmse contribution
+  if(mode != "rmse"){
+    rmse = calc_rmse(info,reso)
+    r = rmse$r
+    sdr = sd(r)
+    meanr = mean(r)
+    limit = meanr+sdr*2
+    goods = which(r <= limit)
+    n_outliers = nrow(info)-length(goods)
+    info = info[goods,]
+    cat(paste("Getting rid of:",n_outliers,"outliers"),"\n")
+    cat(paste("There are still:",nrow(info),"points"),"\n")
+    #maxr = endit = 10
+    #while(maxr >2 & endit != 0){
+    #  rmse = calc_rmse(info,reso)
+    #  if (rmse$total_rmse != 0){contr = rmse$r/rmse$total_rmse} else contr = rmse$r #error contribution of each point
+    #  maxr = max(contr) #while loop controler
+    #  b = which(contr < 2) #subset finder - is point 2 times or greater in contribution
+    #  info = info[b,] #subset the info based on good rsme
+    #  endit = sum(contr[b]) #while loop controler
+    #}
+  }
+  
+  #if the number of sample points is less than 10 delete the image and return
+  if(length(these) < 10){
+    delete_files(fixfile, 2)
+    return(0)
+  }
+  
+  #if this is an rmse run, then save the info and get out
+  if(mode == "rmse"){
+    rmse = calc_rmse(info,reso)
     
-    dev.off() #turn off the plotting device
+    rmse_info$calc_rmse = T
+    rmse_info$x_rmse=rmse$x_rmse
+    rmse_info$y_rmse=rmse$y_rmse
+    rmse_info$total_rmse=rmse$total_rmse
+    rmse_info$info=info
     
-    #subset the points that passed the surface tests
-    these = which(info[,"decision"] == 1)
-    
-    #if the number of sample points is less than 10 delete the image and return
-    if(length(these) < 10){
-      delete_files(fixfile, 2)
-      return(0)
-    } else {
-      
-      info = info[these,]
-      
-      #filter points based on rmse contribution
-      maxr = endit = 10
-      while(maxr >2 & endit != 0){
-        xresid = (info[,"refx"]-info[,"fixx"])^2 #get the residuals of each x
-        yresid = (info[,"refy"]-info[,"fixy"])^2 #get the residuals of each y
-        r = (sqrt(xresid+yresid))/reso #get the rmse of each xy point
-        totx = (1/length(info[,"refx"]))*(sum(xresid)) #intermediate step 
-        toty = (1/length(info[,"refy"]))*(sum(yresid)) #intermediate step
-        tot = sqrt(totx+toty)/reso #total rmse including all points
-        if (tot != 0){contr = r/tot} else contr = r #error contribution of each point
-        maxr = max(contr) #while loop controler
-        b = which(contr < 2) #subset finder - is point 2 times or greater in contribution
-        info = info[b,] #subset the info based on good rsme
-        endit = sum(contr[b]) #while loop controler
-      }
-      
-      #write out the filtered points that will be used in the transformation
-      info_file = sub("archv.tif", "info_sub.csv",fixfile)
-      write.csv(info, file=info_file, row.names = F)
-      
-      #adjust so that the coord is center of pixel
-      info[,"fixx"] = info[,"fixx"]+(reso/2)
-      info[,"fixy"] = info[,"fixy"]-(reso/2)
-      
-      #get the projection from the fix image
-      wktfile = sub("archv.tif","wkt.txt", fixfile)
-      projcmd = paste("gdalsrsinfo -o wkt", fixfile)
-      proj = system(projcmd, intern = TRUE)
-      write(proj, wktfile)
-      
-      #get the gcp string made
-      fixcol = paste(info[,"fixcol"]) #fix col for tie point
-      fixrow = paste(info[,"fixrow"]) #fix row for tie point
-      refx = paste(info[,"refx"])  #fix x tie point coord 
-      refy = paste(info[,"refy"])  #fix y tie point coord
-      gcpstr = paste(" -gcp", fixcol, fixrow, refx, refy, collapse="")
-      gcpfile = sub("archv.tif", "gcp.txt", fixfile)
-      write(paste("reference file =", reffile), file=gcpfile)
-      write(gcpstr, file=gcpfile, append=T)
-      
-      #gdal translate command
-      tempname = sub("archv", "temp", fixfile) #"K:/scenes/034032/images/1976/LM10360321976248_archv.tif" 
-      gdaltrans_cmd = paste("gdal_translate -of Gtiff -ot Byte -co INTERLEAVE=BAND -a_srs", wktfile, fixfile, tempname, gcpstr)
-      system(gdaltrans_cmd)
-                  
-      #gdal warp command
-      gdalwarp_cmd = paste("gdalwarp -of Gtiff -order 2 -ot Byte -srcnodata 0 -dstnodata 0 -co INTERLEAVE=BAND -overwrite -multi -tr", reso, reso, tempname, fixfile) #fixfile   "-tps"  "-order 2", "-order 3" 
-      system(gdalwarp_cmd)
-      
-      #delete the temp file
-      unlink(list.files(dirname(fixfile), pattern = "temp", full.names = T))
-      return(1)
-    } 
-  } else {return(0)}
+    save(rmse_info, file=rmse_outfile)
+    return(0)
+  }
+  
+  #write out the filtered points that will be used in the transformation
+  info_file = sub("archv.tif", "info_sub.csv",fixfile)
+  write.csv(info, file=info_file, row.names = F)
+  
+  #make some output file names
+  tempname = sub("archv.tif", "temp.tif", fixfile) #"K:/scenes/034032/images/1976/LM10360321976248_archv_l1g_warp.tif"
+  #outfile = sub("archv.tif", "archv_l1g2l1t.tif", fixfile)
+  wktfile = sub("archv.tif","wkt.txt", fixfile)
+  #gcpfile = sub("archv.tif", "gcp.txt", fixfile)
+  gdaltransoptsfile = sub("archv.tif", "gdal_trans_opts.txt", fixfile)
+  
+  #write out a projection file for gdal translate to use
+  proj = system(paste("gdalsrsinfo -o wkt", fixfile), intern = TRUE)
+  write(proj, wktfile)
+  
+  #create the warp cmd and save as a file
+  gdaltrans_opts = make_gdaltrans_opts(info, wktfile, fixfile, tempname)
+  write(gdaltrans_opts, file=gdaltransoptsfile)
+  
+  #run the warp command file
+  cmd = paste("gdal_translate --optfile", gdaltransoptsfile)
+  system(cmd)
+  
+  #gdal warp command
+  gdalwarp_cmd = paste("gdalwarp -of Gtiff", paste("-", method, sep=""), "-ot Byte -srcnodata 0 -dstnodata 0 -co INTERLEAVE=BAND -overwrite -multi -tr", reso, reso, tempname, fixfile) #fixfile   "-tps"  "-order 2", "-order 3" 
+  system(gdalwarp_cmd)
+  
+  
+  # ######################## warping method tests#####################################################
+  # outfiletest = sub("archv.tif", "archv_l1g2l1t_test_tps.tif", fixfile)
+  # gdalwarp_cmd = paste("gdalwarp -of Gtiff -tps -ot Byte -srcnodata 0 -dstnodata 0 -co INTERLEAVE=BAND -overwrite -multi -tr", reso, reso, tempname, outfiletest) #fixfile   "-tps"  "-order 2", "-order 3" 
+  # system(gdalwarp_cmd)
+  # 
+  # outfiletest = sub("archv.tif", "archv_l1g2l1t_test_order1.tif", fixfile)
+  # gdalwarp_cmd = paste("gdalwarp -of Gtiff -order 1 -ot Byte -srcnodata 0 -dstnodata 0 -co INTERLEAVE=BAND -overwrite -multi -tr", reso, reso, tempname, outfiletest) #fixfile   "-tps"  "-order 2", "-order 3" 
+  # system(gdalwarp_cmd)
+  # 
+  # outfiletest = sub("archv.tif", "archv_l1g2l1t_test_order2.tif", fixfile)
+  # gdalwarp_cmd = paste("gdalwarp -of Gtiff -order 2 -ot Byte -srcnodata 0 -dstnodata 0 -co INTERLEAVE=BAND -overwrite -multi -tr", reso, reso, tempname, outfiletest) #fixfile   "-tps"  "-order 2", "-order 3" 
+  # system(gdalwarp_cmd)
+  # ##################################################################################################
+  
+  
+  #delete the temp file
+  unlink(list.files(dirname(fixfile), pattern = "temp", full.names = T))
+  return(1)
 }
-  
-  
