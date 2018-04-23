@@ -4,23 +4,22 @@
 \alias{msswarp}
 \title{Spatially warp an MSS image}
 \usage{
-msswarp(reffile, fixfile, window = 275, search = 27, sample = 1000,
-  refstart = c(0, 0), fixstart = c(0, 0))
+msswarp(reffile, fixfile, refstart = c(0, 0), fixstart = c(0, 0))
 }
 \arguments{
 \item{reffile}{character. MSS image file that has low spatial RMSE and low cloud cover}
 
 \item{fixfile}{character. MSS image file to be spatially warped to match the reference file}
 
+\item{refstart}{numeric. c(xcoord,ycoord). reference image coordinate for a pixel identified as common in both the reference and the to-be-warped image. used to calculate an initial offset between the two images.}
+
+\item{fixstart}{numeric. c(xcoord,ycoord). fix image coordinate for a pixel identified as common in both the reference and the to-be-warped image. used to calculate an initial offset between the two images.}
+
 \item{window}{numeric. image subset size used to define cross-correlation calculation. unit is pixels along one side of a square}
 
 \item{search}{numeric. neighborhood search window size in which to find tie-point offset. unit is pixels along one side of a square}
 
 \item{sample}{numeric. target number of tie-points}
-
-\item{refstart}{numeric. c(xcoord,ycoord). reference image coordinate for a pixel identified as common in both the reference and the to-be-warped image. used to calculate an initial offset between the two images.}
-
-\item{fixstart}{numeric. c(xcoord,ycoord). fix image coordinate for a pixel identified as common in both the reference and the to-be-warped image. used to calculate an initial offset between the two images.}
 }
 \description{
 Spatially warp an MSS image to match the spatial properties of a reference image
