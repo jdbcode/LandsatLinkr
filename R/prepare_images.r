@@ -48,7 +48,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
       #o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% msswarp(reffile=reffile, fixfile=files[i], sample=1000)
       o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% msswarp(reffile=reffile, fixfile=files[i])
       stopCluster(cl)
-    } else {for(i in 1:length(files)){msswarp(reffile=reffile, fixfile=files[i], sample=1000)}}
+    } else {for(i in 1:length(files)){msswarp(reffile=reffile, fixfile=files[i])}}
     print(proc.time()-t)
   }
   
