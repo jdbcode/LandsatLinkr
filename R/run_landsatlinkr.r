@@ -89,6 +89,24 @@ run_landsatlinkr = function(){
       print(paste("You have selected:",scenedir))
       correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
       if(correct == "Exit"){return("Stopping LLR")}
+      
+      # try to figure out if this is a possible scenedir
+      checkdir = basename(scenedir)
+      
+      # did a targz folder get selected
+      if(checkdir == 'targz'){
+        print("\nIt looks like you selected a scene's 'targz' folder.\n"+
+              "Please select the scene head folder, something like 'C:/tm/wrs2/036032'")
+        correct = "No"
+      } else if(nchar(checkdir) != 6){
+        print("\nLLR is expecting a folder with 6 characters.\n"+
+                "Please select the scene head folder, something like 'C:/tm/wrs2/036032'")
+        correct = "No"
+      } else if(is.na(as.numeric(checkdir))){
+        print("\nLLR is expecting a folder with all numeric characters.\n"+
+                "Please select the scene head folder, something like 'C:/tm/wrs2/036032'")
+        correct = "No"
+      }
     }
     
     #################################################################################################################
