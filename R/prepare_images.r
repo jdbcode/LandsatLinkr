@@ -18,6 +18,23 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
   
   cfun = function(a, b) NULL
   
+  # get available memory and set cores accordingly
+  if(cores == 2){
+    cores = 1 # assume that we only have enough memory for one core
+    mem = tryCatch(system('wmic OS get FreePhysicalMemory /Value', intern = TRUE, show.output.on.console=F), error=function(e)c(1,2))
+    mem = mem[mem != "\r"] # start parsing memory out
+    if(length(mem) == 1){
+      mem = sub('\r','',mem)
+      if(grep('=', mem) == 1){
+        mem = unlist(strsplit(mem, '='))
+        if(length(mem) == 2){
+          mem = suppressWarnings(as.numeric(mem[2]))
+          if(!is.na(mem)){
+            if((mem/1000000) > 10){
+              cores=2
+            }}}}}}
+  
+  
   #mssunpackr
   if(all(is.na(match(process,1))) == F){
     print("Running mssunpackr")
@@ -45,7 +62,6 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
       print("...in parallel")
       cl=makeCluster(cores)
       registerDoParallel(cl)
-      #o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% msswarp(reffile=reffile, fixfile=files[i], sample=1000)
       o = foreach(i=1:length(files), .combine="cfun",.packages="LandsatLinkr") %dopar% msswarp(reffile=reffile, fixfile=files[i])
       stopCluster(cl)
     } else {for(i in 1:length(files)){msswarp(reffile=reffile, fixfile=files[i])}}
