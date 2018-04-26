@@ -30,7 +30,7 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
         if(length(mem) == 2){
           mem = suppressWarnings(as.numeric(mem[2]))
           if(!is.na(mem)){
-            if((mem/1000000) > 10){
+            if((mem/1000000) > 12){
               cores=2
             }}}}}}
   
