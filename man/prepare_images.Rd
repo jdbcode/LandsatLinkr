@@ -5,7 +5,7 @@
 \title{Prepare image MSS and TM images for calibration/compositing}
 \usage{
 prepare_images(scenedir, demfile = NULL, proj = "default",
-  process = seq(1:5), cores = 2, overwrite = F)
+  process = seq(1:5), cores = 1, overwrite = F)
 }
 \arguments{
 \item{scenedir}{character. scene file path}
