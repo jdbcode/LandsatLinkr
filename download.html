@@ -53,6 +53,16 @@
 					<h4>Beta testing is ongoing - please <a href="contact.html" target="_blank">email</a> me with any errors or questions.</h4>
 					<hr>
                     
+
+                    <h3>Version 0.5.0 (beta) 4/26/18</h3>
+					<pre>
+download.file("https://github.com/jdbcode/LandsatLinkr/releases/download/0.5.0-beta/LandsatLinkr_0.5.0.zip", "LandsatLinkr")
+install.packages("LandsatLinkr", repos=NULL, type="binary")
+install.packages(c("raster","SDMTools","doParallel","foreach","plyr","gdalUtils","rgdal","igraph","MASS"))</pre>
+					<p>
+                        This release includes a number changes. Most importantly it fixes a problem with building extents of image subsets in the msswarp function. The issue is tied to the R raster library version. Something in the raster::extent function has changed between raster version 2.5-8 and 2.6-7. The LLR code with swapping the order of min and max y coordinates, but older versions of raster::extent was dealing with this by first sorting the inputs by ascending order - for some methods of raster::extent, it is no longer doing this, which was throwing an error. The problem in the msswarp function is now fixed. msswarp is also improved by trying to find image-to-image tie points at three different window sizes, where previously it only used 1. This update is also more intelligent about knowing when to use 2 cores for parallel processing by checking on the available system memory. Also, there is now better handling of incorrect processing directory selection - the program tries to figure out if you've provided a valid processing directory and returns messages about possible problems with the selection. Changed how messages are printed in the LLR interface.
+					</p>
+
                     
                     <h3>Version 0.4.3 (beta) 3/12/18</h3>
 					<pre>
