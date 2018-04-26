@@ -14,6 +14,7 @@
 
 
 msswarp = function(reffile, fixfile, refstart=c(0,0), fixstart=c(0,0)){
+
   mode = 'warp'
   method = 'order 2'
   
@@ -38,8 +39,8 @@ msswarp = function(reffile, fixfile, refstart=c(0,0), fixstart=c(0,0)){
     crow = rowFromY(img, point1[2])
     mincol = ccol-radius
     maxcol = ccol+radius
-    minrow = crow+radius
-    maxrow = crow-radius
+    minrow = crow-radius
+    maxrow = crow+radius
     return(extent(c(mincol,maxcol,minrow,maxrow)))
   }
   
@@ -194,7 +195,7 @@ msswarp = function(reffile, fixfile, refstart=c(0,0), fixstart=c(0,0)){
       if(sum(test < 0) > 0){next}
       if(a@ymax > nrow(refimg) | a@ymin > nrow(refimg)){next}
       if(a@xmax > ncol(refimg) | a@xmin > ncol(refimg)){next}
-      ext=extent(refimg,a@ymax,a@ymin,a@xmin,a@xmax)
+      ext=extent(refimg,a@ymin,a@ymax,a@xmin,a@xmax)
       refsub = crop(refimg, ext)
       
       #make subset of fiximg (fiximg chip)
@@ -204,7 +205,7 @@ msswarp = function(reffile, fixfile, refstart=c(0,0), fixstart=c(0,0)){
       if(sum(test < 0) > 0){next}
       if(a@ymax > nrow(fiximg) | a@ymin > nrow(fiximg)){next}
       if(a@xmax > ncol(fiximg) | a@xmin > ncol(fiximg)){next}
-      ext=extent(fiximg,a@ymax,a@ymin,a@xmin,a@xmax)
+      ext=extent(fiximg,a@ymin,a@ymax,a@xmin,a@xmax)
       fixsub = crop(fiximg, ext)
       
       #create numerator
@@ -219,7 +220,7 @@ msswarp = function(reffile, fixfile, refstart=c(0,0), fixstart=c(0,0)){
       
       #get refimg denom
       a = make_kernal(refimgsqr, info[point,2:3], nrc)
-      ext=extent(refimgsqr,a@ymax,a@ymin,a@xmin,a@xmax)
+      ext=extent(refimgsqr,a@ymin,a@ymax,a@xmin,a@xmax)
       refsubsqr = crop(refimgsqr, ext)
       sumrefsubsqr = focal(refsubsqr, w=matrix(1,window, window)) #get the summed product of the refsubimg
       sumfixsubsqr = sum(values(fixsub)^2) #fiximg standard only gets calcuated once
