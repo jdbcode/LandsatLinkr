@@ -26,9 +26,9 @@ run_landsatlinkr = function(){
     if(selection == "Calibrate OLI to ETM+"){process = 9}
     if(selection == "Composite imagery"){process = 10}
     
-    print(paste("You have selected:",selection))
+    cat(paste("You have selected:",selection,"\n"))
     correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-    if(correct == "Exit"){return("Stopping LLR")}
+    if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
   }
   
   #################################################################################################################
@@ -42,9 +42,9 @@ run_landsatlinkr = function(){
       selection = select.list(choices, title = "Process in parallel using 2 cores when possible?")
       if(selection == "Yes"){cores = 2}
       if(selection == "No"){cores = 1}
-      print(paste("You have selected:",selection))
+      cat(paste("You have selected:",selection,"\n"))
       correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-      if(correct == "Exit"){return("Stopping LLR")}
+      if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
     }
   }
   
@@ -57,9 +57,9 @@ run_landsatlinkr = function(){
       selection = select.list(choices, title = "If files from a process already exist, should they be overwritten?")
       if(selection == "Yes"){overwrite = T}
       if(selection == "No"){overwrite = F}
-      print(paste("You have selected:",selection))
+      cat(paste("You have selected:",selection,"\n"))
       correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-      if(correct == "Exit"){return("Stopping LLR")}
+      if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
     }
   }
   
@@ -74,37 +74,37 @@ run_landsatlinkr = function(){
     correct = "No"
     while(correct == "No"){
       if(sum(process %in% seq(1,5)) > 0){
-        print("please select an MSS directory to process")
+        cat("please select an MSS directory to process\n\n")
         scenedir = choose.dir(caption = "Select an MSS scene directory. ex. 'C:/mss/wrs1/036032'")
       }
       if(sum(process %in% 6) > 0){
-        print("please select a TM/ETM+ directory to process")
+        cat("please select a TM/ETM+ directory to process\n\n")
         scenedir = choose.dir(caption = "Select an TM/ETM+ scene directory. ex. 'C:/tm/wrs2/036032'")
       }
       if(sum(process %in% 7) > 0){
-        print("please select a OLI directory to process")
+        cat("please select a OLI directory to process\n\n")
         scenedir = choose.dir(caption = "Select an OLI scene directory. ex. 'C:/oli/wrs2/036032'")
       }
       
-      print(paste("You have selected:",scenedir))
+      cat(paste("You have selected:",scenedir,"\n"))
       correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-      if(correct == "Exit"){return("Stopping LLR")}
+      if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
       
       # try to figure out if this is a possible scenedir
       checkdir = basename(scenedir)
       
       # did a targz folder get selected
       if(checkdir == 'targz'){
-        print("\nIt looks like you selected a scene's 'targz' folder.\n"+
-              "Please select the scene head folder, something like 'C:/tm/wrs2/036032'")
+        cat(paste0("It looks like you selected a scene's 'targz' folder.\n",
+                   "Please select the scene head folder - something like: 'C:/tm/wrs2/036032'\n\n"))
         correct = "No"
       } else if(nchar(checkdir) != 6){
-        print("\nLLR is expecting a folder with 6 characters.\n"+
-                "Please select the scene head folder, something like 'C:/tm/wrs2/036032'")
+        cat(paste0("LLR is expecting a folder with 6 characters.\n",
+                   "Please select the scene head folder - something like: 'C:/tm/wrs2/036032'\n\n"))
         correct = "No"
       } else if(is.na(as.numeric(checkdir))){
-        print("\nLLR is expecting a folder with all numeric characters.\n"+
-                "Please select the scene head folder, something like 'C:/tm/wrs2/036032'")
+        cat(paste0("LLR is expecting a folder with all numeric characters.\n",
+                   "Please select the scene head folder - something like: 'C:/tm/wrs2/036032'\n\n"))
         correct = "No"
       }
     }
@@ -114,15 +114,15 @@ run_landsatlinkr = function(){
     
     correct = "No"
     while(correct == "No"){  
-      print("Please define a projection to use for this project")
-      print("If you need assistance, see the 'Selecting a geographic projection' section in the user manual")
-      print("If you want to exit, press the 'return' key and then select 'Exist'")
+      cat("Please define a projection to use for this project\n")
+      cat("If you need assistance, see the 'Selecting a geographic projection' section in the user manual\n")
+      cat("If you want to exit, press the 'return' key and then select 'Exist'\n")
 
       proj = readline("  Provide PROJ.4 string: ") #http://spatialreference.org/
 
-      print(paste("You have selected:",proj))
+      cat(paste("You have selected:",proj,"\n"))
       correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-      if(correct == "Exit"){return("Stopping LLR")}
+      if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
     }
     
     #################################################################################################################
@@ -131,11 +131,11 @@ run_landsatlinkr = function(){
     if(sum(process %in% seq(1,5)) > 0){
       correct = "No"
       while(correct == "No"){
-        print("Please select a scene corresponding DEM file")
+        cat("Please select a scene corresponding DEM file\n")
         demfile = choose.files(caption = "Select a scene corresponding DEM file", multi=F)
-        print(paste("You have selected:",demfile))
+        cat(paste("You have selected:",demfile,"\n"))
         correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-        if(correct == "Exit"){return("Stopping LLR")}
+        if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
       }
     }
     prepare_images(scenedir, demfile, proj=proj, process=process,cores=cores, overwrite=overwrite)
@@ -151,16 +151,16 @@ run_landsatlinkr = function(){
     #################################################################################################################
     #select directories for calibration
     if(sum(process %in% 8) > 0){
-      print("Beginning scene selection for MSS to TM calibration")
-      print("Please see the 'Running LLR Step 3 - MSS to TM calibration' section of the user guide for assistance")
-      print("-----------------------------------------------------------------------")
+      cat("Beginning scene selection for MSS to TM calibration\n")
+      cat("Please see the 'Running LLR Step 3 - MSS to TM calibration' section of the user guide for assistance\n")
+      cat("-----------------------------------------------------------------------\n")
       correct = "No"
       while(correct == "No"){
-        print("Select a MSS WRS-1 scene directory.")
+        cat("Select a MSS WRS-1 scene directory.\n")
         msswrs1dir = choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'")
-        print("Select a MSS WRS-2 scene directory.")
+        cat("Select a MSS WRS-2 scene directory.\n")
         msswrs2dir = choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'")
-        print("Select a TM/ETM+ WRS-2 scene directory.")
+        cat("Select a TM/ETM+ WRS-2 scene directory.\n")
         tmwrs2dir = choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
         oliwrs2dir=NULL
         outdir=NULL
@@ -168,26 +168,26 @@ run_landsatlinkr = function(){
         runname=NULL
         calcomprocess = 1
         
-        print("-----------------------------------------------------------------------")
-        print(paste("You have selected MSS WRS-1 scene:",msswrs1dir))
-        print(paste("You have selected MSS WRS-2 scene:",msswrs2dir))
-        print(paste("You have selected TM/ETM+ WRS-2 scene:",tmwrs2dir))
+        cat("-----------------------------------------------------------------------\n")
+        cat(paste("You have selected MSS WRS-1 scene:",msswrs1dir,'\n'))
+        cat(paste("You have selected MSS WRS-2 scene:",msswrs2dir,'\n'))
+        cat(paste("You have selected TM/ETM+ WRS-2 scene:",tmwrs2dir,'\n'))
         correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-        if(correct == "Exit"){return("Stopping LLR")}
+        if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
       }
     }
     
     #################################################################################################################
     #select directories for calibration
     if(sum(process %in% 9) > 0){
-      print("Beginning scene selection for OLI to ETM+ calibration")
-      print("Please see the 'Running LLR Step 3 - OLI to ETM+ calibration' section of the user guide for assistance")
-      print("-----------------------------------------------------------------------")
+      cat("Beginning scene selection for OLI to ETM+ calibration\n")
+      cat("Please see the 'Running LLR Step 3 - OLI to ETM+ calibration' section of the user guide for assistance\n")
+      cat("-----------------------------------------------------------------------\n")
       correct = "No"
       while(correct == "No"){
-        print("Select a OLI WRS-2 scene directory.")
+        cat("Select a OLI WRS-2 scene directory.\n")
         oliwrs2dir = choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs1/036032'")
-        print("Select a TM/ETM+ WRS-2 scene directory.")
+        cat("Select a TM/ETM+ WRS-2 scene directory.\n")
         tmwrs2dir = choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
         msswrs1dir=NULL
         msswrs2dir=NULL
@@ -196,11 +196,11 @@ run_landsatlinkr = function(){
         runname=NULL
         calcomprocess = 2
         
-        print("-----------------------------------------------------------------------")
-        print(paste("You have selected OLI WRS-2 scene:",oliwrs2dir))
-        print(paste("You have selected TM/ETM+ WRS-2 scene:",tmwrs2dir))
+        cat("-----------------------------------------------------------------------\n")
+        cat(paste("You have selected OLI WRS-2 scene:",oliwrs2dir,'\n'))
+        cat(paste("You have selected TM/ETM+ WRS-2 scene:",tmwrs2dir,'\n'))
         correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-        if(correct == "Exit"){return("Stopping LLR")}
+        if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
       }
     }
     
@@ -221,12 +221,12 @@ run_landsatlinkr = function(){
         
 
         doType = select.list(c("Yes","No","Exit"), title = "Are there MSS WRS-1 images you would like to include in composites?")
-        if(doType == "Exit"){return("Stopping LLR")} else 
+        if(doType == "Exit"){return(cat("Stopping LLR","\n\n"))} else 
         if(doType == "Yes"){
           msswrs1dir = choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'")
           answer = "Yes"
           while(answer == "Yes"){
-            print("Here is what you have so far - MSS WRS-1 scene:")
+            cat("Here is what you have so far - MSS WRS-1 scene:\n")
             print(msswrs1dir)
             answer = select.list(choices, title = "Is there another MSS WRS-1 scene directory to add?")
             if(answer == "Yes"){msswrs1dir = c(msswrs1dir, choose.dir(caption = "Select a MSS WRS-1 scene directory. ex. 'C:/mss/wrs1/036032'"))}
@@ -236,12 +236,12 @@ run_landsatlinkr = function(){
         
 
         doType = select.list(c("Yes","No","Exit"), title = "Are there MSS WRS-2 images you would like to include in composites?")
-        if(doType == "Exit"){return("Stopping LLR")} else 
+        if(doType == "Exit"){return(cat("Stopping LLR","\n\n"))} else 
         if(doType == "Yes"){        
           msswrs2dir = choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'")
           answer = "Yes"
           while(answer == "Yes"){
-            print("Here is what you have so far - MSS WRS-2 scene:")
+            cat("Here is what you have so far - MSS WRS-2 scene:\n")
             print(msswrs2dir)
             answer = select.list(choices, title = "Is there another MSS WRS-2 scene directory to add?")
             if(answer == "Yes"){msswrs2dir = c(msswrs2dir, choose.dir(caption = "Select a MSS WRS-2 scene directory. ex. 'C:/mss/wrs2/034032'"))}
@@ -250,12 +250,12 @@ run_landsatlinkr = function(){
         
         
         doType = select.list(c("Yes","No","Exit"), title = "Are there TM/ETM+ WRS-2 images you would like to include in composites?")
-        if(doType == "Exit"){return("Stopping LLR")} else 
+        if(doType == "Exit"){return(cat("Stopping LLR","\n\n"))} else 
         if(doType == "Yes"){            
           tmwrs2dir = choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'")
           answer = "Yes"
           while(answer == "Yes"){
-            print("Here is what you have so far - TM/ETM+ WRS-2 scene:")
+            cat("Here is what you have so far - TM/ETM+ WRS-2 scene:\n")
             print(tmwrs2dir)
             answer = select.list(choices, title = "Is there another TM/ETM+ WRS-2 scene directory to add?")
             if(answer == "Yes"){tmwrs2dir = c(tmwrs2dir, choose.dir(caption = "Select a TM/ETM+ WRS-2 scene directory. ex. 'C:/tm/wrs2/034032'"))}
@@ -264,43 +264,43 @@ run_landsatlinkr = function(){
         
         
         doType = select.list(c("Yes","No","Exit"), title = "Are there OLI WRS-2 images you would like to include in composites?")
-        if(doType == "Exit"){return("Stopping LLR")} else 
+        if(doType == "Exit"){return(cat("Stopping LLR","\n\n"))} else 
         if(doType == "Yes"){  
           oliwrs2dir = choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs2/034032'")
           answer = "Yes"
           while(answer == "Yes"){
-            print("Here is what you have so far - OLI WRS-2 scene:")
+            cat("Here is what you have so far - OLI WRS-2 scene:\n")
             print(oliwrs2dir)
             answer = select.list(choices, title = "Is there another OLI WRS-2 scene directory to add?")
             if(answer == "Yes"){oliwrs2dir = c(oliwrs2dir, choose.dir(caption = "Select a OLI WRS-2 scene directory. ex. 'C:/oli/wrs2/034032'"))}
           } 
         }
         
-        print(paste("You have selected MSS WRS-1 scene:",msswrs1dir))
-        print(paste("You have selected MSS WRS-2 scene:",msswrs2dir))
-        print(paste("You have selected TM/ETM+ WRS-2 scene:",tmwrs2dir))
-        print(paste("You have selected OLI WRS-2 scene:",oliwrs2dir))
+        cat(paste("You have selected MSS WRS-1 scene:",msswrs1dir,'\n'))
+        cat(paste("You have selected MSS WRS-2 scene:",msswrs2dir,'\n'))
+        cat(paste("You have selected TM/ETM+ WRS-2 scene:",tmwrs2dir,'\n'))
+        cat(paste("You have selected OLI WRS-2 scene:",oliwrs2dir,'\n'))
         correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-        if(correct == "Exit"){return("Stopping LLR")}
+        if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
       }
       
       correct = "No"
       while(correct == "No"){
-        print("Please select a directory to write the outputs to. ex. 'C:/composites/study_area'")
+        cat("Please select a directory to write the outputs to. ex. 'C:/composites/study_area'\n")
         outdir = choose.dir(caption = "Select a directory to write the outputs to. ex. 'C:/composites/study_area'")
         
-        print(paste("You have selected:",outdir))
+        cat(paste("You have selected:",outdir,"\n"))
         correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-        if(correct == "Exit"){return("Stopping LLR")}
+        if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
       }
       
 
       correct = "No"
       while(correct == "No"){
         runname = readline("Provide a unique name for the composite series. ex. project1: ")
-        print(paste("You have selected:",runname))
+        cat(paste("You have selected:",runname,"\n"))
         correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-        if(correct == "Exit"){return("Stopping LLR")}
+        if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
       }
       
       #################################################################################################################
@@ -326,9 +326,9 @@ run_landsatlinkr = function(){
         correct = "No"
         while(correct == "No"){
           useareafile = choose.files(caption = "Select a 'usearea' file", multi=F)
-          print(paste("You have selected:",useareafile))
+          cat(paste("You have selected:",useareafile,"\n"))
           correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-          if(correct == "Exit"){return("Stopping LLR")}
+          if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
           
           make_usearea_file_bsq(useareafile, projfile)
         }
@@ -338,21 +338,21 @@ run_landsatlinkr = function(){
         while(correct == "No"){
           check = 0
           while(check != 2){
-            print("Please provide min and max xy coordinates (in image set projection units) defining a study area that intersects the image set")
+            cat("Please provide min and max xy coordinates (in image set projection units) defining a study area that intersects the image set\n")
             xmx = as.numeric(readline("max x coordinate: "))
             xmn = as.numeric(readline("min x coordinate: "))
             ymx = as.numeric(readline("max y coordinate: "))
             ymn = as.numeric(readline("min y coordinate: "))
             check = (xmx > xmn) + (ymx > ymn)
-            if(check != 2){print("error - coordinates do not create a square - try again")}
+            if(check != 2){cat("error - coordinates do not create a square - try again\n")}
           }
-          print("You have selected:")
-          print(paste("max x coordinate:",xmx ))
-          print(paste("min x coordinate:",xmn ))
-          print(paste("max y coordinate:",ymx ))
-          print(paste("min y coordinate:",ymn ))
+          cat("You have selected:\n")
+          cat(paste("max x coordinate:",xmx,"\n"))
+          cat(paste("min x coordinate:",xmn,"\n"))
+          cat(paste("max y coordinate:",ymx,"\n"))
+          cat(paste("min y coordinate:",ymn,"\n"))
           correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-          if(correct == "Exit"){return("Stopping LLR")}
+          if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
         }
         useareafile = file.path(outdir, paste(runname,"_usearea.tif",sep=""))
         make_usearea_file(c(msswrs1dir[1],msswrs2dir[1],tmwrs2dir[1],oliwrs2dir[1]), useareafile, xmx, xmn, ymx, ymn)
@@ -404,9 +404,9 @@ run_landsatlinkr = function(){
         
         overlap = select.list(choices, title = "Select a method to summarize the value of overlapping pixels")
         
-        print(paste("You have selected:",overlap))
+        cat(paste("You have selected:",overlap,"\n"))
         correct = select.list(c("Yes","No","Exit"), title = "Is that correct?")
-        if(correct == "Exit"){return("Stopping LLR")}
+        if(correct == "Exit"){return(cat("Stopping LLR","\n\n"))}
         
         if(overlap == "Mean"){overlap = "mean"}
         if(overlap == "Maximum"){overlap = "max"}
