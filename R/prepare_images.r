@@ -114,8 +114,6 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
   if(all(is.na(match(process,6))) == F){
     print("Running tmunpackr")
     files = list.files(targzdir, pattern="tar.gz", full.names=T, recursive=T)
-    reso = 30
-    if(reso == 30){cores = 1}
     t = proc.time()
     if(cores == 2){
       cl=makeCluster(cores)
@@ -131,8 +129,6 @@ prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:
   if(all(is.na(match(process,7))) == F){
     print("Running oliunpackr")
     files = list.files(targzdir, pattern="tar.gz", full.names=T, recursive=T)
-    reso = 30
-    if(reso == 30){cores = 1}
     t = proc.time()
     if(cores == 2){
       cl=makeCluster(cores)
