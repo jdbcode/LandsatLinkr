@@ -108,8 +108,8 @@ msswarp = function(reffile, fixfile, refstart=c(0,0), fixstart=c(0,0)){
   #get bands 1 and 4 out for cloud and shadow id in the fix image, as well as for cross correlation with the reference image
   fiximgb1 = subset(fiximg, subset=1)
   fiximgb4 = subset(fiximg, subset=4)
-  fiximg = fiximgb4 #need to copy because fiximg will be scaled, but we also need an unalted copy to find shadows in
-  
+  fiximg = fiximgb4 #need to copy because fiximg will be scaled, but we also need an unaltered copy to find shadows in
+  refimgb4 = refimg # need to copy because refimg will be scaled, but we also need an unalered copy to find background pixel in
   
   #calculate similarity index input values from the fix image subset
   values(fiximg) = scaleit(values(fiximg))
@@ -134,7 +134,7 @@ msswarp = function(reffile, fixfile, refstart=c(0,0), fixstart=c(0,0)){
   thesecells = na.omit(cellFromXY(fiximgb1, xy))   #get fiximg cell index for sample 
   b = which(fiximgb1[thesecells] < 120 & 
             fiximgb4[thesecells] > 30 &
-            refimg[thesecells] > 0) # fiximgb1[theseones] != NA) #exclude points that don't meet criteria
+            refimgb4[thesecells] > 0) # fiximgb1[theseones] != NA) #exclude points that don't meet criteria
   
   #if the number of sample points is less than 10 delete the image return
   
