@@ -11,7 +11,7 @@
 #' @export
 
 
-prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:5), cores=2, overwrite=F){
+prepare_images = function(scenedir, demfile=NULL, proj="default", process=seq(1:5), cores=1, overwrite=F){
   
   targzdir = file.path(scenedir,"targz")
   imgdir = file.path(scenedir,"images")
