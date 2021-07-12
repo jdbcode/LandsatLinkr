@@ -1,4 +1,5 @@
-⚠️ _**This repository is no longer in development and is not supported**_ ⚠️<br>
+⚠️ _**This repository is no longer in development and is not supported**_ ⚠️
+
 _You'll likely find that unmaintained dependencies and versioning conflicts make
 this package unusable._
 
