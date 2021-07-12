@@ -1,3 +1,10 @@
+⚠️ _**This repository is no longer in development and is not supported**_ ⚠️<br>
+_You'll likely find that unmaintained dependencies and versioning conflicts make
+this package unusable._
+
+_Progress is (slowly) being made on [ee-LandsatLinkr](https://github.com/gee-community/ee-LandsatLinkr),
+which offers similar MSS-to-successor harmonization procedures using Google Earth Engine._
+
 LandsatLinkr
 ============
 
